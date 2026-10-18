@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1a0335">
+<title>Hitroom — Blind Test musical en live</title>
+<style>
+:root{color-scheme:dark;--bg:#160530;--bg2:#1f0845;--ink:#f3f8ff;--muted:#c2a9e0;--pink:#ff3ea0;--cyan:#5be0ff;--gold:#ffcf2a;--purple:#b85cff;--green:#78ff9f;--red:#ff5578}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#wrap{height:100%;display:flex;flex-direction:column;max-width:1000px;margin:auto}
+header{padding:10px 14px 6px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(180deg,#2b0d5a,transparent)}
+.logo{font-size:clamp(22px,6vw,34px);font-weight:1000;font-style:italic;letter-spacing:2px;line-height:1;color:#fff;text-shadow:0 0 14px var(--pink)}
+.logo span{color:var(--cyan)}
+#hud{text-align:right;font-size:12px;color:var(--muted);line-height:1.3}
+#hud .score{font-size:20px;color:#fff;font-weight:800;letter-spacing:1px}
+#hud .round{color:var(--cyan)}
+.live-pill{display:inline-block;padding:2px 8px;background:var(--red);border-radius:999px;color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+#main{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#stage{flex:1;min-height:0;position:relative;margin:4px 8px;border:1px solid #3a1673;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#1f0845 0%,#2a0a5a 50%,#13052e 100%);box-shadow:0 0 24px #3a167355}
+.view{position:absolute;inset:0;overflow-y:auto;padding:16px}
+.view.hidden{display:none !important}
+.panel{max-width:460px;width:100%;margin:auto;text-align:center}
+.panel h1{font-size:clamp(28px,8vw,46px);margin:6px 0;background:linear-gradient(90deg,var(--pink),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:2px}
+.panel h2{font-size:clamp(18px,5vw,24px);margin:14px 0 8px;color:#fff}
+.panel p{font-size:14px;line-height:1.5;color:#eee6ff;margin:8px 0}
+.panel .small{font-size:12px;color:var(--muted)}
+button{border:0;border-radius:14px;padding:13px 20px;background:linear-gradient(135deg,var(--pink),var(--purple));color:white;font-weight:800;font-size:16px;box-shadow:0 5px 0 #4b0a63;cursor:pointer;touch-action:manipulation;font-family:inherit}
+button:active{transform:translateY(2px);box-shadow:0 3px 0 #4b0a63}
+button.ghost{background:transparent;border:1px solid #a260ff;box-shadow:none;color:#eee6ff;padding:10px 16px;font-size:14px}
+button.ghost:active{transform:translateY(1px);box-shadow:none}
+button:disabled{opacity:.5;cursor:default}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.cat{position:relative;padding:14px 10px;border:1px solid #a260ff;border-radius:14px;background:linear-gradient(180deg,#2a0a5a,#1a053f);color:#eafaff;cursor:pointer;text-align:center;transition:transform .1s,background .1s}
+.cat:active{transform:translateY(2px)}
+.cat.selected{background:linear-gradient(180deg,#ff3ea0 0%,#b85cff 100%);box-shadow:0 0 20px #ff3ea066}
+.cat .ico{font-size:30px;line-height:1;margin-bottom:4px}
+.cat .name{font-size:14px;font-weight:800;color:#fff}
+.pseudo{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #a260ff;background:#1a053f;color:#fff;font-size:16px;font-family:inherit;text-align:center}
+.pseudo:focus{outline:none;border-color:var(--pink);box-shadow:0 0 10px #ff3ea066}
+.topbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;background:#2a0a5a;color:#eee6ff;font-size:11px;border:1px solid #a260ff66}
+
+/* Jeu */
+#play{display:flex;flex-direction:column;height:100%;padding:12px}
+.cover-wrap{position:relative;width:100%;max-width:180px;aspect-ratio:1;margin:0 auto 12px;border-radius:16px;overflow:hidden;box-shadow:0 0 30px #ff3ea066}
+.cover-wrap .cover{width:100%;height:100%;background-color:#2a0a5a;background-size:cover;background-position:center;filter:blur(14px) brightness(.5);transition:filter .5s}
+.cover-wrap.revealed .cover{filter:none}
+.cover-wrap .disc{position:absolute;inset:20%;border-radius:50%;background:radial-gradient(circle,#1a1a1a 20%,#000 30%,#1a1a1a 60%,#000 70%);box-shadow:0 0 20px #0008;animation:spin 4s linear infinite;display:flex;align-items:center;justify-content:center}
+.cover-wrap.revealed .disc{display:none}
+.cover-wrap .disc::before{content:'';width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,var(--pink),var(--purple))}
+@keyframes spin{to{transform:rotate(360deg)}}
+.timebar{height:6px;background:#2a0a5a;border-radius:4px;overflow:hidden;margin:0 0 10px}
+.timebar .fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--cyan));transition:width .1s linear}
+.timebar .fill.danger{background:var(--red)}
+.round-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.round-info b{color:#fff}
+.ans-group{margin-bottom:10px}
+.ans-group .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;padding-left:4px}
+.ans-group .choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ans{padding:10px 8px;border-radius:10px;border:1px solid #a260ff66;background:#1a053f;color:#eee6ff;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;text-align:center;line-height:1.3;min-height:46px;display:flex;align-items:center;justify-content:center}
+.ans:active{transform:translateY(1px)}
+.ans.correct{background:var(--green);color:#092a1a;border-color:var(--green);box-shadow:0 0 12px var(--green)}
+.ans.wrong{background:var(--red);color:#fff;border-color:var(--red)}
+.ans.disabled{pointer-events:none;opacity:.6}
+.ans.disabled.correct{opacity:1}
+.reveal{text-align:center;padding:10px;background:#1a053f88;border-radius:10px;margin:8px 0;font-size:13px;color:#fff}
+.reveal b{color:var(--cyan)}
+.reveal .pts{display:inline-block;background:var(--gold);color:#2a1a05;padding:2px 10px;border-radius:999px;font-weight:800;margin-left:6px}
+
+/* Sidebar (classement + chat) */
+.side{display:flex;flex-direction:column;background:#13052e;border-top:1px solid #3a1673;max-height:35%;overflow:hidden}
+.side .tabs{display:flex;background:#1a053f}
+.side .tab{flex:1;padding:8px;text-align:center;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;border-right:1px solid #3a1673}
+.side .tab:last-child{border-right:0}
+.side .tab.active{background:#2a0a5a;color:#fff}
+.side .tab .dot{display:inline-block;width:6px;height:6px;background:var(--pink);border-radius:50%;margin-left:4px}
+.side .content{flex:1;overflow-y:auto;padding:6px 10px}
+.side .content.hidden{display:none}
+.rank-row{display:flex;align-items:center;gap:8px;padding:5px 4px;font-size:13px;border-bottom:1px solid #2a0a5a}
+.rank-row.me{background:#2a0a5a66;border-radius:6px;padding:6px}
+.rank-row .pos{width:22px;text-align:center;color:var(--gold);font-weight:800}
+.rank-row .name{flex:1;color:#fff}
+.rank-row .pts{color:var(--cyan);font-weight:800}
+.chat-msg{padding:3px 0;font-size:12px;color:#eee6ff;line-height:1.3}
+.chat-msg .who{color:var(--cyan);font-weight:700}
+.chat-msg.me .who{color:var(--pink)}
+.chat-msg.system{color:var(--muted);font-style:italic}
+.chat-input{display:flex;gap:6px;padding:6px 8px;background:#1a053f;border-top:1px solid #3a1673}
+.chat-input input{flex:1;background:#13052e;border:1px solid #3a1673;border-radius:8px;color:#fff;padding:6px 10px;font-size:13px;font-family:inherit}
+.chat-input input:focus{outline:none;border-color:var(--pink)}
+.chat-input button{padding:6px 12px;font-size:12px;box-shadow:none}
+
+/* Loading */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.spinner{width:40px;height:40px;border:4px solid #2a0a5a;border-top-color:var(--pink);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
+
+/* Overlay (pause / end) */
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#13052ee6;z-index:20;overflow-y:auto;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.overlay.hidden{display:none}
+
+/* Responsive side layout */
+@media(min-width:720px){
+  #main{flex-direction:row}
+  #stage{flex:1}
+  .side{max-height:none;width:280px;border-top:0;border-left:1px solid #3a1673;margin:4px 8px 4px 0;border-radius:16px}
+}
+.hint{font-size:11px;color:var(--muted);text-align:center;padding:0 12px max(10px,env(safe-area-inset-bottom))}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <div class="logo">HIT<span>ROOM</span> <span class="live-pill" id="livePill" style="display:none">LIVE</span></div>
+    <div id="hud">
+      <div class="score"><span id="score">0</span></div>
+      <div class="round"><span id="round">—</span> · <span id="catName">—</span></div>
+    </div>
+  </header>
+  <div id="main">
+    <div id="stage">
+      <!-- Menu principal -->
+      <div class="view" id="menu">
+        <div class="panel">
+          <h1>HITROOM</h1>
+          <p><b>Blind test musical en live.</b> Reconnais le titre et l'artiste en moins de 30 secondes. Plus tu réponds vite, plus tu marques.</p>
+          <div class="topbar">
+            <span class="badge">Extraits officiels</span>
+            <span class="badge">Classement live</span>
+            <span class="badge">Chat</span>
+          </div>
+          <h2>Ton pseudo</h2>
+          <input class="pseudo" id="pseudoInput" placeholder="Choisis ton pseudo" maxlength="18">
+          <h2>Choisis une catégorie</h2>
+          <div class="cats" id="catsEl"></div>
+          <button id="btnStart">COMMENCER</button>
+          <p class="small" style="margin-top:14px"><b>Record : <span id="recordBest">0</span></b> · <span id="statRuns">0</span> parties jouées</p>
+          <p class="small"><button class="ghost" id="btnReset">effacer ma progression</button></p>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="view hidden" id="loading">
+        <div class="loading">
+          <div class="spinner"></div>
+          <h2>Préparation des titres...</h2>
+          <p class="small">Récupération des extraits via iTunes</p>
+          <p id="loadingStatus" class="small"></p>
+        </div>
+      </div>
+
+      <!-- Partie en cours -->
+      <div class="view hidden" id="play">
+        <div class="cover-wrap" id="coverWrap">
+          <div class="cover" id="cover"></div>
+          <div class="disc"></div>
+        </div>
+        <div class="round-info">
+          <div><b id="playRound">Manche 1</b> / <span id="playRoundMax">10</span></div>
+          <div>⏱ <span id="playTimer">30</span>s</div>
+        </div>
+        <div class="timebar"><div class="fill" id="timeFill" style="width:100%"></div></div>
+        <div class="ans-group">
+          <div class="label">🎵 Titre</div>
+          <div class="choices" id="titleChoices"></div>
+        </div>
+        <div class="ans-group">
+          <div class="label">🎤 Artiste</div>
+          <div class="choices" id="artistChoices"></div>
+        </div>
+        <div class="reveal" id="reveal" style="display:none"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+          <button class="ghost" id="btnPass">Je passe</button>
+          <button class="ghost" id="btnPause">Pause</button>
+        </div>
+      </div>
+
+      <!-- Overlay fin / pause -->
+      <div class="overlay hidden" id="endOverlay">
+        <div class="panel" id="endPanel"></div>
+      </div>
+      <div class="overlay hidden" id="pauseOverlay">
+        <div class="panel">
+          <h2>Pause</h2>
+          <p><button id="btnResume">REPRENDRE</button></p>
+          <p><button class="ghost" id="btnQuit">Retour au menu</button></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Classement + chat -->
+    <div class="side" id="side" style="display:none">
+      <div class="tabs">
+        <div class="tab active" id="tabRank">🏆 Classement</div>
+        <div class="tab" id="tabChat">💬 Chat<span class="dot" id="chatDot" style="display:none"></span></div>
+      </div>
+      <div class="content" id="rankContent"></div>
+      <div class="content hidden" id="chatContent"></div>
+      <div class="chat-input" id="chatInputWrap" style="display:none">
+        <input id="chatInput" placeholder="Ton message..." maxlength="80">
+        <button id="btnSendChat">OK</button>
+      </div>
+    </div>
+  </div>
+  <div class="hint">Hitroom V0 · prototype · V1 : défier un ami par lien · V2 : vrais salons live</div>
+</div>
+
+<audio id="audio" preload="auto"></audio>
+
+<script>
+(() => {
+// ============================================================
+//   HITROOM — blind test musical en salons live (prototype V0)
+// ============================================================
+
+const $ = sel => document.querySelector(sel);
+const audio = $('#audio');
+
+// ----------- Sauvegarde -----------
+const SAVE_KEY = 'hitroom.save.v1';
+let save = { best:0, runs:0, pseudo:'' };
+try { const raw = localStorage.getItem(SAVE_KEY); if (raw) save = Object.assign(save, JSON.parse(raw)); } catch(e){}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+// ============================================================
+//   CATALOGUE : morceaux par catégorie
+// ============================================================
+// On liste titre + artiste. iTunes nous renverra l'URL de preview + jaquette.
+const CATEGORIES = {
+  'variete': {
+    name: 'Variété FR', ico: '🇫🇷',
+    songs: [
+      {t:"Les Champs-Élysées", a:"Joe Dassin"},
+      {t:"Comme toi", a:"Jean-Jacques Goldman"},
+      {t:"Mistral gagnant", a:"Renaud"},
+      {t:"Alexandrie Alexandra", a:"Claude François"},
+      {t:"La vie en rose", a:"Édith Piaf"},
+      {t:"La bohème", a:"Charles Aznavour"},
+      {t:"Formidable", a:"Stromae"},
+      {t:"Je l'aime à mourir", a:"Francis Cabrel"},
+      {t:"L'aventurier", a:"Indochine"},
+      {t:"Désenchantée", a:"Mylène Farmer"},
+      {t:"Pour que tu m'aimes encore", a:"Céline Dion"},
+      {t:"Dernière danse", a:"Indila"},
+      {t:"Je vole", a:"Louane"},
+      {t:"Tombé sous le charme", a:"Christophe Maé"},
+      {t:"Diego", a:"Johnny Hallyday"},
+    ]
+  },
+  '80s': {
+    name: '80 / 90', ico: '🎹',
+    songs: [
+      {t:"Billie Jean", a:"Michael Jackson"},
+      {t:"Like a Virgin", a:"Madonna"},
+      {t:"Sweet Dreams", a:"Eurythmics"},
+      {t:"Africa", a:"Toto"},
+      {t:"Take On Me", a:"a-ha"},
+      {t:"Girls Just Want to Have Fun", a:"Cyndi Lauper"},
+      {t:"Every Breath You Take", a:"The Police"},
+      {t:"Thriller", a:"Michael Jackson"},
+      {t:"Livin' on a Prayer", a:"Bon Jovi"},
+      {t:"Don't Stop Believin'", a:"Journey"},
+      {t:"Wonderwall", a:"Oasis"},
+      {t:"Smells Like Teen Spirit", a:"Nirvana"},
+      {t:"Barbie Girl", a:"Aqua"},
+      {t:"Freed from Desire", a:"Gala"},
+      {t:"Macarena", a:"Los del Río"},
+    ]
+  },
+  'pop': {
+    name: 'Pop actuelle', ico: '🎤',
+    songs: [
+      {t:"Shape of You", a:"Ed Sheeran"},
+      {t:"Bad Guy", a:"Billie Eilish"},
+      {t:"Blinding Lights", a:"The Weeknd"},
+      {t:"Watermelon Sugar", a:"Harry Styles"},
+      {t:"Levitating", a:"Dua Lipa"},
+      {t:"Flowers", a:"Miley Cyrus"},
+      {t:"As It Was", a:"Harry Styles"},
+      {t:"Anti-Hero", a:"Taylor Swift"},
+      {t:"Peaches", a:"Justin Bieber"},
+      {t:"Dance Monkey", a:"Tones and I"},
+      {t:"Rolling in the Deep", a:"Adele"},
+      {t:"Someone Like You", a:"Adele"},
+      {t:"Perfect", a:"Ed Sheeran"},
+      {t:"Shivers", a:"Ed Sheeran"},
+      {t:"Stay", a:"The Kid LAROI"},
+    ]
+  },
+  'rap': {
+    name: 'Rap FR', ico: '🎵',
+    songs: [
+      {t:"Basique", a:"Orelsan"},
+      {t:"La Terre est ronde", a:"Orelsan"},
+      {t:"Caroline", a:"MC Solaar"},
+      {t:"Dommage", a:"Bigflo & Oli"},
+      {t:"Papaoutai", a:"Stromae"},
+      {t:"Alors on danse", a:"Stromae"},
+      {t:"Au DD", a:"PNL"},
+      {t:"Djadja", a:"Aya Nakamura"},
+      {t:"Mon précieux", a:"Soprano"},
+      {t:"Mélancolie", a:"Vald"},
+      {t:"Petit prince", a:"Bigflo & Oli"},
+      {t:"La vie du bon côté", a:"Keen'V"},
+      {t:"Starboy", a:"Nekfeu"},
+      {t:"Jimmy", a:"Moha La Squale"},
+      {t:"Longue vie", a:"Dinos"},
+    ]
+  },
+  'films': {
+    name: 'Films cultes', ico: '🎬',
+    songs: [
+      {t:"My Heart Will Go On", a:"Celine Dion"},
+      {t:"I Will Always Love You", a:"Whitney Houston"},
+      {t:"Eye of the Tiger", a:"Survivor"},
+      {t:"The Time of My Life", a:"Bill Medley"},
+      {t:"Lose Yourself", a:"Eminem"},
+      {t:"Stayin' Alive", a:"Bee Gees"},
+      {t:"Let It Go", a:"Idina Menzel"},
+      {t:"A Whole New World", a:"Peabo Bryson"},
+      {t:"Can You Feel the Love Tonight", a:"Elton John"},
+      {t:"Danger Zone", a:"Kenny Loggins"},
+      {t:"Ghostbusters", a:"Ray Parker Jr."},
+      {t:"Mission Impossible Theme", a:"Lalo Schifrin"},
+      {t:"Pirates of the Caribbean", a:"Hans Zimmer"},
+      {t:"Game of Thrones", a:"Ramin Djawadi"},
+      {t:"My Heart Will Go On", a:"James Horner"},
+    ]
+  },
+};
+
+// ============================================================
+//   RÉCUPÉRATION iTunes
+// ============================================================
+async function fetchPreview(song){
+  const query = encodeURIComponent(`${song.a} ${song.t}`);
+  const url = `/api/itunes/search?term=${query}&entity=song&limit=3&country=fr`;
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    // choisit le résultat qui matche le mieux l'artiste
+    const best = data.results.find(r => (r.artistName||'').toLowerCase().includes(song.a.toLowerCase().split(' ')[0])) || data.results[0];
+    if (best && best.previewUrl){
+      return {
+        title: cleanTitle(best.trackName),
+        artist: best.artistName,
+        previewUrl: best.previewUrl,
+        artworkUrl: (best.artworkUrl100 || '').replace('100x100', '400x400'),
+      };
+    }
+  } catch(e){ console.warn('iTunes fail', song, e); }
+  return null;
+}
+
+function cleanTitle(title){
+  return title
+    .replace(/\s*\(.*?(Remaster|Live|Mono|Stereo|Version|feat\.|From).*?\)/gi, '')
+    .replace(/\s*-\s*(Remaster|Live|Mono|Stereo|Version|From).*/gi, '')
+    .trim();
+}
+
+async function loadCategory(key){
+  const cat = CATEGORIES[key];
+  const results = [];
+  let i = 0;
+  for (const s of cat.songs){
+    i++;
+    $('#loadingStatus').textContent = `Titre ${i}/${cat.songs.length}…`;
+    const r = await fetchPreview(s);
+    if (r) results.push(r);
+    // pause légère pour éviter rate limit
+    await new Promise(res => setTimeout(res, 60));
+  }
+  return results;
+}
+
+// ============================================================
+//   ÉTAT DE PARTIE
+// ============================================================
+let state = 'menu';     // menu | loading | play | end | paused
+let currentCategoryKey = 'variete';
+let currentPool = [];   // morceaux chargés et jouables
+let roundIdx = 0;
+let roundsTotal = 10;
+let currentRound = null; // {song, titleChoices, artistChoices, startTime}
+let timeLeft = 30;
+let titleAnswered = false; // true | false | 'wrong' | 'correct'
+let artistAnswered = false;
+let roundTimer = null;
+let totalScore = 0;
+let bots = [];
+let chatMessages = [];
+let newChatCount = 0;
+let activeTab = 'rank';
+
+// Bots : noms + skill
+const BOT_NAMES = ['DJ_Lila','MarieFan90','TonyRock','ElvisPresley82','ZazieZouk','MelodyLover','VinylBoy','KikiKaraoke','Sophie78','ClaudeFan'];
+function makeBots(){
+  shuffle(BOT_NAMES);
+  bots = [
+    { name: BOT_NAMES[0], skill: 0.85, score: 0, color:'#5be0ff' },
+    { name: BOT_NAMES[1], skill: 0.65, score: 0, color:'#ffcf2a' },
+    { name: BOT_NAMES[2], skill: 0.45, score: 0, color:'#78ff9f' },
+    { name: BOT_NAMES[3], skill: 0.3,  score: 0, color:'#b85cff' },
+  ];
+}
+function shuffle(a){ for (let i=a.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pickN(arr, n){ const r = arr.slice(); shuffle(r); return r.slice(0, n); }
+
+// ============================================================
+//   MENU
+// ============================================================
+function renderCats(){
+  const el = $('#catsEl');
+  el.innerHTML = '';
+  for (const [key, cat] of Object.entries(CATEGORIES)){
+    const d = document.createElement('div');
+    d.className = 'cat' + (key===currentCategoryKey?' selected':'');
+    d.innerHTML = `<div class="ico">${cat.ico}</div><div class="name">${cat.name}</div>`;
+    d.onclick = ()=>{ currentCategoryKey = key; renderCats(); };
+    el.appendChild(d);
+  }
+}
+function showMenu(){
+  state = 'menu';
+  $('#menu').classList.remove('hidden');
+  $('#loading').classList.add('hidden');
+  $('#play').classList.add('hidden');
+  $('#endOverlay').classList.add('hidden');
+  $('#pauseOverlay').classList.add('hidden');
+  $('#side').style.display = 'none';
+  $('#livePill').style.display = 'none';
+  $('#catName').textContent = '—';
+  $('#round').textContent = '—';
+  $('#recordBest').textContent = save.best || 0;
+  $('#statRuns').textContent = save.runs || 0;
+  $('#pseudoInput').value = save.pseudo || '';
+  audio.pause();
+  audio.src = '';
+  renderCats();
+}
+
+$('#btnStart').onclick = ()=>{
+  const pseudo = $('#pseudoInput').value.trim() || 'Toi';
+  save.pseudo = pseudo; persist();
+  startGame();
+};
+$('#btnReset').onclick = ()=>{
+  if (confirm('Effacer ta progression (record, parties) ?')){
+    save = {best:0, runs:0, pseudo:save.pseudo}; persist(); showMenu();
+  }
+};
+$('#btnResume').onclick = togglePause;
+$('#btnQuit').onclick = ()=>{ endRun(false); showMenu(); };
+$('#btnPause').onclick = togglePause;
+$('#btnPass').onclick = ()=>{ endRound('pass'); };
+
+$('#tabRank').onclick = ()=>switchTab('rank');
+$('#tabChat').onclick = ()=>switchTab('chat');
+$('#btnSendChat').onclick = sendChat;
+$('#chatInput').addEventListener('keydown', e=>{ if (e.key==='Enter') sendChat(); });
+
+function switchTab(t){
+  activeTab = t;
+  $('#tabRank').classList.toggle('active', t==='rank');
+  $('#tabChat').classList.toggle('active', t==='chat');
+  $('#rankContent').classList.toggle('hidden', t!=='rank');
+  $('#chatContent').classList.toggle('hidden', t!=='chat');
+  $('#chatInputWrap').style.display = t==='chat' ? 'flex' : 'none';
+  if (t==='chat'){
+    newChatCount = 0;
+    $('#chatDot').style.display = 'none';
+    const el = $('#chatContent');
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+// ============================================================
+//   DÉMARRAGE
+// ============================================================
+async function startGame(){
+  state = 'loading';
+  $('#menu').classList.add('hidden');
+  $('#loading').classList.remove('hidden');
+  $('#catName').textContent = CATEGORIES[currentCategoryKey].name;
+  $('#livePill').style.display = 'inline-block';
+  // charge les titres
+  const pool = await loadCategory(currentCategoryKey);
+  if (pool.length < 4){
+    $('#loadingStatus').innerHTML = `<span style="color:#ff5578">Impossible de charger assez de titres (${pool.length}/4 minimum). Vérifie ta connexion.</span><br><br><button class="ghost" onclick="location.reload()">Réessayer</button>`;
+    return;
+  }
+  currentPool = pool;
+  totalScore = 0;
+  roundIdx = 0;
+  makeBots();
+  chatMessages = [];
+  pushSystemMsg(`Partie lancée dans le salon « ${CATEGORIES[currentCategoryKey].name} ».`);
+  pushSystemMsg(`${bots.length + 1} joueurs connectés.`);
+  pushBotMsg(bots[0], greetings[Math.floor(Math.random()*greetings.length)]);
+  $('#loading').classList.add('hidden');
+  $('#side').style.display = 'flex';
+  switchTab('rank');
+  state = 'play';
+  $('#play').classList.remove('hidden');
+  updateHud();
+  nextRound();
+}
+
+// ============================================================
+//   MANCHE
+// ============================================================
+function nextRound(){
+  if (roundIdx >= roundsTotal){
+    return endRun(true);
+  }
+  roundIdx++;
+  $('#playRound').textContent = `Manche ${roundIdx}`;
+  $('#playRoundMax').textContent = roundsTotal;
+  $('#round').textContent = `Manche ${roundIdx}`;
+  // pioche un morceau non encore joué
+  const notPlayed = currentPool.filter(s => !s._played);
+  const song = pickN(notPlayed.length ? notPlayed : currentPool, 1)[0];
+  song._played = true;
+  // distracteurs
+  const otherTitles = currentPool.filter(s => s.title !== song.title);
+  const otherArtists = currentPool.filter(s => s.artist !== song.artist);
+  const titleOpts = shuffle([song.title, ...pickN(otherTitles, 3).map(s=>s.title)]);
+  const artistOpts = shuffle([song.artist, ...pickN(otherArtists, 3).map(s=>s.artist)]);
+  currentRound = { song, titleOpts, artistOpts, startAt: performance.now() };
+  titleAnswered = false;
+  artistAnswered = false;
+  timeLeft = 30;
+  // reset bot answers
+  for (const b of bots){ b.answeredTitle = false; b.answeredArtist = false; b.titleAt = 0; b.artistAt = 0; }
+  // UI
+  renderChoices();
+  $('#reveal').style.display = 'none';
+  $('#coverWrap').classList.remove('revealed');
+  $('#cover').style.backgroundImage = `url("${song.artworkUrl}")`;
+  // audio
+  try {
+    audio.src = song.previewUrl;
+    audio.currentTime = 0;
+    audio.volume = 0.9;
+    audio.play().catch(e=>console.warn('audio play fail', e));
+  } catch(e){ console.warn(e); }
+  // timer
+  if (roundTimer) clearInterval(roundTimer);
+  roundTimer = setInterval(roundTick, 100);
+}
+
+function roundTick(){
+  if (state !== 'play') return;
+  timeLeft -= 0.1;
+  if (timeLeft < 0) timeLeft = 0;
+  $('#playTimer').textContent = timeLeft.toFixed(1);
+  const pct = (timeLeft / 30) * 100;
+  const fill = $('#timeFill');
+  fill.style.width = pct + '%';
+  fill.classList.toggle('danger', timeLeft < 8);
+  // bots : décident de répondre selon leur skill et le temps écoulé
+  const elapsed = 30 - timeLeft;
+  for (const b of bots){
+    if (!b.answeredTitle && Math.random() < 0.015 * b.skill * (1 + elapsed/15)){
+      b.answeredTitle = true;
+      b.titleAt = elapsed;
+      const correct = Math.random() < b.skill;
+      if (correct){ b.score += speedPts(elapsed); pushBotMsg(b, pickReaction('good'), 0.4); }
+    }
+    if (!b.answeredArtist && Math.random() < 0.013 * b.skill * (1 + elapsed/15)){
+      b.answeredArtist = true;
+      b.artistAt = elapsed;
+      const correct = Math.random() < b.skill;
+      if (correct){ b.score += speedPts(elapsed); }
+    }
+  }
+  renderRank();
+  // fin du round par timeout
+  if (timeLeft <= 0 || (titleAnswered && artistAnswered)){
+    endRound('time');
+  }
+}
+
+function renderChoices(){
+  const tEl = $('#titleChoices');
+  tEl.innerHTML = '';
+  for (const t of currentRound.titleOpts){
+    const b = document.createElement('div');
+    b.className = 'ans';
+    b.textContent = t;
+    b.onclick = ()=>answerTitle(t, b);
+    tEl.appendChild(b);
+  }
+  const aEl = $('#artistChoices');
+  aEl.innerHTML = '';
+  for (const a of currentRound.artistOpts){
+    const b = document.createElement('div');
+    b.className = 'ans';
+    b.textContent = a;
+    b.onclick = ()=>answerArtist(a, b);
+    aEl.appendChild(b);
+  }
+}
+
+function speedPts(elapsed){
+  // 100 points max, décroît à 20 à 30s
+  return Math.round(Math.max(20, 100 - elapsed * 2.5));
+}
+
+function answerTitle(t, btn){
+  if (titleAnswered) return;
+  const correct = t === currentRound.song.title;
+  const elapsed = (performance.now() - currentRound.startAt) / 1000;
+  titleAnswered = correct ? 'correct' : 'wrong';
+  if (correct){
+    const pts = speedPts(elapsed);
+    totalScore += pts;
+    btn.classList.add('correct');
+    showFloatingPts('+' + pts + ' titre', '#78ff9f');
+  } else {
+    btn.classList.add('wrong');
+    // montre la bonne
+    for (const child of $('#titleChoices').children){
+      if (child.textContent === currentRound.song.title){ child.classList.add('correct'); break; }
+    }
+  }
+  // désactive tous les boutons titre
+  for (const c of $('#titleChoices').children) c.classList.add('disabled');
+  updateHud();
+  checkRoundEnd();
+}
+function answerArtist(a, btn){
+  if (artistAnswered) return;
+  const correct = a === currentRound.song.artist;
+  const elapsed = (performance.now() - currentRound.startAt) / 1000;
+  artistAnswered = correct ? 'correct' : 'wrong';
+  if (correct){
+    const pts = speedPts(elapsed);
+    totalScore += pts;
+    btn.classList.add('correct');
+    showFloatingPts('+' + pts + ' artiste', '#5be0ff');
+  } else {
+    btn.classList.add('wrong');
+    for (const child of $('#artistChoices').children){
+      if (child.textContent === currentRound.song.artist){ child.classList.add('correct'); break; }
+    }
+  }
+  for (const c of $('#artistChoices').children) c.classList.add('disabled');
+  updateHud();
+  checkRoundEnd();
+}
+function checkRoundEnd(){
+  if (titleAnswered && artistAnswered){
+    setTimeout(()=>endRound('answered'), 1200);
+  }
+}
+function endRound(reason){
+  if (roundTimer) clearInterval(roundTimer);
+  // désactive tout
+  for (const c of $('#titleChoices').children){ c.classList.add('disabled'); if (c.textContent === currentRound.song.title) c.classList.add('correct'); }
+  for (const c of $('#artistChoices').children){ c.classList.add('disabled'); if (c.textContent === currentRound.song.artist) c.classList.add('correct'); }
+  // révélation
+  $('#coverWrap').classList.add('revealed');
+  $('#reveal').style.display = 'block';
+  $('#reveal').innerHTML = `<b>${currentRound.song.title}</b> — ${currentRound.song.artist}`;
+  pushSystemMsg(`Réponse : ${currentRound.song.title} — ${currentRound.song.artist}`);
+  audio.pause();
+  // bots qui n'ont pas répondu : réaction amusante
+  if (Math.random() < 0.4){ pushBotMsg(bots[Math.floor(Math.random()*bots.length)], pickReaction('end')); }
+  // enchaîne
+  setTimeout(nextRound, 2600);
+}
+function updateHud(){
+  $('#score').textContent = totalScore;
+}
+
+function showFloatingPts(text, color){
+  const p = document.createElement('div');
+  p.textContent = text;
+  p.style.cssText = `position:absolute;left:50%;top:48%;transform:translateX(-50%);color:${color};font-weight:900;font-size:20px;text-shadow:0 0 10px ${color};pointer-events:none;z-index:30;animation:ptsPop 1.2s ease-out forwards`;
+  $('#stage').appendChild(p);
+  setTimeout(()=>p.remove(), 1200);
+}
+// animation
+const styleEl = document.createElement('style');
+styleEl.textContent = `@keyframes ptsPop{0%{opacity:0;transform:translate(-50%,0)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-60px)}}`;
+document.head.appendChild(styleEl);
+
+// ============================================================
+//   PAUSE / FIN
+// ============================================================
+function togglePause(){
+  if (state === 'play'){
+    state = 'paused';
+    audio.pause();
+    if (roundTimer) clearInterval(roundTimer);
+    $('#pauseOverlay').classList.remove('hidden');
+  } else if (state === 'paused'){
+    state = 'play';
+    audio.play().catch(()=>{});
+    roundTimer = setInterval(roundTick, 100);
+    $('#pauseOverlay').classList.add('hidden');
+  }
+}
+
+function endRun(completed){
+  state = 'end';
+  audio.pause();
+  if (roundTimer) clearInterval(roundTimer);
+  if (!completed) return;
+  save.runs = (save.runs||0) + 1;
+  const newBest = totalScore > (save.best||0);
+  if (newBest) save.best = totalScore;
+  persist();
+  // classement final
+  const everybody = [{name: save.pseudo||'Toi', score: totalScore, me:true}, ...bots.map(b=>({name:b.name, score:b.score}))];
+  everybody.sort((a,b)=>b.score - a.score);
+  let myRank = everybody.findIndex(e=>e.me) + 1;
+  const panel = $('#endPanel');
+  panel.innerHTML = `
+    <h1>FIN DE PARTIE</h1>
+    <p>Score : <b style="font-size:30px;color:#fff">${totalScore}</b></p>
+    <p class="small">${newBest?'🏆 Nouveau record personnel !':'Record : '+save.best}</p>
+    <h2>Classement final</h2>
+    <div style="text-align:left;background:#1a053f;border-radius:12px;padding:8px 10px;margin:8px 0">
+      ${everybody.map((e,i)=>`<div class="rank-row ${e.me?'me':''}"><div class="pos">${i+1}${['','e','e','e','e'][i]||''}</div><div class="name">${e.name}${e.me?' (toi)':''}</div><div class="pts">${e.score}</div></div>`).join('')}
+    </div>
+    <p>${myRank===1?'🥇 Tu es sur le podium, bravo !':myRank<=3?'🏅 Beau classement !':'À retenter !'}</p>
+    <p>
+      <button id="btnReplay">REJOUER</button><br><br>
+      <button class="ghost" id="btnBackMenu">Changer de catégorie</button>
+    </p>
+  `;
+  $('#endOverlay').classList.remove('hidden');
+  $('#btnReplay').onclick = ()=>{ $('#endOverlay').classList.add('hidden'); startGame(); };
+  $('#btnBackMenu').onclick = ()=>{ $('#endOverlay').classList.add('hidden'); showMenu(); };
+}
+
+// ============================================================
+//   CHAT + CLASSEMENT
+// ============================================================
+const greetings = ['Salut tout le monde !', 'Hello 🙂', 'Bonne partie à tous', 'On va voir qui est bon', 'Allez les boomers 😄'];
+const reactionsGood = ['Trop facile 😎', 'Direct !', 'Je l\'avais tout de suite', 'Classique !', '✌️', 'Simple'];
+const reactionsEnd = ['Jamais entendu…', 'Mythique ❤️', 'Génération dorée', 'Ohhh celle-là', 'Mon enfance 🥺', 'Ouff j\'ai trouvé'];
+function pickReaction(kind){
+  const arr = kind==='good'?reactionsGood:reactionsEnd;
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+function pushBotMsg(bot, text, delay){
+  if (!bot) return;
+  const d = delay==null ? 0.3 + Math.random()*1.2 : delay + Math.random()*0.4;
+  setTimeout(()=>{
+    chatMessages.push({who: bot.name, text, color: bot.color});
+    if (chatMessages.length > 40) chatMessages.shift();
+    renderChat();
+    if (activeTab !== 'chat'){ newChatCount++; $('#chatDot').style.display='inline-block'; }
+  }, d * 1000);
+}
+function pushSystemMsg(text){
+  chatMessages.push({system:true, text});
+  if (chatMessages.length > 40) chatMessages.shift();
+  renderChat();
+}
+function pushMyMsg(text){
+  chatMessages.push({me:true, who: save.pseudo||'Toi', text});
+  renderChat();
+}
+function sendChat(){
+  const inp = $('#chatInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  pushMyMsg(txt);
+  // réaction aléatoire d'un bot
+  if (Math.random() < 0.5){
+    const b = bots[Math.floor(Math.random()*bots.length)];
+    setTimeout(()=>pushBotMsg(b, pickReaction(Math.random()<.5?'good':'end')), 800 + Math.random()*1500);
+  }
+}
+function renderChat(){
+  const el = $('#chatContent');
+  el.innerHTML = chatMessages.map(m => {
+    if (m.system) return `<div class="chat-msg system">— ${escapeHtml(m.text)}</div>`;
+    const cls = m.me ? 'me' : '';
+    const color = m.color ? `style="color:${m.color}"` : '';
+    return `<div class="chat-msg ${cls}"><span class="who" ${color}>${escapeHtml(m.who)}:</span> ${escapeHtml(m.text)}</div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+function renderRank(){
+  const list = [{name: save.pseudo||'Toi', score: totalScore, me:true, color:'#ff3ea0'}, ...bots.map(b=>({name:b.name, score:b.score, color:b.color}))];
+  list.sort((a,b)=>b.score - a.score);
+  const el = $('#rankContent');
+  el.innerHTML = list.map((e,i)=>{
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    return `<div class="rank-row ${e.me?'me':''}"><div class="pos">${medal}</div><div class="name" style="color:${e.color||'#fff'}">${escapeHtml(e.name)}</div><div class="pts">${e.score}</div></div>`;
+  }).join('');
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// Keyboard: p = pause
+window.addEventListener('keydown', e=>{
+  if (e.key==='p' || e.key==='P'){ if (state==='play' || state==='paused') togglePause(); }
+});
+
+// ----------- Démarrage -----------
+showMenu();
+
+})();
+</script>
+</body>
+</html>
