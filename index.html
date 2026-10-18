@@ -578,8 +578,8 @@ function roundTick(){
     }
   }
   renderRank();
-  // fin du round par timeout
-  if (timeLeft <= 0 || (titleAnswered && artistAnswered)){
+  // fin du round par timeout (si tout est répondu, checkRoundEnd s'en charge avec un délai pour laisser voir la bonne réponse)
+  if (timeLeft <= 0){
     endRound('time');
   }
 }
@@ -658,7 +658,9 @@ function checkRoundEnd(){
   }
 }
 function endRound(reason){
-  if (roundTimer) clearInterval(roundTimer);
+  if (!currentRound || currentRound.ended) return;  // garde-fou anti double exécution
+  currentRound.ended = true;
+  if (roundTimer) { clearInterval(roundTimer); roundTimer = null; }
   // désactive tout
   for (const c of $('#titleChoices').children){ c.classList.add('disabled'); if (c.textContent === currentRound.song.title) c.classList.add('correct'); }
   for (const c of $('#artistChoices').children){ c.classList.add('disabled'); if (c.textContent === currentRound.song.artist) c.classList.add('correct'); }
