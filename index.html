@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#1a0335">
 <title>Hitroom — Blind Test musical en live</title>
 <style>
-:root{color-scheme:dark;--bg:#160530;--bg2:#1f0845;--ink:#f3f8ff;--muted:#c2a9e0;--pink:#ff3ea0;--cyan:#5be0ff;--gold:#ffcf2a;--purple:#b85cff;--green:#78ff9f;--red:#ff5578}
+:root{color-scheme:dark;--bg:#120328;--bg2:#1f0845;--ink:#f3f8ff;--muted:#c2a9e0;--pink:#ff3ea0;--cyan:#5be0ff;--blue:#3a7bff;--gold:#ffcf2a;--purple:#b85cff;--green:#78ff9f;--red:#ff5578}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #wrap{height:100%;display:flex;flex-direction:column;max-width:1000px;margin:auto}
@@ -19,7 +19,7 @@ header{padding:10px 14px 6px;display:flex;align-items:center;justify-content:spa
 .live-pill{display:inline-block;padding:2px 8px;background:var(--red);border-radius:999px;color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;animation:pulse 1.4s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 #main{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-#stage{flex:1;min-height:0;position:relative;margin:4px 8px;border:1px solid #3a1673;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#1f0845 0%,#2a0a5a 50%,#13052e 100%);box-shadow:0 0 24px #3a167355}
+#stage{flex:1;min-height:0;position:relative;margin:4px 8px;border:1px solid #3a1673;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#1a0540 0%,#1f0a60 40%,#0e2056 100%);box-shadow:0 0 24px #3a167355}
 .view{position:absolute;inset:0;overflow-y:auto;padding:16px}
 .view.hidden{display:none !important}
 .panel{max-width:460px;width:100%;margin:auto;text-align:center}
@@ -52,23 +52,38 @@ button:disabled{opacity:.5;cursor:default}
 .cover-wrap.revealed .disc{display:none}
 .cover-wrap .disc::before{content:'';width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,var(--pink),var(--purple))}
 @keyframes spin{to{transform:rotate(360deg)}}
-.timebar{height:6px;background:#2a0a5a;border-radius:4px;overflow:hidden;margin:0 0 10px}
-.timebar .fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--cyan));transition:width .1s linear}
-.timebar .fill.danger{background:var(--red)}
+.timebar{height:8px;background:#2a0a5a;border-radius:4px;overflow:hidden;margin:0 0 10px;position:relative}
+.timebar .fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue),var(--cyan));transition:width .1s linear;box-shadow:0 0 8px rgba(255,62,160,.5)}
+.timebar .fill.danger{background:var(--red);box-shadow:0 0 10px var(--red);animation:dangerPulse .8s infinite}
+@keyframes dangerPulse{0%,100%{opacity:1}50%{opacity:.65}}
 .round-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
 .round-info b{color:#fff}
-.ans-group{margin-bottom:10px}
-.ans-group .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;padding-left:4px}
-.ans-group .choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ans{padding:10px 8px;border-radius:10px;border:1px solid #a260ff66;background:#1a053f;color:#eee6ff;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;text-align:center;line-height:1.3;min-height:46px;display:flex;align-items:center;justify-content:center}
-.ans:active{transform:translateY(1px)}
-.ans.correct{background:var(--green);color:#092a1a;border-color:var(--green);box-shadow:0 0 12px var(--green)}
-.ans.wrong{background:var(--red);color:#fff;border-color:var(--red)}
-.ans.disabled{pointer-events:none;opacity:.6}
-.ans.disabled.correct{opacity:1}
-.reveal{text-align:center;padding:10px;background:#1a053f88;border-radius:10px;margin:8px 0;font-size:13px;color:#fff}
+
+/* Nouvelle zone de statut titre/artiste */
+.answers-status{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.answer-slot{flex:1;min-width:140px;padding:10px 12px;border-radius:12px;border:1.5px solid #a260ff66;background:linear-gradient(180deg,#1a053f 0%,#13052e 100%);display:flex;align-items:center;gap:10px;transition:all .3s cubic-bezier(.2,.9,.3,1.4)}
+.answer-slot .icon{font-size:22px;line-height:1}
+.answer-slot .info{flex:1;min-width:0}
+.answer-slot .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;line-height:1.2;margin-bottom:2px}
+.answer-slot .val{font-size:14px;font-weight:700;color:#fff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.answer-slot.found{border-color:var(--green);background:linear-gradient(180deg,#0b3b24 0%,#07241a 100%);box-shadow:0 0 14px #78ff9f44;transform:scale(1.02)}
+.answer-slot.found .icon{color:var(--green)}
+.answer-slot.found .lbl{color:var(--green)}
+.answer-slot.other-found{border-color:var(--blue);background:linear-gradient(180deg,#0d1f55 0%,#071140 100%)}
+.answer-slot.other-found .lbl{color:var(--cyan)}
+
+/* Zone de saisie principale */
+.guess-wrap{margin-top:auto;padding:12px 0 8px}
+.guess-wrap .input-row{position:relative}
+.guess-input{width:100%;padding:16px 56px 16px 18px;border-radius:14px;border:2px solid #a260ff;background:linear-gradient(180deg,#1a053f 0%,#0d0320 100%);color:#fff;font-size:17px;font-family:inherit;font-weight:600;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:all .2s cubic-bezier(.2,.9,.3,1.4)}
+.guess-input::placeholder{color:#8a7bb5;font-weight:400}
+.guess-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 20px rgba(91,224,255,.5),0 4px 16px rgba(0,0,0,.35)}
+.guess-input.hit{border-color:var(--green);box-shadow:0 0 24px rgba(120,255,159,.6);transform:scale(1.01)}
+.guess-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:22px;color:var(--pink);pointer-events:none;transition:all .2s}
+.guess-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:14px}
+.reveal{text-align:center;padding:10px;background:#1a053f88;border-radius:10px;margin:8px 0;font-size:13px;color:#fff;animation:revealPop .4s cubic-bezier(.2,.9,.3,1.4)}
 .reveal b{color:var(--cyan)}
-.reveal .pts{display:inline-block;background:var(--gold);color:#2a1a05;padding:2px 10px;border-radius:999px;font-weight:800;margin-left:6px}
+@keyframes revealPop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
 
 /* Sidebar (classement + chat) */
 .side{display:flex;flex-direction:column;background:#13052e;border-top:1px solid #3a1673;max-height:35%;overflow:hidden}
@@ -125,7 +140,7 @@ button:disabled{opacity:.5;cursor:default}
       <div class="view" id="menu">
         <div class="panel">
           <h1>HITROOM</h1>
-          <p><b>Blind test musical en live.</b> Reconnais le titre et l'artiste en moins de 30 secondes. Plus tu réponds vite, plus tu marques.</p>
+          <p><b>Blind test musical en live.</b> Tape le titre ou l'artiste dans la case en bas de l'écran. Premier à trouver = <b>+20</b>, les suivants = <b>+10</b>. 20 secondes par manche.</p>
           <div class="topbar">
             <span class="badge">Extraits officiels</span>
             <span class="badge">Classement live</span>
@@ -159,19 +174,38 @@ button:disabled{opacity:.5;cursor:default}
         </div>
         <div class="round-info">
           <div><b id="playRound">Manche 1</b> / <span id="playRoundMax">10</span></div>
-          <div>⏱ <span id="playTimer">30</span>s</div>
+          <div>⏱ <span id="playTimer">20</span>s</div>
         </div>
         <div class="timebar"><div class="fill" id="timeFill" style="width:100%"></div></div>
-        <div class="ans-group">
-          <div class="label">🎵 Titre</div>
-          <div class="choices" id="titleChoices"></div>
+
+        <div class="answers-status">
+          <div class="answer-slot" id="slotTitle">
+            <div class="icon">🎵</div>
+            <div class="info">
+              <div class="lbl">Titre</div>
+              <div class="val" id="valTitle">à deviner</div>
+            </div>
+          </div>
+          <div class="answer-slot" id="slotArtist">
+            <div class="icon">🎤</div>
+            <div class="info">
+              <div class="lbl">Artiste</div>
+              <div class="val" id="valArtist">à deviner</div>
+            </div>
+          </div>
         </div>
-        <div class="ans-group">
-          <div class="label">🎤 Artiste</div>
-          <div class="choices" id="artistChoices"></div>
-        </div>
+
         <div class="reveal" id="reveal" style="display:none"></div>
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+
+        <div class="guess-wrap">
+          <div class="input-row">
+            <input class="guess-input" id="guessInput" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Tape le titre ou l'artiste…">
+            <div class="guess-icon">🎯</div>
+          </div>
+          <div class="guess-hint" id="guessHint">Entre un titre OU un artiste. Entrée pour valider.</div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:4px">
           <button class="ghost" id="btnPass">Je passe</button>
           <button class="ghost" id="btnPause">Pause</button>
         </div>
@@ -384,10 +418,11 @@ let currentCategoryKey = 'variete';
 let currentPool = [];   // morceaux chargés et jouables
 let roundIdx = 0;
 let roundsTotal = 10;
-let currentRound = null; // {song, titleChoices, artistChoices, startTime}
-let timeLeft = 30;
-let titleAnswered = false; // true | false | 'wrong' | 'correct'
-let artistAnswered = false;
+let currentRound = null; // {song, startAt}
+const ROUND_SECONDS = 20;
+let timeLeft = ROUND_SECONDS;
+let titleFoundBy = null;  // 'me' | nom bot | null
+let artistFoundBy = null;
 let roundTimer = null;
 let totalScore = 0;
 let bots = [];
@@ -462,6 +497,18 @@ $('#tabChat').onclick = ()=>switchTab('chat');
 $('#btnSendChat').onclick = sendChat;
 $('#chatInput').addEventListener('keydown', e=>{ if (e.key==='Enter') sendChat(); });
 
+// Zone de saisie du jeu : vérifie à chaque frappe (sans attendre Entrée), et Entrée valide aussi
+const guessInput = $('#guessInput');
+let guessDebounce = null;
+guessInput.addEventListener('input', e => {
+  clearTimeout(guessDebounce);
+  const v = e.target.value;
+  guessDebounce = setTimeout(() => tryGuess(v), 80);
+});
+guessInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); tryGuess(e.target.value); }
+});
+
 function switchTab(t){
   activeTab = t;
   $('#tabRank').classList.toggle('active', t==='rank');
@@ -512,6 +559,39 @@ async function startGame(){
 // ============================================================
 //   MANCHE
 // ============================================================
+// ------- Normalisation + matching intelligent -------
+function normalize(s){
+  return (s || '').toString().toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/\b(the|le|la|les|l|un|une|des|de|du|a|and|et|feat|ft)\b/gi, ' ')
+    .replace(/[^a-z0-9]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+function lev(a, b){
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const m = [];
+  for (let i = 0; i <= a.length; i++) m[i] = [i];
+  for (let j = 0; j <= b.length; j++) m[0][j] = j;
+  for (let i = 1; i <= a.length; i++){
+    for (let j = 1; j <= b.length; j++){
+      m[i][j] = a[i-1] === b[j-1] ? m[i-1][j-1] : 1 + Math.min(m[i-1][j], m[i][j-1], m[i-1][j-1]);
+    }
+  }
+  return m[a.length][b.length];
+}
+function matchScore(input, target){
+  const i = normalize(input), t = normalize(target);
+  if (!i || !t) return 0;
+  if (i === t) return 1;
+  if (i.length >= 3 && t.includes(i) && i.length >= t.length * 0.55) return 0.92;
+  if (t.length >= 3 && i.includes(t)) return 0.95;
+  const d = lev(i, t);
+  return 1 - d / Math.max(i.length, t.length);
+}
+const MATCH_THRESHOLD = 0.78;
+
+// ------- Déroulement d'une manche -------
 function nextRound(){
   if (roundIdx >= roundsTotal){
     return endRun(true);
@@ -520,160 +600,172 @@ function nextRound(){
   $('#playRound').textContent = `Manche ${roundIdx}`;
   $('#playRoundMax').textContent = roundsTotal;
   $('#round').textContent = `Manche ${roundIdx}`;
-  // pioche un morceau non encore joué
   const notPlayed = currentPool.filter(s => !s._played);
   const song = pickN(notPlayed.length ? notPlayed : currentPool, 1)[0];
   song._played = true;
-  // distracteurs
-  const otherTitles = currentPool.filter(s => s.title !== song.title);
-  const otherArtists = currentPool.filter(s => s.artist !== song.artist);
-  const titleOpts = shuffle([song.title, ...pickN(otherTitles, 3).map(s=>s.title)]);
-  const artistOpts = shuffle([song.artist, ...pickN(otherArtists, 3).map(s=>s.artist)]);
-  currentRound = { song, titleOpts, artistOpts, startAt: performance.now() };
-  titleAnswered = false;
-  artistAnswered = false;
-  timeLeft = 30;
-  // reset bot answers
-  for (const b of bots){ b.answeredTitle = false; b.answeredArtist = false; b.titleAt = 0; b.artistAt = 0; }
+  currentRound = { song, startAt: performance.now(), ended: false };
+  titleFoundBy = null;
+  artistFoundBy = null;
+  timeLeft = ROUND_SECONDS;
+  for (const b of bots){ b.foundTitleAt = null; b.foundArtistAt = null; }
   // UI
-  renderChoices();
   $('#reveal').style.display = 'none';
   $('#coverWrap').classList.remove('revealed');
   $('#cover').style.backgroundImage = `url("${song.artworkUrl}")`;
+  resetSlot('title'); resetSlot('artist');
+  const input = $('#guessInput');
+  input.value = ''; input.disabled = false; input.classList.remove('hit');
+  input.placeholder = `Tape le titre ou l'artiste…`;
+  $('#guessHint').textContent = `Entre un titre OU un artiste. Entrée pour valider.`;
+  $('#slotTitle').style.borderColor = '';
+  $('#slotArtist').style.borderColor = '';
+  setTimeout(() => input.focus({preventScroll:true}), 50);
   // audio
+  audio.pause();
   try {
     audio.src = song.previewUrl;
     audio.currentTime = 0;
     audio.volume = 0.9;
     audio.play().catch(e=>console.warn('audio play fail', e));
   } catch(e){ console.warn(e); }
-  // timer
   if (roundTimer) clearInterval(roundTimer);
   roundTimer = setInterval(roundTick, 100);
 }
 
+function resetSlot(kind){
+  const slot = $(kind==='title'?'#slotTitle':'#slotArtist');
+  slot.classList.remove('found', 'other-found');
+  $(kind==='title'?'#valTitle':'#valArtist').textContent = 'à deviner';
+}
+
 function roundTick(){
-  if (state !== 'play') return;
+  if (state !== 'play' || !currentRound || currentRound.ended) return;
   timeLeft -= 0.1;
   if (timeLeft < 0) timeLeft = 0;
   $('#playTimer').textContent = timeLeft.toFixed(1);
-  const pct = (timeLeft / 30) * 100;
+  const pct = (timeLeft / ROUND_SECONDS) * 100;
   const fill = $('#timeFill');
   fill.style.width = pct + '%';
-  fill.classList.toggle('danger', timeLeft < 8);
-  // bots : décident de répondre selon leur skill et le temps écoulé
-  const elapsed = 30 - timeLeft;
+  fill.classList.toggle('danger', timeLeft < 5);
+  const elapsed = ROUND_SECONDS - timeLeft;
   for (const b of bots){
-    if (!b.answeredTitle && Math.random() < 0.015 * b.skill * (1 + elapsed/15)){
-      b.answeredTitle = true;
-      b.titleAt = elapsed;
-      const correct = Math.random() < b.skill;
-      if (correct){ b.score += speedPts(elapsed); pushBotMsg(b, pickReaction('good'), 0.4); }
+    if (!b.foundTitleAt){
+      const rate = (titleFoundBy ? 0.009 : 0.013) * b.skill * (1 + elapsed/12);
+      if (Math.random() < rate) botFinds(b, 'title', elapsed);
     }
-    if (!b.answeredArtist && Math.random() < 0.013 * b.skill * (1 + elapsed/15)){
-      b.answeredArtist = true;
-      b.artistAt = elapsed;
-      const correct = Math.random() < b.skill;
-      if (correct){ b.score += speedPts(elapsed); }
+    if (!b.foundArtistAt){
+      const rate = (artistFoundBy ? 0.009 : 0.012) * b.skill * (1 + elapsed/12);
+      if (Math.random() < rate) botFinds(b, 'artist', elapsed);
     }
   }
   renderRank();
-  // fin du round par timeout (si tout est répondu, checkRoundEnd s'en charge avec un délai pour laisser voir la bonne réponse)
-  if (timeLeft <= 0){
-    endRound('time');
-  }
+  if (timeLeft <= 0) endRound('time');
 }
 
-function renderChoices(){
-  const tEl = $('#titleChoices');
-  tEl.innerHTML = '';
-  for (const t of currentRound.titleOpts){
-    const b = document.createElement('div');
-    b.className = 'ans';
-    b.textContent = t;
-    b.onclick = ()=>answerTitle(t, b);
-    tEl.appendChild(b);
+function botFinds(bot, kind, elapsed){
+  if (kind === 'title'){ bot.foundTitleAt = elapsed; }
+  else { bot.foundArtistAt = elapsed; }
+  const isFirst = kind==='title' ? !titleFoundBy : !artistFoundBy;
+  if (kind==='title') titleFoundBy = titleFoundBy || bot.name;
+  else artistFoundBy = artistFoundBy || bot.name;
+  const pts = isFirst ? 20 : 10;
+  bot.score += pts;
+  if (isFirst){
+    pushSystemMsg(`${bot.name} a trouvé ${kind==='title'?'le titre':'l\'artiste'} en premier (+20)`);
+    if (Math.random() < 0.6) pushBotMsg(bot, pickReaction('good'), 0.3);
+    const slot = $(kind==='title'?'#slotTitle':'#slotArtist');
+    const val = $(kind==='title'?'#valTitle':'#valArtist');
+    slot.classList.add('other-found');
+    val.textContent = `${bot.name} +20`;
   }
-  const aEl = $('#artistChoices');
-  aEl.innerHTML = '';
-  for (const a of currentRound.artistOpts){
-    const b = document.createElement('div');
-    b.className = 'ans';
-    b.textContent = a;
-    b.onclick = ()=>answerArtist(a, b);
-    aEl.appendChild(b);
-  }
+  checkEveryoneDone();
 }
 
-function speedPts(elapsed){
-  // 100 points max, décroît à 20 à 30s
-  return Math.round(Math.max(20, 100 - elapsed * 2.5));
-}
-
-function answerTitle(t, btn){
-  if (titleAnswered) return;
-  const correct = t === currentRound.song.title;
-  const elapsed = (performance.now() - currentRound.startAt) / 1000;
-  titleAnswered = correct ? 'correct' : 'wrong';
-  if (correct){
-    const pts = speedPts(elapsed);
-    totalScore += pts;
-    btn.classList.add('correct');
-    showFloatingPts('+' + pts + ' titre', '#78ff9f');
+function tryGuess(raw){
+  if (!currentRound || currentRound.ended) return;
+  const text = (raw || '').trim();
+  if (!text || text.length < 2) return;
+  const song = currentRound.song;
+  const mt = matchScore(text, song.title);
+  const ma = matchScore(text, song.artist);
+  let gotTitle = mt >= MATCH_THRESHOLD;
+  let gotArtist = ma >= MATCH_THRESHOLD;
+  if (gotTitle && gotArtist){
+    if (mt >= ma) gotArtist = false; else gotTitle = false;
+  }
+  const input = $('#guessInput');
+  if (gotTitle){
+    playerFinds('title');
+    input.value = ''; flashHit();
+    $('#guessHint').textContent = artistFoundBy==='me' ? 'Les deux trouvés — bien joué.' : `Trouve maintenant l'artiste.`;
+  } else if (gotArtist){
+    playerFinds('artist');
+    input.value = ''; flashHit();
+    $('#guessHint').textContent = titleFoundBy==='me' ? 'Les deux trouvés — bien joué.' : 'Trouve maintenant le titre.';
   } else {
-    btn.classList.add('wrong');
-    // montre la bonne
-    for (const child of $('#titleChoices').children){
-      if (child.textContent === currentRound.song.title){ child.classList.add('correct'); break; }
+    const best = Math.max(mt, ma);
+    if (best >= 0.6){
+      $('#guessHint').textContent = 'Tu brûles… précise un peu plus.';
+    } else {
+      $('#guessHint').textContent = `Entre un titre OU un artiste. Entrée pour valider.`;
     }
   }
-  // désactive tous les boutons titre
-  for (const c of $('#titleChoices').children) c.classList.add('disabled');
-  updateHud();
-  checkRoundEnd();
 }
-function answerArtist(a, btn){
-  if (artistAnswered) return;
-  const correct = a === currentRound.song.artist;
-  const elapsed = (performance.now() - currentRound.startAt) / 1000;
-  artistAnswered = correct ? 'correct' : 'wrong';
-  if (correct){
-    const pts = speedPts(elapsed);
-    totalScore += pts;
-    btn.classList.add('correct');
-    showFloatingPts('+' + pts + ' artiste', '#5be0ff');
-  } else {
-    btn.classList.add('wrong');
-    for (const child of $('#artistChoices').children){
-      if (child.textContent === currentRound.song.artist){ child.classList.add('correct'); break; }
-    }
-  }
-  for (const c of $('#artistChoices').children) c.classList.add('disabled');
+
+function playerFinds(kind){
+  const already = kind==='title' ? titleFoundBy : artistFoundBy;
+  if (already === 'me') return;
+  const isFirst = !already;
+  const pts = isFirst ? 20 : 10;
+  totalScore += pts;
+  if (kind==='title') titleFoundBy = titleFoundBy || 'me';
+  else artistFoundBy = artistFoundBy || 'me';
+  const slot = $(kind==='title'?'#slotTitle':'#slotArtist');
+  const val = $(kind==='title'?'#valTitle':'#valArtist');
+  slot.classList.remove('other-found');
+  slot.classList.add('found');
+  val.textContent = `${kind==='title'?currentRound.song.title:currentRound.song.artist}`;
+  const col = kind==='title' ? '#78ff9f' : '#5be0ff';
+  showFloatingPts(`+${pts} ${kind==='title'?'titre':'artiste'}`, col);
+  pushSystemMsg(`Tu as trouvé ${kind==='title'?'le titre':'l\'artiste'} ${isFirst?'en premier ':''}(+${pts})`);
   updateHud();
-  checkRoundEnd();
-}
-function checkRoundEnd(){
-  if (titleAnswered && artistAnswered){
-    setTimeout(()=>endRound('answered'), 1200);
+  // raccourcit si joueur a tout trouvé
+  if (titleFoundBy && artistFoundBy && titleFoundBy==='me' && artistFoundBy==='me'){
+    setTimeout(() => endRound('player-done'), 1600);
   }
 }
+
+function flashHit(){
+  const input = $('#guessInput');
+  input.classList.add('hit');
+  setTimeout(() => input.classList.remove('hit'), 400);
+}
+
+function checkEveryoneDone(){
+  const allBotsDone = bots.every(b => b.foundTitleAt && b.foundArtistAt);
+  if (titleFoundBy === 'me' && artistFoundBy === 'me' && allBotsDone){
+    setTimeout(() => endRound('all-done'), 600);
+  }
+}
+
 function endRound(reason){
-  if (!currentRound || currentRound.ended) return;  // garde-fou anti double exécution
+  if (!currentRound || currentRound.ended) return;
   currentRound.ended = true;
   if (roundTimer) { clearInterval(roundTimer); roundTimer = null; }
-  // désactive tout
-  for (const c of $('#titleChoices').children){ c.classList.add('disabled'); if (c.textContent === currentRound.song.title) c.classList.add('correct'); }
-  for (const c of $('#artistChoices').children){ c.classList.add('disabled'); if (c.textContent === currentRound.song.artist) c.classList.add('correct'); }
-  // révélation
+  const input = $('#guessInput'); if (input) input.disabled = true;
   $('#coverWrap').classList.add('revealed');
   $('#reveal').style.display = 'block';
-  $('#reveal').innerHTML = `<b>${currentRound.song.title}</b> — ${currentRound.song.artist}`;
+  const titleHit = titleFoundBy === 'me';
+  const artistHit = artistFoundBy === 'me';
+  const titleMark = titleHit ? '✅ toi' : (titleFoundBy ? `par ${titleFoundBy}` : '❌ personne');
+  const artistMark = artistHit ? '✅ toi' : (artistFoundBy ? `par ${artistFoundBy}` : '❌ personne');
+  $('#reveal').innerHTML = `<b>${currentRound.song.title}</b> &nbsp;·&nbsp; <span style="color:var(--muted)">${titleMark}</span><br><span style="color:var(--muted);font-size:12px">— ${currentRound.song.artist} &nbsp;·&nbsp; ${artistMark}</span>`;
+  if (!titleFoundBy) { $('#valTitle').textContent = currentRound.song.title; $('#slotTitle').style.borderColor = 'var(--red)'; }
+  if (!artistFoundBy) { $('#valArtist').textContent = currentRound.song.artist; $('#slotArtist').style.borderColor = 'var(--red)'; }
   pushSystemMsg(`Réponse : ${currentRound.song.title} — ${currentRound.song.artist}`);
   audio.pause();
-  // bots qui n'ont pas répondu : réaction amusante
-  if (Math.random() < 0.4){ pushBotMsg(bots[Math.floor(Math.random()*bots.length)], pickReaction('end')); }
-  // enchaîne
-  setTimeout(nextRound, 2600);
+  if (Math.random() < 0.4) pushBotMsg(bots[Math.floor(Math.random()*bots.length)], pickReaction('end'));
+  setTimeout(nextRound, 2800);
 }
 function updateHud(){
   $('#score').textContent = totalScore;
