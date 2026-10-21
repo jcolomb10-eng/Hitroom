@@ -5,7 +5,8 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 
 - Maquette de référence : 10 écrans (accueil, catégories, salon, partie, fin, profil, classements, défis, boutique, paramètres), noir avec bordures néon or et rose. L'utilisateur autorise à l'améliorer.
 - Version : **1.0** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
-- Hébergement prévu : **Cloudflare Workers** (gratuit, Durable Objects en SQLite) relié au dépôt GitHub, publication automatique depuis `main`. **Pas encore en ligne** : l'utilisateur doit créer le compte Cloudflare (étapes dans `README.md`).
+- Hébergement : **Cloudflare Workers** (gratuit, Durable Objects en SQLite) relié au dépôt GitHub, publication automatique depuis `main`. Worker nommé **`hitrooom`** (3 « o », le nom « hitroom » étant pris par un ancien projet Pages) : https://hitrooom.jcolomb10.workers.dev. Le `name` de `wrangler.jsonc` doit rester identique au nom du Worker, sinon la publication échoue.
+- Projet Cloudflare **Pages** « hitroom » (hitroom.pages.dev) créé par erreur : il publie seulement l'affichage, sans serveur ; à supprimer.
 - **Vercel** : le dépôt y est encore relié (ancien prototype). `vercel.json` y coupe toute publication automatique ; le projet Vercel est à débrancher ou supprimer par l'utilisateur (Vercel ne gère pas les WebSockets des salons).
 - Ancien prototype V0 (solo contre bots) remplacé ; `logo.jpg` à la racine = logo d'origine (source de `public/logo.webp` et des icônes).
 

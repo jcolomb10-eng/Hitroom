@@ -1,7 +1,7 @@
 {
   // Hitroom sur Cloudflare Workers : le site (public/) + les salons en direct (Durable Objects)
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "hitroom",
+  "name": "hitrooom",
   "main": "src/worker.js",
   "compatibility_date": "2026-09-01",
   "assets": {
