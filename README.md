@@ -2,8 +2,10 @@
 
 Blind test musical **multijoueur en direct**, dans l'esprit de QuiChante : tout le monde entend le même extrait au même moment, le premier qui tape l'artiste ou le titre marque le plus de points.
 
-- **Jouer maintenant** : salons publics par style (Mix, Années 80 à 2020, Variété FR, Rap FR, Rap US, Rock, Électro, K-Pop, Ciné & séries), ouverts 24h/24. Des bots (marqués « BOT ») complètent quand il y a peu de monde.
-- **Créer un salon** : salon privé avec un code de 4 caractères (et un lien à partager). L'hôte choisit la catégorie, le nombre de manches, la durée des extraits et les bots.
+- **Jouer maintenant** : parties **classées** dans des salons publics par style (Mix, Années 80 à 2020, Variété FR, Rap FR, Rap US, Rock, Électro, K-Pop, Ciné & séries), ouverts 24h/24, contre des joueurs de son niveau. Des bots (marqués « BOT ») du même niveau complètent quand il y a peu de monde.
+- **Rangs** de Bronze à Grand Maître (Bronze, Argent, Or, Platine, Diamant, Rubis, Émeraude, Maître, Grand Maître) avec **saison chaque mois** et récompenses.
+- **Créer un salon** : partie amicale (sans points de rang) avec un code de 4 caractères et un lien à partager. L'hôte choisit la catégorie, le nombre de manches, la durée des extraits, le nombre et le niveau des bots.
+- Réponses : le titre ou l'artiste **en entier** ; petites fautes acceptées en appuyant sur Entrée.
 - **Rejoindre un salon** : avec le code.
 - Classement en direct, chat, séries, bonus de rapidité, classement mensuel, défis du jour et de saison, niveaux, pièces, boutique de cadres et de thèmes.
 
@@ -16,8 +18,10 @@ Tout tourne sur **Cloudflare Workers** (gratuit) :
 | `public/index.html` | L'appli (HTML, CSS et JavaScript en un seul fichier) |
 | `src/worker.js` | Point d'entrée : sert le site et les routes `/api/` |
 | `src/room.js` | Un salon = un mini-serveur (Durable Object) : extraits, chrono, réponses, points, bots, chat |
-| `src/hub.js` | Recherche des extraits sur iTunes (mémoire 30 jours), compteurs des salons publics, classement |
-| `src/match.js` | Reconnaissance des réponses (fautes, accents, saisie partielle, artiste + titre d'un coup) |
+| `src/hub.js` | Recherche des extraits (iTunes, Deezer en secours), compteurs des salons publics, rangs, saisons, classements |
+| `src/sources.js` | Appels aux API iTunes et Deezer |
+| `src/match.js` | Reconnaissance des réponses (réponse entière, petites fautes avec Entrée, artiste + titre d'un coup) |
+| `src/ranks.js` | Rangs, points de rang, niveaux des salons, saisons et récompenses |
 | `src/itunes.js` | Choix de la bonne version sur iTunes (pas de live, remix ni karaoké) |
 | `src/catalog.js` | Les 354 morceaux, par catégorie |
 | `src/filter.js` | Grossièretés masquées (chat et pseudos) |
@@ -43,4 +47,5 @@ npx wrangler dev --port 8787
 npm test                              # tests de la reconnaissance des réponses et du catalogue
 NODE_PATH=$(npm root -g) node test/e2e-multijoueur.cjs   # partie complète à 3 joueurs (Playwright)
 node test/e2e-cas-limites.mjs        # hôte qui part, code inconnu, double onglet, grossièretés…
+NODE_PATH=$(npm root -g) node test/e2e-classe.cjs        # partie classée, rangs, changement de saison
 ```
