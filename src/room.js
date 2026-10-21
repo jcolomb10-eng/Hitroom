@@ -1,10 +1,12 @@
 // Room : un salon de jeu (public par catégorie, ou privé avec un code de 4 caractères).
+// Les salons publics sont classés (points de rang) et séparés par niveau ; les salons privés sont des parties amicales.
 // C'est le « maître du jeu » : il choisit les extraits, donne le top départ à tout le monde en même temps,
 // vérifie les réponses (jamais envoyées aux joueurs avant la fin de la manche), compte les points et relaie le chat.
 import { DurableObject } from 'cloudflare:workers';
 import { judge, norm } from './match.js';
 import { CAT_IDS } from './catalog.js';
 import { cleanText, cleanName } from './filter.js';
+import { bracketOf, rpDelta, BOT_SKILL, TIERS_OF_BRACKET } from './ranks.js';
 
 const MAX_HUMANS = 12;
 const COUNTDOWN = 4000;     // 3, 2, 1 avant la première manche
@@ -42,7 +44,7 @@ export class Room extends DurableObject {
     this.players = new Map();
     this.host = null;
     this.cat = this.pub ? this.cat : 'mix';
-    this.opts = { rounds: 10, dur: 30, bots: 0 };
+    this.opts = { rounds: 10, dur: 30, bots: 0, botlvl: 0 };
     this.phase = 'lobby';
     this.ends = 0;
     this.round = 0;
@@ -80,7 +82,7 @@ export class Room extends DurableObject {
     for (const p of this.players.values()) if (p.ws) { try { p.ws.send(data); } catch { /* socket fermée */ } }
   }
   report() {
-    if (this.pub) this.hub().report(this.cat, this.humans().length).catch(() => {});
+    if (this.pub) this.hub().report(this.name, this.cat, this.bracket, this.humans().length).catch(() => {});
   }
   info() {
     return { humans: this.humans(false).length, cat: this.cat, phase: this.phase, opts: this.opts };
@@ -89,10 +91,10 @@ export class Room extends DurableObject {
   snapshot() {
     const c = this.cur;
     return {
-      t: 'state', now: Date.now(), pub: this.pub, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
+      t: 'state', now: Date.now(), pub: this.pub, ranked: this.pub, bracket: this.bracket, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
       phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
-        id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, bot: !!p.bot, on: !!p.on,
+        id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, bot: !!p.bot, on: !!p.on,
         score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
       })),
       cur: this.phase === 'play' || this.phase === 'reveal' ? { url: c.s.url, art: c.s.art, start: c.start, end: c.end } : null,
@@ -110,7 +112,13 @@ export class Room extends DurableObject {
       this.name = q.get('room') || 'priv:????';
       this.pub = this.name.startsWith('pub:');
       this.code = this.pub ? null : this.name.slice(5);
-      if (this.pub) this.cat = this.name.slice(4);
+      this.bracket = 0;
+      if (this.pub) {
+        const [, cat, b] = this.name.split(':');
+        this.cat = cat;
+        this.bracket = Math.min(3, Math.max(0, parseInt(b, 10) || 0));
+        if (this.env.MOCK_MUSIC) this.opts = { ...this.opts, rounds: 5, dur: 15 }; // tests en local : parties publiques courtes
+      }
     }
     const [client, server] = Object.values(new WebSocketPair());
     server.accept();
@@ -130,6 +138,7 @@ export class Room extends DurableObject {
     if (!this.pub && !this.humans(false).length) {
       if (q.get('create') !== '1') return this.reject(ws, "Ce salon n'existe pas ou est terminé. Vérifie le code !");
       this.reset();
+      this.opts.botlvl = bracketOf(parseInt(q.get('tier'), 10) || 0);
       this.setOpts(q);
     }
     if (!p && this.humans(false).length >= MAX_HUMANS) return this.reject(ws, 'Ce salon est complet (12 joueurs maximum).');
@@ -144,6 +153,7 @@ export class Room extends DurableObject {
     p.ws = ws;
     p.on = true;
     p.off = 0;
+    p.tier = Math.min(8, Math.max(0, parseInt(q.get('tier'), 10) || 0)); // fourni par le serveur, pas par l'appli
     this.profile(p, q);
     if (!this.pub && !this.players.get(this.host)?.on) this.host = p.id;
     ws.addEventListener('message', e => this.onMessage(p, ws, e.data));
@@ -172,10 +182,11 @@ export class Room extends DurableObject {
   setOpts(src) {
     const get = k => (src.get ? src.get(k) : src[k]);
     if (CAT_IDS.has(get('cat'))) this.cat = get('cat');
-    const r = parseInt(get('rounds'), 10), d = parseInt(get('dur'), 10), b = parseInt(get('bots'), 10);
+    const r = parseInt(get('rounds'), 10), d = parseInt(get('dur'), 10), b = parseInt(get('bots'), 10), l = parseInt(get('botlvl'), 10);
     if (ROUNDS.includes(r)) this.opts.rounds = r;
     if (DURS.includes(d)) this.opts.dur = d;
     if (b >= 0 && b <= 4) this.opts.bots = b;
+    if (l >= 0 && l <= 3) this.opts.botlvl = l;
   }
 
   onMessage(p, ws, data) {
@@ -258,16 +269,21 @@ export class Room extends DurableObject {
   }
 
   // ---------- partie ----------
+  // bots au niveau du salon : niveau des joueurs en public, réglé par l'hôte en privé
   setupBots() {
     const want = this.pub ? Math.max(0, 4 - this.humans().length) : this.opts.bots;
+    const lvl = this.pub ? this.bracket : this.opts.botlvl;
+    const [lo, hi] = BOT_SKILL[lvl];
     const bots = this.bots();
     while (bots.length > want) this.players.delete(bots.pop().id);
+    for (const b of bots) if (b.lvlGroup !== lvl) Object.assign(b, { lvlGroup: lvl, skill: lo + Math.random() * (hi - lo), tier: pick(TIERS_OF_BRACKET[lvl]) });
     const used = new Set([...this.players.values()].map(p => p.name));
     for (let i = bots.length; i < want; i++) {
       const name = pick(BOT_NAMES.filter(n => !used.has(n)));
       used.add(name);
       const b = { id: 'b' + rid(5), bot: true, on: true, name, av: pick(BOT_AV), fr: pick(['def', 'def', 'or', 'neon', 'diamant']),
-        lvl: 3 + Math.floor(Math.random() * 30), skill: 0.35 + Math.random() * 0.5, score: 0, streak: 0, rt: null };
+        lvl: 3 + Math.floor(Math.random() * 30), lvlGroup: lvl, skill: lo + Math.random() * (hi - lo), tier: pick(TIERS_OF_BRACKET[lvl]),
+        score: 0, streak: 0, rt: null };
       this.players.set(b.id, b);
       if (i === 0 && Math.random() < 0.7) this.botSay(b, pick(GREET), 2500);
     }
@@ -351,12 +367,12 @@ export class Room extends DurableObject {
     const now = Date.now();
     if (now < this.cur.start - 300 || now - p.lastG < 60) return;
     p.lastG = now;
-    const r = judge(text, this.cur.s);
+    const r = judge(text, this.cur.s, enter);
     const newT = r.title && !p.rt.title, newA = r.artist && !p.rt.artist;
     if (newT || newA) return this.award(p, newT, newA);
+    if (!enter) return;
     if (r.title || r.artist) return this.send(p.ws, { t: 'hint', k: 'already' });
-    if (r.near >= 0.6) return this.send(p.ws, { t: 'hint', k: 'near' });
-    if (enter) this.send(p.ws, { t: 'hint', k: 'miss' });
+    this.send(p.ws, { t: 'hint', k: r.near >= 0.6 ? 'near' : 'miss' });
   }
 
   award(p, newT, newA) {
@@ -418,7 +434,7 @@ export class Room extends DurableObject {
     this.clearTimers();
     const list = [...this.players.values()].sort((a, b) => b.score - a.score);
     this.results = list.map((p, i) => ({
-      id: p.id, rank: i + 1, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, bot: !!p.bot, score: p.score,
+      id: p.id, rank: i + 1, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, bot: !!p.bot, score: p.score,
       nT: p.nT || 0, nA: p.nA || 0, best: p.best || 0, speed: p.speed || 0, fast: p.fast || 0, rounds: p.rounds || 0,
     }));
     this.phase = 'end';
@@ -429,8 +445,33 @@ export class Room extends DurableObject {
     const rows = list.filter(p => !p.bot && p.score > 0)
       .map(p => ({ uid: p.uid, name: p.name, av: p.av, fr: p.fr, pts: p.score, win: list[0] === p && list.length > 1 }));
     if (rows.length) this.hub().addResults(rows).catch(() => {});
-    if (this.pub) this.later(PUBLIC_NEXT, () => (this.humans().length ? this.startGame() : this.stop()));
+    if (this.pub) {
+      this.later(PUBLIC_NEXT, () => (this.humans().length ? this.startGame() : this.stop()));
+      this.ranked(list).catch(e => console.log('rangs', e));
+    }
     setTimeout(() => this.sweep(), 500);
+  }
+
+  // partie classée : points de rang selon la place (bots compris), envoyés à chaque joueur
+  async ranked(list) {
+    const gameId = this.gameId, n = list.length;
+    const rows = list.map((p, i) => ({ p, rank: i + 1 })).filter(x => !x.p.bot && x.p.rounds > 0).map(({ p, rank }) => ({
+      uid: p.uid, name: p.name, av: p.av, fr: p.fr, win: rank === 1,
+      delta: rpDelta(p.tier || 0, rank, n, p.rounds / this.rounds, p.nT >= this.rounds && p.nA >= this.rounds),
+    }));
+    if (!rows.length) return;
+    const res = await this.hub().applyRanked(rows);
+    if (this.gameId !== gameId || this.phase !== 'end') return;
+    for (const r of res) {
+      const p = [...this.players.values()].find(x => x.uid === r.uid);
+      const line = this.results.find(x => x.id === p?.id);
+      if (line) Object.assign(line, { drp: r.delta, tier: r.tier });
+      if (p) {
+        p.tier = r.tier;
+        this.send(p.ws, { t: 'rank', gameId, rp: r.rp, delta: r.delta, tier: r.tier, prev: r.prev, promo: r.promo, sc: r.sc });
+      }
+    }
+    this.broadcastState();
   }
 
   // ---------- chat ----------
@@ -442,7 +483,7 @@ export class Room extends DurableObject {
     if (!text) return;
     if (this.phase === 'play' && p.rt) {
       const s = this.cur.s;
-      const r = judge(text, s);
+      const r = judge(text, s, true);
       if (r.title || r.artist) {
         this.award(p, r.title, r.artist);
         return this.send(p.ws, { t: 'hint', k: 'chat' });

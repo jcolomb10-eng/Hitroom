@@ -110,6 +110,7 @@ const phase = page => page.evaluate(() => document.querySelector('#v-game').clas
       // A tape le titre avec une faute
       const t = ans.title.length > 5 ? ans.title.slice(0, -2) + ans.title.slice(-1) + ans.title.slice(-2, -1) : ans.title;
       await typeSlow(A.page, t);
+      await A.page.press('#guessIn', 'Enter'); // faute de frappe : validée seulement avec Entrée
       await sleep(500);
       if (round === 1) await A.page.screenshot({ path: OUT + '/04_partie.png' });
     } else {

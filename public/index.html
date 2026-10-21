@@ -319,6 +319,32 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .tg.on::after{left:23px}
 input[type=range]{accent-color:var(--gold);width:120px}
 
+/* rangs */
+svg.tb{flex:none;vertical-align:-3px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
+svg.tb.gm{filter:drop-shadow(0 0 6px rgba(255,80,120,.85))}
+.rankcard{display:flex;gap:14px;align-items:center;padding:14px;margin-bottom:10px}
+.rankcard>div{flex:1;min-width:0}
+.rankcard small{display:block;color:var(--muted);font-size:12px}
+.rankcard b{display:block;font-size:22px}
+.rankcard span{color:var(--gold2);font-weight:600;font-size:14px}
+.rankcard .bar{margin:8px 0 4px}
+.tiers{display:grid;gap:6px;margin:10px 0}
+.tiers div{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:#0f0a13;border:1px solid #2a2033}
+.tiers div.cur{border-color:var(--gold2);box-shadow:0 0 10px rgba(255,200,60,.3)}
+.tiers b{flex:1;font-size:14px}
+.tiers .pr{color:var(--muted);font-size:12px;width:58px}
+.tiers em{font-style:normal;font-size:12px;font-weight:700;color:var(--gold2);display:flex;align-items:center;gap:4px;width:70px;justify-content:flex-end}
+.rankres{display:flex;gap:12px;align-items:center;padding:10px 14px;margin-bottom:12px}
+.rankres>div{flex:1;min-width:0}
+.rankres b{display:flex;align-items:center;gap:8px;font-size:17px}
+.rankres small{color:var(--muted);font-size:11.5px}
+.rankres .bar{margin:6px 0 3px}
+.up{color:var(--green)!important}.down{color:var(--red)!important}
+.rr em small{font-size:11px;margin-left:4px}
+.note{color:var(--muted);font-size:12.5px;text-align:center;margin:0 0 10px}
+.seasons{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.seasons div{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;background:#0f0a13;border:1px solid #2a2033;font-size:12px}
+
 /* ---------- feuilles (fenêtres du bas) ---------- */
 .sheet{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.6)}
 .sheet .box{max-height:86%;overflow-y:auto;padding:18px 16px max(18px,env(safe-area-inset-bottom));border-radius:22px 22px 0 0;border-bottom:0;animation:slide .25s ease-out}
@@ -405,6 +431,7 @@ input[type=range]{accent-color:var(--gold);width:120px}
       <div class="card code"><small>Code du salon</small><b><span id="lobbyCode"></span><button id="copyCode" data-i="copy" aria-label="Copier"></button></b></div>
       <div class="side"><div class="pill" id="lobbyCount"></div><button class="pill" id="lobbyInvite" style="border-color:var(--pink)"><span data-i="share"></span>Inviter</button></div>
     </div>
+    <p class="note" id="lobbyNote"></p>
     <div class="plist" id="lobbyPlayers"></div>
     <div class="card chatbox" id="lobbyChat"><div class="msgs" id="lobbyMsgs"></div>
       <div class="chatin"><input id="lobbyChatIn" maxlength="120" placeholder="Écris un message…" enterkeyhint="send"><button class="ibtn" id="lobbyChatSend" data-i="send"></button></div></div>
@@ -450,6 +477,7 @@ input[type=range]{accent-color:var(--gold);width:120px}
   <div class="scroll">
     <div class="podium" id="podium"></div>
     <div class="card myrow" id="myrow"></div>
+    <div id="rankBox"></div>
     <div class="tabs"><button class="on" data-et="recap">Mon récapitulatif</button><button data-et="full">Classement complet</button></div>
     <div id="endRecap"></div>
     <div id="endFull" class="ranklist hide"></div>
@@ -499,7 +527,7 @@ input[type=range]{accent-color:var(--gold);width:120px}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.0.1';
+const VERSION = '1.1';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -580,6 +608,40 @@ const BADGES = [
   { e: '💯', name: 'Partie parfaite', ok: s => s.perfect >= 1 },
 ];
 
+// rangs (copie de src/ranks.js) et couleurs des écussons
+const TIERS = [
+  { name: 'Bronze', min: 0, c: ['#f3b98a', '#8a4b1f'] },
+  { name: 'Argent', min: 100, c: ['#ffffff', '#8c96a8'] },
+  { name: 'Or', min: 200, c: ['#fff2a8', '#d99a00'] },
+  { name: 'Platine', min: 300, c: ['#e0fffc', '#3fb8b0'] },
+  { name: 'Diamant', min: 400, c: ['#e3f4ff', '#3d7bff'] },
+  { name: 'Rubis', min: 500, c: ['#ffc2cf', '#c0123a'] },
+  { name: 'Émeraude', min: 600, c: ['#c4ffe6', '#0f9d64'] },
+  { name: 'Maître', min: 700, c: ['#f1d9ff', '#7b2cff'] },
+  { name: 'Grand Maître', min: 850, c: ['#ffe9a8', '#ff2e6e'] },
+];
+const BRACKETS = ['Bronze – Argent', 'Or – Platine', 'Diamant – Rubis', 'Émeraude – Grand Maître'];
+const BOT_LVLS = ['Facile', 'Moyen', 'Difficile', 'Expert'];
+const SEASON_COINS = [50, 100, 150, 250, 350, 500, 700, 1000, 1500];
+const bracketOf = t => [0, 0, 1, 1, 2, 2, 3, 3, 3][t] ?? 0;
+const tierOfRp = rp => TIERS.reduce((t, x, i) => (rp >= x.min ? i : t), 0);
+function tierProgress(rp) {
+  const t = tierOfRp(rp), next = TIERS[t + 1];
+  return { t, next, pct: next ? 100 * (rp - TIERS[t].min) / (next.min - TIERS[t].min) : 100 };
+}
+function tierBadge(t, s = 22) {
+  t = Math.max(0, Math.min(8, t | 0));
+  const inner = t >= 7 ? '<path d="M7.3 15.2h9.4l.9-6.3-3 2.4L12 7.2l-2.6 4.1-3-2.4z" fill="#fff"/>'
+    : t >= 4 ? '<path d="M8.2 9.6l2-2.6h3.6l2 2.6L12 15.8z" fill="#fff"/>'
+    : '<path d="M12 6.6l1.6 3.3 3.6.5-2.6 2.5.6 3.6L12 14.8l-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="#fff"/>';
+  return `<svg class="tb${t === 8 ? ' gm' : ''}" viewBox="0 0 24 24" width="${s}" height="${s}"><path d="M12 1.6l8.4 3.1v6.3c0 5.3-3.6 9.5-8.4 11.4C7.2 20.5 3.6 16.3 3.6 11V4.7z" fill="url(#tg${t})" stroke="rgba(0,0,0,.45)" stroke-width=".8"/>${inner}</svg>`;
+}
+// dégradés des écussons, définis une seule fois dans la page (toujours affichée)
+document.body.insertAdjacentHTML('afterbegin', `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${TIERS.map((x, i) =>
+  `<linearGradient id="tg${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${x.c[0]}"/><stop offset="1" stop-color="${x.c[1]}"/></linearGradient>`).join('')}</defs></svg>`);
+const seasonName = sc => new Date((sc || new Date().toISOString().slice(0, 7)) + '-15').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+const seasonEnd = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth() + 1, 0).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }); };
+
 // ---------- sauvegarde locale ----------
 const KEY = 'hitroom.v1';
 const today = () => new Date().toLocaleDateString('sv-SE');
@@ -592,6 +654,7 @@ function fresh() {
     day: { d: today(), games: 0, nA: 0, streak: 0, top5: 0, claimed: [] },
     sea: { m: month(), games: 0, nA: 0, nT: 0, wins: 0, claimed: [] },
     set: { sfx: true, vol: 0.9, chat: true, others: true, live: true }, games: [], cat: 'mix',
+    rank: { sc: '', rp: 0, tier: 0, best: 0, games: 0, pos: null }, seasons: [], promos: {},
   };
 }
 let S = fresh();
@@ -605,7 +668,6 @@ rollPeriods();
 
 // niveau : il faut 100 × niveau XP pour passer au suivant
 function level(xp = S.xp) { let l = 1; while (xp >= 100 * l) { xp -= 100 * l; l++; } return { l, cur: xp, need: 100 * l }; }
-const rankName = l => l >= 35 ? 'Diamant 💎' : l >= 20 ? 'Platine' : l >= 10 ? 'Or ★' : l >= 5 ? 'Argent' : 'Bronze';
 const avHTML = (av, fr, size, extra = '') => `<div class="av f-${esc(fr || 'def')}" style="--s:${size}px">${esc(av || '🎧')}${extra}</div>`;
 
 // ---------- interface : vues, toasts, feuilles ----------
@@ -777,6 +839,7 @@ function onMsg(m) {
     case 'found': return onFound(m);
     case 'you': return onYou(m);
     case 'hint': return onHint(m.k);
+    case 'rank': return onRank(m);
     case 'chat': case 'sys': return onChat(m);
     case 'preload': if (m.url) { pre.src = m.url; } return;
     case 'ends': if (R.st?.cur) { R.st.cur.end = m.end; R.st.ends = m.end; } return;
@@ -797,7 +860,7 @@ function onState(st) {
   if (prev?.round !== st.round || prev?.phase !== st.phase) {
     if (st.phase === 'play' && (prev?.phase !== 'play' || prev?.round !== st.round)) {
       R.feed = []; R.you = { title: null, artist: null };
-      $('#guessIn').value = ''; setHint('');
+      $('#guessIn').value = ''; setHint('Le titre ou l’artiste en entier · Entrée = petites fautes acceptées');
       sfx.go();
     }
     if (st.phase === 'reveal') setHint('');
@@ -851,7 +914,7 @@ function onYou(m) {
 function setHint(t) { $('#hint').textContent = t; }
 function onHint(k) {
   const inp = $('#guessIn');
-  if (k === 'near') setHint('🔥 Tu brûles… précise un peu');
+  if (k === 'near') setHint('🔥 Tu brûles… vérifie l’orthographe, c’est presque ça');
   else if (k === 'already') setHint('✓ Déjà trouvé');
   else if (k === 'chat') setHint('Bien vu ! La prochaine fois, tape-le dans la case du jeu 😉');
   else if (k === 'masked') toast('Message masqué : il contenait la réponse 😉');
@@ -893,6 +956,7 @@ function renderLobby() {
   $('#lobbyTitle').innerHTML = `Salon : ${esc(c.name)}<small>${esc(c.sub)} • ${st.opts.rounds} manches • ${st.opts.dur} s</small>`;
   $('#lobbyCode').textContent = st.code || '';
   $('#lobbyCount').innerHTML = `${icon('user', 16)} ${humansOf(st).length}/12`;
+  $('#lobbyNote').textContent = `🤝 Partie amicale, sans points de rang${st.opts.bots ? ` • Bots : ${BOT_LVLS[st.opts.botlvl || 0]}` : ''}`;
   const host = isHost();
   $('#lobbyGear').style.visibility = host ? '' : 'hidden';
   $('#lobbyParams').classList.toggle('hide', !host);
@@ -903,7 +967,7 @@ function renderLobby() {
   const players = [...st.players].sort((a, b) => (b.id === st.host) - (a.id === st.host) || a.bot - b.bot);
   $('#lobbyPlayers').innerHTML = players.map(p => `<div class="card prow ${p.on ? '' : 'off'}">
     ${avHTML(p.av, p.fr, 44, p.id === st.host ? '<span class="crown">👑</span>' : '')}
-    <div class="nm"><b>${esc(p.name)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b><span>Niveau ${p.lvl}${p.on ? '' : ' • hors ligne'}</span></div>
+    <div class="nm"><b>${esc(p.name)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b><span>${tierBadge(p.tier, 14)} ${TIERS[p.tier || 0].name} • Niv. ${p.lvl}${p.on ? '' : ' • hors ligne'}</span></div>
     ${p.id === st.host ? '<span class="tag">Hôte</span>' : p.bot ? '<span class="tag bot">BOT</span>' : ''}
     ${p.on ? '<div class="eqi"><i></i><i></i><i></i><i></i></div>' : ''}</div>`).join('');
   $('#lobbyChat').classList.toggle('hide', !S.set.chat);
@@ -1045,6 +1109,14 @@ function renderEnd() {
   }).join('');
   const r = res.find(x => x.id === R.me);
   $('#myrow').innerHTML = r ? `<span class="r">${r.rank}</span>${avHTML(S.av, S.fr, 36)}<b>Toi</b><em>${r.score} pts</em>` : '<span class="muted" style="padding:6px 0">Tu as rejoint le salon après le début de cette partie.</span>';
+  const rb = $('#rankBox');
+  if (!st.pub) rb.innerHTML = '<p class="note" style="margin-top:-4px">🤝 Partie amicale : pas de points de rang</p>';
+  else if (r && lastRank?.gameId === st.gameId) {
+    const pr = tierProgress(lastRank.rp), d = lastRank.delta;
+    rb.innerHTML = `<div class="card rankres">${tierBadge(lastRank.tier, 46)}<div><small>Partie classée</small>
+      <b>${TIERS[lastRank.tier].name} <span class="${d >= 0 ? 'up' : 'down'}">${d >= 0 ? '+' : ''}${d} PR</span></b>
+      <div class="bar"><i style="width:${pr.pct}%"></i></div><small>${lastRank.rp} PR${pr.next ? ` • encore ${pr.next.min - lastRank.rp} PR pour ${pr.next.name}` : ' • rang maximum !'}</small></div></div>`;
+  } else rb.innerHTML = r ? '<p class="note" style="margin-top:-4px">Calcul des points de rang…</p>' : '';
   const g = lastGain?.id === st.gameId ? lastGain : null;
   $('#endRecap').innerHTML = r ? `<div class="stats">
     <div class="card st"><span class="e">🎤</span><div><small>Artistes trouvés</small><b>${r.nA} / ${st.rounds}</b></div></div>
@@ -1054,7 +1126,7 @@ function renderEnd() {
     <div class="card st"><span class="e">🔥</span><div><small>Meilleure série</small><b>x${r.best}</b></div></div>
     <div class="card st"><span class="e">⚡</span><div><small>Bonus rapidité</small><b>+${r.speed} pts</b></div></div>
   </div>${g ? `<p style="text-align:center;margin:12px 0 0;font-weight:600"><span class="coin">$</span> +${g.coins} pièces</p>` : ''}` : '';
-  $('#endFull').innerHTML = res.map(p => `<div class="card rr ${p.id === R.me ? 'me' : ''}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${esc(p.name)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts</em></div>`).join('');
+  $('#endFull').innerHTML = res.map(p => `<div class="card rr ${p.id === R.me ? 'me' : ''}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${tierBadge(p.tier, 16)} ${esc(p.name)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
   $('#endRecap').classList.toggle('hide', endTab !== 'recap');
   $('#endFull').classList.toggle('hide', endTab !== 'full');
   $$('[data-et]').forEach(b => b.classList.toggle('on', b.dataset.et === endTab));
@@ -1068,6 +1140,56 @@ function renderEnd() {
   if (!raf) raf = requestAnimationFrame(tick);
 }
 $$('[data-et]').forEach(b => b.onclick = () => { endTab = b.dataset.et; renderEnd(); });
+
+// ---------- rangs ----------
+let lastRank = null, meLoaded = 0;
+function onRank(m) {
+  lastRank = m;
+  S.rank = { ...S.rank, sc: m.sc, rp: m.rp, tier: m.tier, best: Math.max(S.rank.sc === m.sc ? S.rank.best : 0, m.tier), games: (S.rank.games || 0) + 1 };
+  if (m.promo && !((S.promos[m.sc] || 0) >= m.promo)) {
+    const coins = 50 * m.promo;
+    S.promos[m.sc] = m.promo;
+    S.coins += coins;
+    setTimeout(() => toast(`${tierBadge(m.promo, 22)} Nouveau rang : <b>${TIERS[m.promo].name}</b> ! +${coins} pièces`, 5000), 700);
+  } else if (m.tier > m.prev) setTimeout(() => toast(`${tierBadge(m.tier, 22)} Tu remontes en <b>${TIERS[m.tier].name}</b> !`, 3500), 700);
+  else if (m.tier < m.prev) setTimeout(() => toast(`Tu redescends en ${TIERS[m.tier].name}. Courage, ça remonte vite !`, 3500), 700);
+  save();
+  if (curView === 'end') renderEnd();
+}
+async function loadMe(force) {
+  if (!S.name || (!force && Date.now() - meLoaded < 30000)) return;
+  meLoaded = Date.now();
+  let d;
+  try { d = await (await fetch(`/api/me?uid=${S.uid}`)).json(); } catch (e) { return; }
+  if (!d || d.error) return;
+  S.rank = { sc: d.sc, rp: d.rp, tier: d.tier, best: d.best, games: d.games, pos: d.pos };
+  if (d.reward && !S.seasons.some(x => x.sc === d.reward.sc)) {
+    const coins = SEASON_COINS[d.reward.tier] || 0;
+    S.coins += coins;
+    S.seasons.push({ sc: d.reward.sc, tier: d.reward.tier });
+    openSheet(`<div style="text-align:center"><h3 style="justify-content:center">Saison terminée !</h3>
+      <p>Ton meilleur rang de la saison de ${seasonName(d.reward.sc)} :</p>
+      <div style="margin:10px 0">${tierBadge(d.reward.tier, 84)}</div><b style="font-size:22px">${TIERS[d.reward.tier].name}</b>
+      <p>Récompense : <b style="color:var(--gold2)">+${fmt(coins)} pièces</b> et le badge de saison dans ton profil.</p>
+      <p>Nouvelle saison : tu repars en <b>${TIERS[d.tier].name}</b>. À toi de remonter !</p>
+      <button class="cta" data-close>Super !</button></div>`);
+  }
+  save();
+  if (curView === 'home') renderHome();
+  if (curView === 'profile') renderProfile();
+}
+function rankSheet() {
+  const r = S.rank, pr = tierProgress(r.rp);
+  openSheet(`<h3>Rangs et saison <button data-close data-i="x"></button></h3>
+    <div class="card rankcard">${tierBadge(r.tier, 64)}<div><small>Saison de ${seasonName(r.sc)}</small><b>${TIERS[r.tier].name}</b><span>${r.rp} PR${r.pos ? ` • ${r.pos}${r.pos === 1 ? 'er' : 'e'} du classement` : ''}</span>
+      <div class="bar"><i style="width:${pr.pct}%"></i></div><small>${pr.next ? `Encore ${pr.next.min - r.rp} PR pour ${pr.next.name}` : 'Rang maximum atteint !'}</small></div></div>
+    <p>🎮 Les parties de <b>Jouer maintenant</b> sont classées : tu gagnes des points de rang (PR) en finissant dans le haut du classement, tu en perds en finissant en bas. Plus ton rang est haut, plus c’est exigeant.</p>
+    <p>⚖️ Tu joues contre des joueurs de ton niveau (<b>${BRACKETS[bracketOf(r.tier)]}</b>). S’il manque du monde, des bots du même niveau complètent.</p>
+    <p>📅 Fin de saison le <b>${seasonEnd()}</b> : des pièces selon ton meilleur rang, puis ton rang redescend de moitié pour la saison suivante. Chaque nouveau rang atteint rapporte aussi des pièces.</p>
+    <div class="tiers">${TIERS.map((x, i) => `<div class="${i === r.tier ? 'cur' : ''}">${tierBadge(i, 30)}<b>${x.name}</b><span class="pr">${x.min} PR</span><em><span class="coin">$</span>${fmt(SEASON_COINS[i])}</em></div>`).join('')}</div>
+    <p class="muted" style="font-size:12.5px">Les salons privés entre amis sont des parties amicales : sans points de rang.</p>
+    <button class="cta" data-close>OK</button>`);
+}
 $('#endHome').onclick = () => { leaveRoom(); };
 $('#endSame').onclick = () => {
   if (R.st.pub) { leaveRoom(); setTimeout(() => openCats('public'), 50); return; }
@@ -1122,6 +1244,7 @@ function hostSettings() {
     <div class="opt"><label>Nombre de manches</label>${seg('rounds', [5, 10, 15, 20])}</div>
     <div class="opt"><label>Durée de chaque extrait</label>${seg('dur', [15, 20, 30], ' s')}</div>
     <div class="opt"><label>Bots (joueurs virtuels pour compléter)</label>${seg('bots', [0, 1, 2, 3, 4])}</div>
+    <div class="opt"><label>Niveau des bots</label><div class="seg" data-k="botlvl">${BOT_LVLS.map((l, i) => `<button data-v="${i}" class="${(o.botlvl || 0) === i ? 'on' : ''}">${l}</button>`).join('')}</div></div>
     <button class="cta" data-close>OK</button>`);
   $$('#sheetBox .seg button').forEach(b => b.onclick = () => {
     const k = b.parentElement.dataset.k;
@@ -1137,7 +1260,7 @@ function openCats(mode) {
   catsMode = mode;
   catSel = mode === 'change' ? R.st.cat : (S.cat || 'mix');
   $('#catsTitle').textContent = mode === 'public' ? 'Jouer maintenant' : 'Choisir une catégorie';
-  $('#catsSub').textContent = mode === 'public' ? 'Choisis ton salon : tu joues en direct avec les joueurs connectés.' : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
+  $('#catsSub').innerHTML = mode === 'public' ? `Partie classée ${tierBadge(S.rank.tier, 16)} contre des joueurs de ton niveau (${BRACKETS[bracketOf(S.rank.tier)]})` : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
   $('#catsOk').textContent = mode === 'change' ? 'Valider la catégorie' : mode === 'public' ? 'Entrer dans le salon' : 'Créer le salon';
   if (mode === 'change') { history.pushState({ v: 'room' }, ''); show('cats'); } else go('cats');
   renderCats();
@@ -1151,7 +1274,8 @@ function renderCats() {
 }
 async function loadCounts() {
   clearTimeout(countsT);
-  try { counts = await (await fetch('/api/counts')).json(); } catch (e) { counts = {}; }
+  const b = curView === 'cats' && catsMode === 'public' ? `?b=${bracketOf(S.rank.tier)}` : '';
+  try { counts = await (await fetch('/api/counts' + b)).json(); } catch (e) { counts = {}; }
   if (curView === 'cats') { renderCats(); countsT = setTimeout(loadCounts, 10000); }
   if (curView === 'home') renderOnline();
 }
@@ -1215,7 +1339,8 @@ function renderHome() {
   const lv = level();
   $('#homeAv').innerHTML = avHTML(S.av, S.fr, 46);
   $('#homeName').textContent = S.name || 'Toi';
-  $('#homeLvl').textContent = `Niveau ${lv.l}`;
+  $('#homeLvl').innerHTML = `${tierBadge(S.rank.tier, 16)} ${TIERS[S.rank.tier].name} • Niveau ${lv.l}`;
+  loadMe();
   $('#homeXp').style.width = (100 * lv.cur / lv.need) + '%';
   $('#coinVal').textContent = fmt(S.coins);
   $('#defiDot').classList.toggle('hide', !claimable());
@@ -1231,6 +1356,7 @@ $('#bCreate').onclick = () => openCats('create');
 $('#bJoin').onclick = () => joinSheet();
 $('#homeSet').onclick = () => go('settings');
 $('#homeAv').onclick = () => go('profile');
+$('#v-home .who').onclick = () => rankSheet();
 $('#homeCoins').onclick = () => go('defis');
 $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
 
@@ -1240,7 +1366,7 @@ function renderProfile() {
   const rate = s.rounds ? Math.round(100 * (s.nT + s.nA) / (2 * s.rounds)) : 0;
   $('#profBody').innerHTML = `<div class="card prof"><button id="profAv">${avHTML(S.av, S.fr, 84)}</button>
     <div class="info"><b>${esc(S.name || 'Toi')} <button id="profEdit" data-i="edit" style="color:var(--muted)"></button></b>
-      <div class="rank">Rang : ${rankName(lv.l)}</div><div>Niveau ${lv.l}</div>
+      <div class="rank">${tierBadge(S.rank.tier, 16)} ${TIERS[S.rank.tier].name} • ${S.rank.rp} PR</div><div>Niveau ${lv.l}</div>
       <div class="bar"><i style="width:${100 * lv.cur / lv.need}%"></i></div><small>${fmt(lv.cur)} / ${fmt(lv.need)} XP</small></div></div>
     <div class="nums"><div class="card"><b>${s.games}</b><small>Parties</small></div><div class="card"><b>${s.nA}</b><small>Artistes</small></div>
       <div class="card"><b>${s.nT}</b><small>Titres</small></div><div class="card"><b>${rate}%</b><small>Réussite</small></div></div>
@@ -1249,12 +1375,17 @@ function renderProfile() {
         <div class="badges">${BADGES.map(b => `<div class="card bd ${b.ok(s) ? '' : 'lock'}"><span class="e">${b.e}</span>${b.name}</div>`).join('')}</div></div>
       <div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">📈</span><span>Mes statistiques</span></div>
         <div class="muted" style="font-size:13px;line-height:1.9;margin-top:6px">🥇 Victoires : <b style="color:#fff">${s.wins}</b><br>🏆 Meilleur score : <b style="color:#fff">${s.top} pts</b><br>🔥 Meilleure série : <b style="color:#fff">x${s.streak}</b><br>⚡ Réponse la plus rapide : <b style="color:#fff">${s.fast ? (s.fast / 1000).toFixed(1).replace('.', ',') + ' s' : '—'}</b></div></div>
+      <button class="card li" id="profRank"><span class="e">${tierBadge(S.rank.tier, 22)}</span><span>Mon rang de la saison</span><span class="muted">${TIERS[S.rank.tier].name}</span><span class="chev">›</span></button>
+      ${S.seasons.length ? `<div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">🏆</span><span>Mes saisons</span></div>
+        <div class="seasons">${S.seasons.slice().reverse().map(x => `<div>${tierBadge(x.tier, 18)} ${seasonName(x.sc)} : ${TIERS[x.tier].name}</div>`).join('')}</div></div>` : ''}
       <button class="card li" id="profPerso"><span class="e">🎨</span><span>Personnalisation</span><span class="chev">›</span></button>
     </div>`;
   paintIcons($('#profBody'));
   $('#profAv').onclick = () => avatarSheet();
   $('#profEdit').onclick = () => nameSheet();
   $('#profPerso').onclick = () => go('shop');
+  $('#profRank').onclick = () => rankSheet();
+  loadMe();
 }
 function avatarSheet() {
   openSheet(`<h3>Choisis ton avatar <button data-close data-i="x"></button></h3><div class="avgrid">${AVATARS.map(a => `<button class="${a === S.av ? 'on' : ''}">${a}</button>`).join('')}</div>`);
@@ -1275,11 +1406,11 @@ async function loadBoard() {
   $('#boardMe').innerHTML = '';
   let d;
   try { d = await (await fetch(`/api/board?sc=${boardTab}&uid=${S.uid}`)).json(); } catch (e) { list.innerHTML = '<div class="empty">Pas de connexion internet ?</div>'; return; }
-  if (!d.top.length) { list.innerHTML = '<div class="empty">Personne n’a encore marqué de points cette saison.<br>À toi de jouer ! 🎵</div>'; return; }
-  const row = (p, n) => `<div class="card rr ${p.me ? 'me' : ''}"><span class="n">${n}</span>${avHTML(p.av, p.fr, 32)}<b>${esc(p.name)}${p.me ? ' (toi)' : ''}</b><em>${fmt(p.pts)} pts</em></div>`;
+  if (!d.top.length) { list.innerHTML = `<div class="empty">${d.ranked ? 'Personne n’a encore joué de partie classée cette saison.' : 'Personne n’a encore marqué de points.'}<br>À toi de jouer ! 🎵</div>`; return; }
+  const row = (p, n) => `<div class="card rr ${p.me ? 'me' : ''}"><span class="n">${n}</span>${avHTML(p.av, p.fr, 32)}<b>${d.ranked ? tierBadge(p.tier, 18) + ' ' : ''}${esc(p.name)}${p.me ? ' (toi)' : ''}</b><em>${d.ranked ? `${fmt(p.rp)} PR` : `${fmt(p.pts)} pts`}</em></div>`;
   list.innerHTML = d.top.map((p, i) => row(p, i + 1)).join('');
   if (d.me && d.me.rank > d.top.length) $('#boardMe').innerHTML = row(d.me, d.me.rank);
-  if (boardTab === 'season') list.insertAdjacentHTML('afterbegin', `<p class="muted" style="text-align:center;font-size:12.5px;margin:0 0 8px">Saison de ${new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })} • remise à zéro chaque mois</p>`);
+  list.insertAdjacentHTML('afterbegin', `<p class="note">${boardTab === 'season' ? `Saison de ${seasonName(d.season)} • points de rang • fin le ${seasonEnd()}` : 'Total des points marqués depuis le début'}</p>`);
 }
 
 // ---------- défis ----------
@@ -1349,9 +1480,9 @@ function renderSettings() {
 function rules() {
   openSheet(`<h3>Comment jouer ? <button data-close data-i="x"></button></h3>
     <p>🎧 Un extrait de musique démarre en même temps pour tous les joueurs du salon.</p>
-    <p>⌨️ Tape <b>l’artiste</b> ou <b>le titre</b> dans la case : pas besoin d’appuyer sur Entrée, ta réponse est reconnue pendant que tu tapes. Les petites fautes et les accents oubliés sont acceptés.</p>
+    <p>⌨️ Tape <b>l’artiste</b> ou <b>le titre en entier</b> (ou les deux d’un coup). La bonne réponse est reconnue pendant que tu tapes ; les accents, majuscules et la ponctuation ne comptent pas. Si tu as fait une petite faute, appuie sur <b>Entrée</b> : quelques fautes sont tolérées.</p>
     <p>🏆 <b>Titre : +15 pts</b>, <b>artiste : +10 pts</b>, plus un <b>bonus de rapidité</b> (jusqu’à +5) et un <b>bonus de série</b> si tu trouves plusieurs manches d’affilée.</p>
-    <p>👥 <b>Jouer maintenant</b> : salons publics par style, ouverts à tous. <b>Créer un salon</b> : salon privé, tu envoies le code à tes amis.</p>
+    <p>👥 <b>Jouer maintenant</b> : parties classées contre des joueurs de ton niveau, qui font monter ou descendre ton rang (de Bronze à Grand Maître, saison chaque mois). <b>Créer un salon</b> : partie amicale avec tes amis, sans points de rang.</p>
     <p>🤖 Les joueurs marqués « BOT » sont des joueurs virtuels qui complètent les salons quand il y a peu de monde.</p>
     <button class="cta" data-close>J’ai compris</button>`);
 }
@@ -1367,6 +1498,7 @@ function onboarding() {
     if (v.length < 2) { toast('Choisis un pseudo (2 caractères minimum)'); return; }
     S.name = v; save(); unlock();
     go('home', true);
+    loadMe(true);
     startDeepLink();
   };
   show('onb');

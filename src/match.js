@@ -1,10 +1,11 @@
-// Détection des réponses : tolère accents, fautes de frappe, articles, saisie partielle,
-// et reconnaît « artiste + titre » tapés d'un coup.
+// Détection des réponses : il faut taper le titre ou l'artiste en entier.
+// Pendant la frappe, seule la réponse exacte (accents, majuscules et ponctuation ignorés) est validée ;
+// avec Entrée, quelques fautes de frappe sont tolérées selon la longueur.
 
 const STOP = new Set(['the', 'le', 'la', 'les', 'l', 'un', 'une', 'des', 'de', 'du', 'd', 'a', 'and', 'et',
   'feat', 'ft', 'featuring', 'of', 'en', 'au', 'aux', 'y', 'n']);
 
-export const THRESHOLD = 0.8;
+export const THRESHOLD = 0.9;
 
 export function norm(s) {
   return (s || '').toString().toLowerCase()
@@ -15,13 +16,15 @@ export function norm(s) {
 }
 
 function strip(n) {
-  const w = n.split(' ').filter(x => x && !STOP.has(x));
-  return w.length ? w.join(' ') : n;
+  return n.split(' ').filter(x => x && !STOP.has(x)).join(' ');
 }
 
+// [complet, sans articles, complet collé, sans articles collé]
+// la forme sans articles n'est gardée que si elle reste assez longue (« a-ha » ne devient pas « ha »)
 function forms(s) {
   const full = norm(s);
-  const st = strip(full);
+  let st = strip(full);
+  if (st.replace(/ /g, '').length < 4) st = full;
   return [full, st, full.replace(/ /g, ''), st.replace(/ /g, '')];
 }
 
@@ -44,47 +47,37 @@ export function lev(a, b) {
   return prev[b.length];
 }
 
-function pairScore(i, t, spaced, isArtist) {
-  if (!i || !t) return 0;
-  if (i === t) return 1;
-  if (spaced) {
-    // saisie partielle : début de réponse suffisamment long (« pour que tu m aimes » pour « pour que tu m aimes encore »)
-    if (i.length >= 3 && t.startsWith(i) && i.length >= t.length * 0.6) return 0.92;
-    // nom de famille seul pour un artiste en plusieurs mots (« goldman », « aznavour »)
-    if (isArtist && i.length >= 4) {
-      const words = t.split(' ');
-      if (words.length >= 2 && words[words.length - 1] === i) return 0.9;
-    }
-  }
-  const d = lev(i, t);
-  return 1 - d / Math.max(i.length, t.length);
-}
+// fautes tolérées selon le nombre de lettres de la réponse
+export const allowed = len => (len <= 4 ? 0 : len <= 8 ? 1 : len <= 14 ? 2 : 3);
 
-export function score(input, targets, isArtist = false) {
+// 1 : identique ; 0,9 : petites fautes tolérées (seulement si fuzzy) ; sinon ressemblance < 0,9
+export function score(input, targets, fuzzy = false) {
   const fi = forms(input);
   let best = 0;
   for (const target of targets) {
     const ft = forms(target);
     for (let k = 0; k < 4; k++) {
-      const s = pairScore(fi[k], ft[k], k < 2, isArtist);
-      if (s > best) best = s;
-      if (best === 1) return 1;
+      if (!fi[k] || !ft[k]) continue;
+      if (fi[k] === ft[k]) return 1;
+      if (k < 2) continue;
+      const d = lev(fi[k], ft[k]);
+      if (fuzzy && d <= allowed(ft[k].length)) best = Math.max(best, THRESHOLD);
+      best = Math.max(best, Math.min(0.89, 1 - d / Math.max(fi[k].length, ft[k].length)));
     }
   }
   return best;
 }
 
-// song : { t: [titres acceptés], a: [artistes acceptés] }
+// song : { t: [titres acceptés], a: [artistes acceptés] } ; fuzzy = Entrée appuyée
 // renvoie { title, artist, near } ; near = « tu brûles »
-export function judge(input, song) {
+export function judge(input, song, fuzzy = false) {
   const text = norm(input);
   if (text.replace(/ /g, '').length < 2) return { title: false, artist: false, near: 0 };
-  const st = score(input, song.t, false);
-  const sa = score(input, song.a, true);
+  const st = score(input, song.t, fuzzy);
+  const sa = score(input, song.a, fuzzy);
   let title = st >= THRESHOLD;
   let artist = sa >= THRESHOLD;
   if (title && artist) {
-    // un seul texte qui ressemble aux deux : on garde le plus proche
     if (st >= sa) artist = false; else title = false;
   }
   if (!(title && artist)) {
@@ -92,13 +85,12 @@ export function judge(input, song) {
     const w = text.split(' ');
     for (let k = 1; k < w.length; k++) {
       const left = w.slice(0, k).join(' '), right = w.slice(k).join(' ');
-      if ((score(left, song.a, true) >= 0.86 && score(right, song.t) >= 0.86) ||
-          (score(left, song.t) >= 0.86 && score(right, song.a, true) >= 0.86)) {
+      if ((score(left, song.a, fuzzy) >= THRESHOLD && score(right, song.t, fuzzy) >= THRESHOLD) ||
+          (score(left, song.t, fuzzy) >= THRESHOLD && score(right, song.a, fuzzy) >= THRESHOLD)) {
         title = artist = true;
         break;
       }
     }
   }
-  const near = Math.max(st, sa);
-  return { title, artist, near: title || artist ? 1 : near };
+  return { title, artist, near: title || artist ? 1 : Math.max(st, sa) };
 }

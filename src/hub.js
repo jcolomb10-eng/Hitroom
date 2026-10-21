@@ -1,10 +1,11 @@
 // Hub : un seul objet pour tout le site.
 // - retrouve les extraits (iTunes, Deezer en secours), mis en mémoire et préchargés petit à petit en tâche de fond
 // - compte les joueurs présents dans chaque salon public
-// - tient le classement (saison = mois en cours, et « tous les temps »)
+// - tient les rangs (points de rang par saison mensuelle) et le classement « tous les temps »
 import { DurableObject } from 'cloudflare:workers';
 import { songsOf, songByKey } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
+import { tierOf, softReset } from './ranks.js';
 
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
@@ -31,6 +32,9 @@ export class Hub extends DurableObject {
     }
     this.sql.exec(`CREATE TABLE IF NOT EXISTS scores(sc TEXT, uid TEXT, name TEXT, av TEXT, fr TEXT, pts INTEGER, games INTEGER, wins INTEGER, PRIMARY KEY(sc, uid))`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS scores_pts ON scores(sc, pts DESC)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS ranks(uid TEXT, sc TEXT, rp INTEGER, best INTEGER, games INTEGER, wins INTEGER, name TEXT, av TEXT, fr TEXT, PRIMARY KEY(uid, sc))`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS ranks_rp ON ranks(sc, rp DESC)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS rewards(uid TEXT, sc TEXT, tier INTEGER, claimed INTEGER, PRIMARY KEY(uid, sc))`);
     this.rooms = new Map(); // cat -> { n, ts } (salons publics)
     this.paused = { it: 0, dz: 0 }; // source qui nous limite : on attend
     this.diag = { it: { ok: 0, ko: 0, last: '' }, dz: { ok: 0, ko: 0, last: '' } };
@@ -147,15 +151,63 @@ export class Hub extends DurableObject {
   }
 
   // ---------- salons publics ----------
-  report(cat, n) {
-    this.rooms.set(cat, { n, ts: Date.now() });
+  report(room, cat, bracket, n) {
+    this.rooms.set(room, { cat, bracket, n, ts: Date.now() });
   }
 
-  counts() {
+  // joueurs par catégorie ; avec bracket, seulement les salons de ce niveau
+  counts(bracket) {
     const out = {};
     const now = Date.now();
-    for (const [cat, { n, ts }] of this.rooms) if (n > 0 && now - ts < 20 * 60000) out[cat] = n;
+    for (const { cat, bracket: b, n, ts } of this.rooms.values()) {
+      if (n > 0 && now - ts < 20 * 60000 && (bracket == null || b === bracket)) out[cat] = (out[cat] || 0) + n;
+    }
     return out;
+  }
+
+  // ---------- rangs et saisons ----------
+  // ligne de la saison en cours ; à la 1re visite d'une saison : rang réduit de moitié et récompense de la précédente
+  rankRow(uid) {
+    const sc = season();
+    let r = this.sql.exec(`SELECT rp, best, games, wins FROM ranks WHERE uid = ? AND sc = ?`, uid, sc).toArray()[0];
+    if (r) return r;
+    const prev = this.sql.exec(`SELECT sc, rp, best, games, name, av, fr FROM ranks WHERE uid = ? AND sc < ? ORDER BY sc DESC LIMIT 1`, uid, sc).toArray()[0];
+    const rp = prev ? softReset(prev.rp) : 0;
+    if (prev && prev.games > 0) {
+      this.sql.exec(`INSERT OR IGNORE INTO rewards(uid, sc, tier, claimed) VALUES(?,?,?,0)`, uid, prev.sc, tierOf(prev.best));
+    }
+    this.sql.exec(`INSERT INTO ranks(uid, sc, rp, best, games, wins, name, av, fr) VALUES(?,?,?,?,0,0,?,?,?)`,
+      uid, sc, rp, rp, prev?.name || '', prev?.av || '', prev?.fr || '');
+    return { rp, best: rp, games: 0, wins: 0 };
+  }
+
+  rankOf(uid) {
+    const r = this.rankRow(uid);
+    return { rp: r.rp, tier: tierOf(r.rp) };
+  }
+
+  // infos de rang pour l'appli ; la récompense de fin de saison n'est donnée qu'une fois
+  me(uid) {
+    const sc = season();
+    const r = this.rankRow(uid);
+    const pos = r.games ? this.sql.exec(`SELECT COUNT(*) AS n FROM ranks WHERE sc = ? AND games > 0 AND rp > ?`, sc, r.rp).one().n + 1 : null;
+    const rw = this.sql.exec(`SELECT sc, tier FROM rewards WHERE uid = ? AND claimed = 0 ORDER BY sc DESC LIMIT 1`, uid).toArray()[0];
+    if (rw) this.sql.exec(`UPDATE rewards SET claimed = 1 WHERE uid = ? AND sc = ?`, uid, rw.sc);
+    return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), games: r.games, wins: r.wins, pos, reward: rw || null };
+  }
+
+  // fin d'une partie classée : rows = [{ uid, name, av, fr, delta, win }]
+  applyRanked(rows) {
+    const sc = season();
+    return rows.map(x => {
+      const r = this.rankRow(x.uid);
+      const rp = Math.max(0, r.rp + x.delta);
+      const best = Math.max(r.best, rp);
+      this.sql.exec(`UPDATE ranks SET rp = ?, best = ?, games = games + 1, wins = wins + ?, name = ?, av = ?, fr = ? WHERE uid = ? AND sc = ?`,
+        rp, best, x.win ? 1 : 0, x.name, x.av, x.fr, x.uid, sc);
+      const promo = tierOf(best) > tierOf(r.best) ? tierOf(best) : 0;
+      return { uid: x.uid, rp, delta: rp - r.rp, tier: tierOf(rp), prev: tierOf(r.rp), promo, sc };
+    });
   }
 
   // ---------- classement ----------
@@ -172,7 +224,8 @@ export class Hub extends DurableObject {
   }
 
   board(scope, uid) {
-    const sc = scope === 'all' ? 'all' : season();
+    if (scope !== 'all') return this.rankBoard(uid);
+    const sc = 'all';
     const top = this.sql.exec(`SELECT uid, name, av, fr, pts, games, wins FROM scores WHERE sc = ? ORDER BY pts DESC LIMIT 50`, sc).toArray()
       .map(r => ({ name: r.name, av: r.av, fr: r.fr, pts: r.pts, games: r.games, wins: r.wins, me: r.uid === uid }));
     let me = null;
@@ -184,6 +237,19 @@ export class Hub extends DurableObject {
       }
     }
     return { season: sc, top, me };
+  }
+
+  // classement de la saison : par points de rang
+  rankBoard(uid) {
+    const sc = season();
+    const top = this.sql.exec(`SELECT uid, name, av, fr, rp, games FROM ranks WHERE sc = ? AND games > 0 ORDER BY rp DESC LIMIT 50`, sc).toArray()
+      .map(r => ({ name: r.name, av: r.av, fr: r.fr, rp: r.rp, tier: tierOf(r.rp), games: r.games, me: r.uid === uid }));
+    let me = null;
+    if (uid) {
+      const r = this.sql.exec(`SELECT name, av, fr, rp, games FROM ranks WHERE sc = ? AND uid = ? AND games > 0`, sc, uid).toArray()[0];
+      if (r) me = { ...r, tier: tierOf(r.rp), me: true, rank: this.sql.exec(`SELECT COUNT(*) AS n FROM ranks WHERE sc = ? AND games > 0 AND rp > ?`, sc, r.rp).one().n + 1 };
+    }
+    return { season: sc, ranked: true, top, me };
   }
 
   // état du catalogue ; ?test=1 interroge les deux sources en direct
@@ -203,6 +269,13 @@ export class Hub extends DurableObject {
       }
     }
     return out;
+  }
+
+  // tests en local uniquement (MOCK_MUSIC) : simule une saison précédente pour tester le changement de saison
+  devPrevSeason(uid, sc, rp) {
+    this.sql.exec(`DELETE FROM ranks WHERE uid = ? AND sc = ?`, uid, season());
+    this.sql.exec(`DELETE FROM rewards WHERE uid = ?`, uid);
+    this.sql.exec(`INSERT OR REPLACE INTO ranks(uid, sc, rp, best, games, wins, name, av, fr) VALUES(?,?,?,?,5,1,'Test','🎧','def')`, uid, sc, rp, rp);
   }
 
   failedSongs() {

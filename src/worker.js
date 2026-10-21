@@ -2,6 +2,7 @@
 import { Room } from './room.js';
 import { Hub } from './hub.js';
 import { CAT_IDS } from './catalog.js';
+import { bracketOf } from './ranks.js';
 
 export { Room, Hub };
 
@@ -14,10 +15,17 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), {
 const room = (env, name) => env.ROOMS.get(env.ROOMS.idFromName(name));
 const hub = env => env.HUB.get(env.HUB.idFromName('hub'));
 
-function toRoom(req, env, name) {
+const cleanUid = s => (s || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+
+// le rang vient toujours du serveur (jamais de l'appli) : il choisit le salon public du bon niveau
+async function toRoom(req, env, name, pub) {
   if (req.headers.get('Upgrade') !== 'websocket') return new Response('websocket attendu', { status: 426 });
   const u = new URL(req.url);
+  const uid = cleanUid(u.searchParams.get('uid'));
+  const { tier } = uid.length >= 8 ? await hub(env).rankOf(uid) : { tier: 0 };
+  if (pub) name += ':' + bracketOf(tier);
   u.searchParams.set('room', name);
+  u.searchParams.set('tier', tier);
   return room(env, name).fetch(new Request(u, req));
 }
 
@@ -29,9 +37,9 @@ export default {
 
     if ((m = path.match(/^\/api\/public\/([a-z0-9]+)\/ws$/))) {
       if (!CAT_IDS.has(m[1])) return json({ error: 'catégorie inconnue' }, 404);
-      return toRoom(req, env, 'pub:' + m[1]);
+      return toRoom(req, env, 'pub:' + m[1], true);
     }
-    if ((m = path.match(/^\/api\/salon\/([A-Z0-9]{4})\/ws$/))) return toRoom(req, env, 'priv:' + m[1]);
+    if ((m = path.match(/^\/api\/salon\/([A-Z0-9]{4})\/ws$/))) return toRoom(req, env, 'priv:' + m[1], false);
     if ((m = path.match(/^\/api\/salon\/([A-Z0-9]{4})$/))) return json(await room(env, 'priv:' + m[1]).info());
     if (path === '/api/salon' && req.method === 'POST') {
       for (let i = 0; i < 8; i++) {
@@ -40,12 +48,21 @@ export default {
       }
       return json({ error: 'Réessaie dans un instant.' }, 503);
     }
-    if (path === '/api/counts') return json(await hub(env).counts());
-    if (path === '/api/board') {
-      return json(await hub(env).board(url.searchParams.get('sc'), (url.searchParams.get('uid') || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40)));
+    if (path === '/api/counts') {
+      const b = url.searchParams.get('b');
+      return json(await hub(env).counts(/^[0-3]$/.test(b || '') ? +b : null));
+    }
+    if (path === '/api/board') return json(await hub(env).board(url.searchParams.get('sc'), cleanUid(url.searchParams.get('uid'))));
+    if (path === '/api/me') {
+      const uid = cleanUid(url.searchParams.get('uid'));
+      return uid.length >= 8 ? json(await hub(env).me(uid)) : json({ error: 'identifiant invalide' }, 400);
     }
     if (path === '/api/status') return json(await hub(env).catalogStatus(url.searchParams.has('test')));
     if (path === '/api/introuvables') return json(await hub(env).failedSongs());
+    if (env.MOCK_MUSIC && path === '/__mock/saison') {
+      await hub(env).devPrevSeason(cleanUid(url.searchParams.get('uid')), url.searchParams.get('sc'), +url.searchParams.get('rp') || 0);
+      return json({ ok: 1 });
+    }
     if (env.MOCK_MUSIC && path.startsWith('/__mock/')) return mock(path);
 
     return env.ASSETS.fetch(req);

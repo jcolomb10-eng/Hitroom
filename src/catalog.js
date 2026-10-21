@@ -17,7 +17,7 @@ Wake Me Up Before You Go-Go | Wham!
 Careless Whisper | George Michael ~ Wham!
 Footloose | Kenny Loggins
 Eye of the Tiger | Survivor
-Don't You (Forget About Me) ~ Don't You ~ Forget About Me | Simple Minds
+Don't You (Forget About Me) | Simple Minds
 Tainted Love | Soft Cell
 Another One Bites the Dust | Queen
 Purple Rain | Prince
@@ -33,7 +33,7 @@ Les démons de minuit | Images
 Voyage, voyage | Desireless
 Joe le taxi | Vanessa Paradis
 Toute première fois | Jeanne Mas
-Tous les cris les S.O.S. ~ SOS | Daniel Balavoine ~ Balavoine
+Tous les cris les S.O.S. | Daniel Balavoine
 Partenaire particulier | Partenaire Particulier
 Nuit de folie | Début de Soirée
 Cendrillon | Téléphone
@@ -66,7 +66,7 @@ Vogue | Madonna
 Nothing Compares 2 U ~ Nothing Compares to You | Sinéad O'Connor
 Tubthumping | Chumbawamba
 Scatman ~ Scatman (Ski-Ba-Bop-Ba-Dop-Bop) | Scatman John
-Foule sentimentale | Alain Souchon ~ Souchon
+Foule sentimentale | Alain Souchon
 Aïcha | Khaled
 La tribu de Dana | Manau
 Tomber la chemise | Zebda
@@ -115,7 +115,7 @@ Femme Like U | K-Maro ~ K Maro
   '2010': `
 Rolling in the Deep | Adele
 Get Lucky | Daft Punk ~ Pharrell Williams
-Happy | Pharrell Williams ~ Pharrell
+Happy | Pharrell Williams
 Uptown Funk | Mark Ronson ~ Bruno Mars
 Shape of You | Ed Sheeran
 Despacito | Luis Fonsi
@@ -185,13 +185,13 @@ Tattoo | Loreen
   'variete': `
 Les Champs-Élysées | Joe Dassin
 L'été indien | Joe Dassin
-Comme toi | Jean-Jacques Goldman ~ Goldman
-Quand la musique est bonne | Jean-Jacques Goldman ~ Goldman
+Comme toi | Jean-Jacques Goldman
+Quand la musique est bonne | Jean-Jacques Goldman
 Mistral gagnant | Renaud
 Alexandrie Alexandra | Claude François ~ Cloclo
 Comme d'habitude | Claude François ~ Cloclo
 La vie en rose | Édith Piaf
-Non, je ne regrette rien ~ Je ne regrette rien | Édith Piaf
+Non, je ne regrette rien | Édith Piaf
 La bohème | Charles Aznavour
 Emmenez-moi | Charles Aznavour
 Je l'aime à mourir | Francis Cabrel
@@ -200,9 +200,9 @@ Pour que tu m'aimes encore | Céline Dion
 Dernière danse | Indila
 Je vole | Louane
 Tombé sous le charme | Christophe Maé
-Allumer le feu | Johnny Hallyday ~ Johnny
-Que je t'aime | Johnny Hallyday ~ Johnny
-Foule sentimentale | Alain Souchon ~ Souchon
+Allumer le feu | Johnny Hallyday
+Que je t'aime | Johnny Hallyday
+Foule sentimentale | Alain Souchon
 Ne me quitte pas | Jacques Brel
 Les lacs du Connemara | Michel Sardou
 Le Sud | Nino Ferrer
@@ -214,8 +214,8 @@ Andalouse | Kendji Girac
 Si seulement je pouvais lui manquer | Calogero
 Coco Câline | Julien Doré
 Place des grands hommes | Patrick Bruel
-Le chanteur | Daniel Balavoine ~ Balavoine
-La Javanaise | Serge Gainsbourg ~ Gainsbourg
+Le chanteur | Daniel Balavoine
+La Javanaise | Serge Gainsbourg
 Paroles, paroles | Dalida
 Aline | Christophe
 L'aventurier | Indochine
@@ -267,8 +267,8 @@ God's Plan | Drake
 Sicko Mode | Travis Scott
 HUMBLE. ~ Humble | Kendrick Lamar
 Not Like Us | Kendrick Lamar
-Stronger | Kanye West ~ Kanye
-Gold Digger | Kanye West ~ Kanye
+Stronger | Kanye West
+Gold Digger | Kanye West
 Empire State of Mind | Jay-Z ~ Alicia Keys
 Rapper's Delight | The Sugarhill Gang ~ Sugarhill Gang
 It Was a Good Day | Ice Cube
@@ -398,7 +398,7 @@ Skyfall | Adele
 Shallow | Lady Gaga ~ Bradley Cooper
 What a Feeling ~ Flashdance... What a Feeling | Irene Cara
 Men in Black | Will Smith
-Oh, Pretty Woman ~ Pretty Woman | Roy Orbison
+Oh, Pretty Woman | Roy Orbison
 Unchained Melody | The Righteous Brothers ~ Righteous Brothers
 Stand by Me | Ben E. King
 Mrs. Robinson | Simon & Garfunkel
@@ -407,7 +407,7 @@ Born to Be Wild | Steppenwolf
 Misirlou | Dick Dale
 You Never Can Tell | Chuck Berry
 I'll Be There for You | The Rembrandts ~ Rembrandts
-(Everything I Do) I Do It for You ~ Everything I Do | Bryan Adams
+(Everything I Do) I Do It for You | Bryan Adams
 See You Again | Wiz Khalifa ~ Charlie Puth
 Take My Breath Away | Berlin
 Mamma Mia | ABBA
