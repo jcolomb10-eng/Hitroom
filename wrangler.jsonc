@@ -1,0 +1,22 @@
+{
+  // Hitroom sur Cloudflare Workers : le site (public/) + les salons en direct (Durable Objects)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hitroom",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/__mock/*"]
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOMS", "class_name": "Room" },
+      { "name": "HUB", "class_name": "Hub" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["Room", "Hub"] }
+  ],
+  "observability": { "enabled": true }
+}
