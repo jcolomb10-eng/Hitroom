@@ -4,7 +4,7 @@ Blind test musical **multijoueur en direct** (l'esprit de QuiChante.com), en app
 Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisateur francophone, non développeur : répondre en français, simplement, avec des étapes claires.
 
 - Maquette de référence : 10 écrans (accueil, catégories, salon, partie, fin, profil, classements, défis, boutique, paramètres), noir avec bordures néon or et rose. L'utilisateur autorise à l'améliorer.
-- Version : **1.2** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
+- Version : **1.3** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
 - Hébergement : **Cloudflare Workers** (gratuit, Durable Objects en SQLite) relié au dépôt GitHub (Workers Builds), publication automatique depuis `main`. Worker nommé **`hitroom`** : https://hitroom.jcolomb10.workers.dev. Le `name` de `wrangler.jsonc` doit rester identique au nom du Worker, sinon la publication échoue. Résultat des publications visible sur GitHub (check « Workers Builds: hitroom » sur chaque commit de `main`).
 - Projet Cloudflare **Pages** « hitroom » (hitroom.pages.dev) créé par erreur : il publie seulement l'affichage, sans serveur ; à supprimer.
 - **Vercel** : le dépôt y est encore relié (ancien prototype). `vercel.json` y coupe toute publication automatique ; le projet Vercel est à débrancher ou supprimer par l'utilisateur (Vercel ne gère pas les WebSockets des salons).
@@ -34,7 +34,7 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
   - 8 **médailles** à 4 niveaux (`MEDALS` : Explorateur, Champion, Série de feu, Réflexe éclair, Chasseur d'artistes, Collectionneur de titres, Perfectionniste, Marathonien), pièces à chaque niveau (25/60/150/400).
   - **Titres** sous le pseudo (`TITLES` : médaille au niveau Or, une Légendaire, 100 réponses dans une catégorie comme « Roi du Rap FR », rang Maître et Grand Maître, palier 15 de la route) ; titres de rang vérifiés par le serveur.
   - **Carte de joueur** (toucher un joueur dans le salon ou en fin de partie) avec **vitrine** de 3 médailles (`show` = `id:niveau`).
-  - **Cadres de rang** `r2` (Or) … `r8` (Grand Maître), impossibles à acheter, débloqués par le meilleur rang toutes saisons (`bestEver`), vérifiés par le serveur (`frameOk` dans `room.js`).
+  - **Cadres de rang** `r0` (Bronze, équipé d'office) … `r8` (Grand Maître), impossibles à acheter, débloqués par le meilleur rang toutes saisons (`bestEver`), vérifiés par le serveur (`frameOk` dans `room.js`). Ce sont des **images réalistes** fournies par l'utilisateur (une forme par rang) : sources `assets-src/cadres/r0..r8.jpg`, converties par `python3 tools/cadres.py public/frames <dossier-contrôle>` en `public/frames/rN.webp` (fond noir rendu transparent, centre vidé, ouverture de 176 px). Les mesures de l'ouverture vont dans `FRAME_META` ; `framedAvatar()` pose l'avatar dans l'ouverture et ajoute les effets (`FX` : halo, reflet qui balaie le cadre, scintillements, particules, éclairs pour Maître, flammes pour Grand Maître). Affichés en grand dans le profil, la carte de joueur, la boutique, la galerie des rangs et à chaque promotion (`frameReveal`) ; en petit (listes, salon) un simple anneau de couleur.
   - **Route de saison** gratuite : 30 paliers par mois (100 XP chacun) : pièces, 3 avatars rares, titre « Fidèle au poste », et au palier 30 un **cadre de saison** exclusif `sAAAA-MM` (couleur du mois).
   - **Code de sauvegarde** (12 caractères, Réglages) : progression copiée sur le serveur (`/api/save`, table `saves`) quelques secondes après chaque changement, récupérable sur un autre appareil (même `uid`, donc même rang).
   - Limite connue : médailles et titres (sauf rang) sont calculés sur l'appareil, donc trichables en modifiant le stockage local ; à passer côté serveur si besoin.
@@ -45,7 +45,7 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 - `npm test` : reconnaissance des réponses, choix iTunes, catalogue.
 - Local : `.dev.vars` avec `MOCK_MUSIC=1` (extraits simulés `/__mock/…`, parties publiques courtes, `/__mock/saison`), `npx wrangler dev --port 8787`.
 - `NODE_PATH=$(npm root -g) node test/e2e-multijoueur.cjs` : 3 joueurs (création, lien, code, réglages, 5 manches, chat, coupure réseau, relance) + 1 joueur en salon public, captures dans `/tmp/hitroom-shots`.
-- `node test/e2e-cas-limites.mjs` : code inconnu, droits de l'hôte, transfert d'hôte, double onglet, grossièretés, salon public abandonné.
+- `node test/e2e-cas-limites.mjs` : code inconnu, droits de l'hôte, transfert d'hôte, double onglet, grossièretés, salon public abandonné, rang toutes saisons (`p.rbest`) séparé de la meilleure série (`p.best`) dans `room.js`.
 - `NODE_PATH=$(npm root -g) node test/e2e-recompenses.cjs` : médailles, titres, vitrine, carte, route de saison, cadres de rang (refus du tricheur), code de sauvegarde sur un 2e appareil.
 - `NODE_PATH=$(npm root -g) node test/e2e-classe.cjs` : partie classée complète (réponses strictes, PR gagnés, classement, partie amicale, niveau des bots, changement de saison via `/__mock/saison`). En local (MOCK_MUSIC), les parties publiques durent 5 manches de 15 s.
 - iTunes n'est pas joignable depuis l'environnement Claude : la vraie recherche ne se vérifie qu'une fois en ligne.

@@ -8,7 +8,7 @@ Blind test musical **multijoueur en direct**, dans l'esprit de QuiChante : tout 
 - Réponses : le titre ou l'artiste **en entier** ; petites fautes acceptées en appuyant sur Entrée.
 - **Rejoindre un salon** : avec le code.
 - Classement en direct, chat, séries, bonus de rapidité, classement mensuel, défis du jour et de saison, niveaux, pièces, boutique de cadres et de thèmes.
-- Récompenses : médailles à 4 niveaux, titres sous le pseudo, carte de joueur avec vitrine, cadres exclusifs de rang, route de saison gratuite (30 paliers par mois) et code de sauvegarde pour changer de téléphone.
+- Récompenses : médailles à 4 niveaux, titres sous le pseudo, carte de joueur avec vitrine, cadres de rang réalistes et animés (un par rang), route de saison gratuite (30 paliers par mois) et code de sauvegarde pour changer de téléphone.
 
 ## Comment ça marche
 
@@ -18,6 +18,7 @@ Tout tourne sur **Cloudflare Workers** (gratuit) :
 |---|---|
 | `public/index.html` | L'appli (HTML, CSS et JavaScript en un seul fichier) |
 | `public/art.js` | Dessins vectoriels : emblèmes de rang et médailles |
+| `public/frames/` | Cadres de rang (images, de Bronze à Grand Maître) ; sources dans `assets-src/cadres/`, conversion par `tools/cadres.py` |
 | `src/worker.js` | Point d'entrée : sert le site et les routes `/api/` |
 | `src/room.js` | Un salon = un mini-serveur (Durable Object) : extraits, chrono, réponses, points, bots, chat |
 | `src/hub.js` | Recherche des extraits (iTunes, Deezer en secours), compteurs des salons publics, rangs, saisons, classements |

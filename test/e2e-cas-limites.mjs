@@ -60,4 +60,20 @@ ok(!info.electro, 'salon public vide : plus compté parmi les salons actifs');
 const back = await client('/api/public/electro/ws', { uid: 'publicsolo', name: 'Solo' });
 await sleep(500);
 ok(['lobby', 'loading', 'countdown'].includes(back.last.phase) && back.last.players.filter(x => !x.bot).length === 1, `retour après départ : nouvelle partie qui démarre (phase ${back.last.phase})`);
+back.ws.close();
+
+// 6. joueur Émeraude arrivé en cours de partie sans rien trouver : son rang ne compte pas comme « meilleure série » (≈ 2 min)
+const emeraude = 'emeraude' + Date.now().toString(36);
+await fetch(`http://127.0.0.1:8787/__mock/saison?uid=${emeraude}&sc=2026-09&rp=650`);
+await fetch(`http://127.0.0.1:8787/api/me?uid=${emeraude}`);
+const code2 = (await (await fetch('http://127.0.0.1:8787/api/salon', { method: 'POST' })).json()).code;
+const h2 = await client(`/api/salon/${code2}/ws`, { uid: 'hosthost02', name: 'Hote', create: 1, rounds: 5, dur: 15, bots: 0 });
+await sleep(300);
+h2.send({ t: 'start' });
+while (h2.last.phase !== 'play') await sleep(300);
+const late = await client(`/api/salon/${code2}/ws`, { uid: emeraude, name: 'Retard', fr: 'r6' });
+while (!h2.last.results) await sleep(1000);
+const lr = h2.last.results.find(x => x.name === 'Retard');
+ok(lr?.best === 0 && lr?.fr === 'r6', `rang et meilleure série séparés (série ${lr?.best}, cadre ${lr?.fr})`);
+late.ws.close();
 process.exit(0);
