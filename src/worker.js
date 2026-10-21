@@ -2,7 +2,6 @@
 import { Room } from './room.js';
 import { Hub } from './hub.js';
 import { CAT_IDS } from './catalog.js';
-import { bracketOf } from './ranks.js';
 
 export { Room, Hub };
 
@@ -18,12 +17,14 @@ const hub = env => env.HUB.get(env.HUB.idFromName('hub'));
 const cleanUid = s => (s || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
 
 // le rang vient toujours du serveur (jamais de l'appli) : il choisit le salon public du bon niveau
+// (pub:<catégorie>:<fenêtre>, 2 rangs voisins, voir ranks.js)
 async function toRoom(req, env, name, pub) {
   if (req.headers.get('Upgrade') !== 'websocket') return new Response('websocket attendu', { status: 426 });
   const u = new URL(req.url);
   const uid = cleanUid(u.searchParams.get('uid'));
-  const { tier, bestEver } = uid.length >= 8 ? await hub(env).rankOf(uid) : { tier: 0, bestEver: 0 };
-  if (pub) name += ':' + bracketOf(tier);
+  const cat = pub ? name.slice(4) : null;
+  const { tier, bestEver, win } = uid.length >= 8 ? await hub(env).rankOf(uid, cat) : { tier: 0, bestEver: 0, win: 0 };
+  if (pub) name += ':' + win;
   u.searchParams.set('room', name);
   u.searchParams.set('tier', tier);
   u.searchParams.set('best', bestEver);
@@ -50,8 +51,8 @@ export default {
       return json({ error: 'Réessaie dans un instant.' }, 503);
     }
     if (path === '/api/counts') {
-      const b = url.searchParams.get('b');
-      return json(await hub(env).counts(/^[0-3]$/.test(b || '') ? +b : null));
+      const t = url.searchParams.get('t');
+      return json(await hub(env).counts(/^[0-8]$/.test(t || '') ? +t : null));
     }
     if (path === '/api/board') return json(await hub(env).board(url.searchParams.get('sc'), cleanUid(url.searchParams.get('uid'))));
     if (path === '/api/me') {

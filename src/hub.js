@@ -5,7 +5,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { songsOf, songByKey } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
-import { tierOf, softReset } from './ranks.js';
+import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
@@ -36,7 +36,17 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE INDEX IF NOT EXISTS ranks_rp ON ranks(sc, rp DESC)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS rewards(uid TEXT, sc TEXT, tier INTEGER, claimed INTEGER, PRIMARY KEY(uid, sc))`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS saves(code TEXT PRIMARY KEY, uid TEXT, data TEXT, ts INTEGER)`);
-    this.rooms = new Map(); // cat -> { n, ts } (salons publics)
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT)`);
+    // version 1.5 : points de rang convertis une fois vers les paliers progressifs (chacun garde son rang)
+    if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'paliers'`).toArray().length) {
+      ctx.storage.transactionSync(() => {
+        for (const r of this.sql.exec(`SELECT uid, sc, rp, best FROM ranks`).toArray()) {
+          this.sql.exec(`UPDATE ranks SET rp = ?, best = ? WHERE uid = ? AND sc = ?`, fromOldScale(r.rp), fromOldScale(r.best), r.uid, r.sc);
+        }
+        this.sql.exec(`INSERT INTO meta(k, v) VALUES('paliers', '2')`);
+      });
+    }
+    this.rooms = new Map(); // nom du salon -> { cat, win, n, ts } (salons publics)
     this.paused = { it: 0, dz: 0 }; // source qui nous limite : on attend
     this.diag = { it: { ok: 0, ko: 0, last: '' }, dz: { ok: 0, ko: 0, last: '' } };
     this.getJSON = this.getJSON.bind(this);
@@ -152,18 +162,33 @@ export class Hub extends DurableObject {
   }
 
   // ---------- salons publics ----------
-  report(room, cat, bracket, n) {
-    this.rooms.set(room, { cat, bracket, n, ts: Date.now() });
+  report(room, cat, win, n) {
+    this.rooms.set(room, { cat, win, n, ts: Date.now() });
   }
 
-  // joueurs par catégorie ; avec bracket, seulement les salons de ce niveau
-  counts(bracket) {
+  // joueurs présents dans le salon public d'une catégorie et d'une fenêtre de rangs
+  humansIn(cat, win) {
+    const r = [...this.rooms.values()].find(x => x.cat === cat && x.win === win);
+    return r && Date.now() - r.ts < 20 * 60000 ? r.n : 0;
+  }
+
+  // joueurs par catégorie ; avec un rang, seulement ceux qu'il peut rejoindre (le salon le plus rempli de ses 2 fenêtres)
+  counts(tier) {
     const out = {};
     const now = Date.now();
-    for (const { cat, bracket: b, n, ts } of this.rooms.values()) {
-      if (n > 0 && now - ts < 20 * 60000 && (bracket == null || b === bracket)) out[cat] = (out[cat] || 0) + n;
+    for (const { cat, win, n, ts } of this.rooms.values()) {
+      if (n <= 0 || now - ts >= 20 * 60000) continue;
+      if (tier == null) out[cat] = (out[cat] || 0) + n;
+      else if (windowsOf(tier).includes(win)) out[cat] = Math.max(out[cat] || 0, n);
     }
     return out;
+  }
+
+  // salon public à rejoindre : celui de ses 2 fenêtres qui a le plus de monde (pas complet), à égalité la plus basse
+  pickWindow(cat, tier) {
+    const wins = windowsOf(tier).map(w => ({ w, n: this.humansIn(cat, w) }));
+    const open = wins.filter(x => x.n < 12);
+    return (open.length ? open : wins).reduce((a, b) => (b.n > a.n ? b : a)).w;
   }
 
   // ---------- rangs et saisons ----------
@@ -187,9 +212,10 @@ export class Hub extends DurableObject {
     return tierOf(this.sql.exec(`SELECT MAX(best) AS b FROM ranks WHERE uid = ?`, uid).one().b || 0);
   }
 
-  rankOf(uid) {
-    const r = this.rankRow(uid);
-    return { rp: r.rp, tier: tierOf(r.rp), bestEver: this.bestEver(uid) };
+  // rang d'un joueur qui entre dans un salon ; avec une catégorie, le salon public de son niveau à rejoindre
+  rankOf(uid, cat) {
+    const r = this.rankRow(uid), tier = tierOf(r.rp);
+    return { rp: r.rp, tier, bestEver: this.bestEver(uid), win: cat ? this.pickWindow(cat, tier) : null };
   }
 
   // infos de rang pour l'appli ; la récompense de fin de saison n'est donnée qu'une fois

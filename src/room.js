@@ -1,12 +1,12 @@
 // Room : un salon de jeu (public par catégorie, ou privé avec un code de 4 caractères).
-// Les salons publics sont classés (points de rang) et séparés par niveau ; les salons privés sont des parties amicales.
+// Les salons publics sont classés (points de rang) et réunissent 2 rangs voisins ; les salons privés sont des parties amicales.
 // C'est le « maître du jeu » : il choisit les extraits, donne le top départ à tout le monde en même temps,
 // vérifie les réponses (jamais envoyées aux joueurs avant la fin de la manche), compte les points et relaie le chat.
 import { DurableObject } from 'cloudflare:workers';
 import { judge, norm } from './match.js';
 import { CAT_IDS } from './catalog.js';
 import { cleanText, cleanName } from './filter.js';
-import { bracketOf, rpDelta, BOT_SKILL, TIERS_OF_BRACKET } from './ranks.js';
+import { bracketOf, rpDelta, BOT_SKILL, TIERS_OF_BRACKET, WINDOWS, windowTiers, windowSkill, inWindow } from './ranks.js';
 
 const MAX_HUMANS = 12;
 const COUNTDOWN = 4000;     // 3, 2, 1 avant la première manche
@@ -84,7 +84,7 @@ export class Room extends DurableObject {
     for (const p of this.players.values()) if (p.ws) { try { p.ws.send(data); } catch { /* socket fermée */ } }
   }
   report() {
-    if (this.pub) this.hub().report(this.name, this.cat, this.bracket, this.humans().length).catch(() => {});
+    if (this.pub) this.hub().report(this.name, this.cat, this.win, this.humans().length).catch(() => {});
   }
   info() {
     return { humans: this.humans(false).length, cat: this.cat, phase: this.phase, opts: this.opts };
@@ -93,7 +93,7 @@ export class Room extends DurableObject {
   snapshot() {
     const c = this.cur;
     return {
-      t: 'state', now: Date.now(), pub: this.pub, ranked: this.pub, bracket: this.bracket, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
+      t: 'state', now: Date.now(), pub: this.pub, ranked: this.pub, win: this.win, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
       phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
         id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, title: p.title || '', show: p.show || [], bot: !!p.bot, on: !!p.on,
@@ -114,11 +114,11 @@ export class Room extends DurableObject {
       this.name = q.get('room') || 'priv:????';
       this.pub = this.name.startsWith('pub:');
       this.code = this.pub ? null : this.name.slice(5);
-      this.bracket = 0;
+      this.win = 0;
       if (this.pub) {
-        const [, cat, b] = this.name.split(':');
+        const [, cat, w] = this.name.split(':');
         this.cat = cat;
-        this.bracket = Math.min(3, Math.max(0, parseInt(b, 10) || 0));
+        this.win = Math.min(WINDOWS - 1, Math.max(0, parseInt(w, 10) || 0));
         if (this.env.MOCK_MUSIC) this.opts = { ...this.opts, rounds: 5, dur: 15 }; // tests en local : parties publiques courtes
       }
     }
@@ -278,20 +278,21 @@ export class Room extends DurableObject {
   }
 
   // ---------- partie ----------
-  // bots au niveau du salon : niveau des joueurs en public, réglé par l'hôte en privé
+  // bots au niveau du salon : les 2 rangs du salon en public, niveau réglé par l'hôte en privé
   setupBots() {
     const want = this.pub ? Math.max(0, 4 - this.humans().length) : this.opts.bots;
-    const lvl = this.pub ? this.bracket : this.opts.botlvl;
-    const [lo, hi] = BOT_SKILL[lvl];
+    const lvl = this.pub ? 'w' + this.win : 'l' + this.opts.botlvl;
+    const [lo, hi] = this.pub ? windowSkill(this.win) : BOT_SKILL[this.opts.botlvl];
+    const tiers = this.pub ? windowTiers(this.win) : TIERS_OF_BRACKET[this.opts.botlvl];
     const bots = this.bots();
     while (bots.length > want) this.players.delete(bots.pop().id);
-    for (const b of bots) if (b.lvlGroup !== lvl) Object.assign(b, { lvlGroup: lvl, skill: lo + Math.random() * (hi - lo), tier: pick(TIERS_OF_BRACKET[lvl]) });
+    for (const b of bots) if (b.lvlGroup !== lvl) Object.assign(b, { lvlGroup: lvl, skill: lo + Math.random() * (hi - lo), tier: pick(tiers) });
     const used = new Set([...this.players.values()].map(p => p.name));
     for (let i = bots.length; i < want; i++) {
       const name = pick(BOT_NAMES.filter(n => !used.has(n)));
       used.add(name);
       const b = { id: 'b' + rid(5), bot: true, on: true, name, av: pick(BOT_AV), fr: pick(['def', 'def', 'or', 'neon', 'diamant']),
-        lvl: 3 + Math.floor(Math.random() * 30), lvlGroup: lvl, skill: lo + Math.random() * (hi - lo), tier: pick(TIERS_OF_BRACKET[lvl]),
+        lvl: 3 + Math.floor(Math.random() * 30), lvlGroup: lvl, skill: lo + Math.random() * (hi - lo), tier: pick(tiers),
         score: 0, streak: 0, rt: null };
       this.players.set(b.id, b);
       if (i === 0 && Math.random() < 0.7) this.botSay(b, pick(GREET), 2500);
@@ -310,6 +311,20 @@ export class Room extends DurableObject {
     this.clearTimers();
     const g = this.gen;
     for (const p of this.humans(false)) if (!p.on) this.players.delete(p.id);
+    // salon public : qui vient de changer de rang et sort des 2 rangs du salon part dans le salon de son nouveau niveau
+    if (this.pub) {
+      for (const p of this.humans()) {
+        if (inWindow(p.tier, this.win)) continue;
+        const ws = p.ws;
+        p.ws = null;
+        this.players.delete(p.id);
+        this.send(ws, { t: 'move', tier: p.tier });
+        try { ws.close(4001, 'nouveau niveau'); } catch { /* déjà fermée */ }
+        this.sys(`${p.name} change de salon : nouveau rang`);
+      }
+      this.report();
+      if (!this.humans().length) return this.stop();
+    }
     this.setupBots();
     this.phase = 'loading';
     this.cur = this.reveal = this.results = null;

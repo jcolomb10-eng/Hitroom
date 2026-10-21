@@ -64,7 +64,7 @@ back.ws.close();
 
 // 6. joueur Émeraude arrivé en cours de partie sans rien trouver : son rang ne compte pas comme « meilleure série » (≈ 2 min)
 const emeraude = 'emeraude' + Date.now().toString(36);
-await fetch(`http://127.0.0.1:8787/__mock/saison?uid=${emeraude}&sc=2026-09&rp=650`);
+await fetch(`http://127.0.0.1:8787/__mock/saison?uid=${emeraude}&sc=2026-09&rp=1400`);
 await fetch(`http://127.0.0.1:8787/api/me?uid=${emeraude}`);
 const code2 = (await (await fetch('http://127.0.0.1:8787/api/salon', { method: 'POST' })).json()).code;
 const h2 = await client(`/api/salon/${code2}/ws`, { uid: 'hosthost02', name: 'Hote', create: 1, rounds: 5, dur: 15, bots: 0 });

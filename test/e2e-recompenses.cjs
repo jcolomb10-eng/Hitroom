@@ -23,7 +23,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   const uid = await page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')).uid);
 
   // progression simulée : médailles, titre de catégorie, route de saison au palier 16, rang Maître la saison passée
-  await fetch(`${BASE}/__mock/saison?uid=${uid}&sc=2026-09&rp=720`);
+  await fetch(`${BASE}/__mock/saison?uid=${uid}&sc=2026-09&rp=1800`);
   await page.evaluate(() => {
     const S = JSON.parse(localStorage.getItem('hitroom.v1'));
     Object.assign(S.st, { games: 12, wins: 2, nA: 60, nT: 55, streak: 5, fast: 2500, perfect: 1, rounds: 120, cats: ['rock', '80', '90'], byCat: { rapfr: 120 } });

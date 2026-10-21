@@ -116,16 +116,16 @@ const ok = (cond, label) => { console.log(cond ? '✅' : '❌', label); if (!con
   await page.goBack();
   await page.waitForSelector('#v-home:not(.hide)');
 
-  // changement de saison : 620 PR (Émeraude) en septembre → Platine en octobre + 700 pièces
+  // changement de saison : 1 400 PR (Émeraude) en septembre → Diamant (700 PR) en octobre + 700 pièces
   const coinsBefore = await page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')).coins);
-  await fetch(`${BASE}/__mock/saison?uid=${uid}&sc=2026-09&rp=620`);
+  await fetch(`${BASE}/__mock/saison?uid=${uid}&sc=2026-09&rp=1400`);
   await page.reload();
   await page.waitForSelector('#sheet:not(.hide)', { timeout: 8000 });
   await sleep(400);
   await page.screenshot({ path: OUT + '/c08_fin_de_saison.png' });
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')));
   log('après la saison :', JSON.stringify(after.rank), 'pièces', coinsBefore, '→', after.coins);
-  ok(after.rank.tier === 3 && after.rank.rp === 300, 'nouvelle saison : repart en Platine (300 PR)');
+  ok(after.rank.tier === 4 && after.rank.rp === 700, 'nouvelle saison : repart en Diamant (700 PR)');
   ok(after.coins - coinsBefore === 700, 'récompense de saison Émeraude : +700 pièces');
   await page.click('#sheetBox [data-close]');
   await page.click('[data-go="profile"]');

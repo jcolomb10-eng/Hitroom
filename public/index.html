@@ -424,7 +424,14 @@ svg.med{flex:none;overflow:visible}
 .tiers>div.cur{border-color:var(--gold2);box-shadow:0 0 10px rgba(255,200,60,.3)}
 .tiers>div>.fxbox{flex:none}
 .tiers>div>b{flex:1;font-size:14px}
-.tiers .pr{color:var(--muted);font-size:12px;width:58px}
+.tiers .pr{color:var(--muted);font-size:12px;width:66px}
+.ptsh{margin:12px 0 6px;font-weight:700}
+.ptsh small{color:var(--muted);font-weight:500}
+.ptsgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.ptsgrid div{text-align:center;padding:5px 0;border-radius:9px;background:#0f0a13;border:1px solid #2a2033;font-weight:800;font-size:15px;color:var(--muted)}
+.ptsgrid div small{display:block;font-size:10.5px;font-weight:600;color:var(--muted)}
+.ptsgrid div.up{color:#5be39a;border-color:rgba(91,227,154,.35)}
+.ptsgrid div.down{color:#ff6b81;border-color:rgba(255,107,129,.35)}
 .tiers>div>em{font-style:normal;font-size:12px;font-weight:700;color:var(--gold2);display:flex;align-items:center;gap:4px;width:70px;justify-content:flex-end}
 .rankres{display:flex;gap:12px;align-items:center;padding:10px 14px;margin-bottom:12px}
 .rankres>div{flex:1;min-width:0}
@@ -628,7 +635,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.4';
+const VERSION = '1.5';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -803,18 +810,24 @@ const seasonHue = sc => (+sc.slice(5, 7) * 67 + +sc.slice(0, 4) * 13) % 360;
 const TIERS = [
   { name: 'Bronze', min: 0, c: ['#f3b98a', '#8a4b1f'] },
   { name: 'Argent', min: 100, c: ['#ffffff', '#8c96a8'] },
-  { name: 'Or', min: 200, c: ['#fff2a8', '#d99a00'] },
-  { name: 'Platine', min: 300, c: ['#e0fffc', '#3fb8b0'] },
-  { name: 'Diamant', min: 400, c: ['#e3f4ff', '#3d7bff'] },
-  { name: 'Rubis', min: 500, c: ['#ffc2cf', '#c0123a'] },
-  { name: 'Émeraude', min: 600, c: ['#c4ffe6', '#0f9d64'] },
-  { name: 'Maître', min: 700, c: ['#f1d9ff', '#7b2cff'] },
-  { name: 'Grand Maître', min: 850, c: ['#ffe9a8', '#ff2e6e'] },
+  { name: 'Or', min: 250, c: ['#fff2a8', '#d99a00'] },
+  { name: 'Platine', min: 450, c: ['#e0fffc', '#3fb8b0'] },
+  { name: 'Diamant', min: 700, c: ['#e3f4ff', '#3d7bff'] },
+  { name: 'Rubis', min: 1000, c: ['#ffc2cf', '#c0123a'] },
+  { name: 'Émeraude', min: 1350, c: ['#c4ffe6', '#0f9d64'] },
+  { name: 'Maître', min: 1750, c: ['#f1d9ff', '#7b2cff'] },
+  { name: 'Grand Maître', min: 2250, c: ['#ffe9a8', '#ff2e6e'] },
 ];
-const BRACKETS = ['Bronze – Argent', 'Or – Platine', 'Diamant – Rubis', 'Émeraude – Grand Maître'];
 const BOT_LVLS = ['Facile', 'Moyen', 'Difficile', 'Expert'];
 const SEASON_COINS = [50, 100, 150, 250, 350, 500, 700, 1000, 1500];
-const bracketOf = t => [0, 0, 1, 1, 2, 2, 3, 3, 3][t] ?? 0;
+// salons publics : son rang, un rang en dessous ou un rang au-dessus (ex. « Argent – Platine » pour un Or)
+const rangeName = t => `${TIERS[Math.max(0, t - 1)].name} – ${TIERS[Math.min(TIERS.length - 1, t + 1)].name}`;
+// points de rang par place pour une partie à 10 joueurs (copie de RP_TABLE dans src/ranks.js)
+const RP_TABLE = [
+  [30, 25, 20, 10, 6, 3, 0, 0, -5, -8], [29, 24, 19, 9, 5, 2, 0, 0, -5, -8], [27, 22, 17, 8, 5, 2, 0, 0, -6, -9],
+  [25, 20, 16, 7, 4, 1, 0, 0, -6, -9], [24, 19, 15, 7, 3, 1, 0, -1, -7, -10], [22, 18, 14, 6, 3, 0, -1, -2, -7, -10],
+  [21, 17, 13, 6, 2, 0, -1, -2, -8, -11], [20, 15, 12, 5, 2, 0, -2, -3, -8, -11], [18, 14, 11, 5, 2, 0, -2, -3, -9, -12],
+];
 const tierOfRp = rp => TIERS.reduce((t, x, i) => (rp >= x.min ? i : t), 0);
 function tierProgress(rp) {
   const t = tierOfRp(rp), next = TIERS[t + 1];
@@ -1034,6 +1047,7 @@ function onMsg(m) {
     case 'you': return onYou(m);
     case 'hint': return onHint(m.k);
     case 'rank': return onRank(m);
+    case 'move': toast(`Nouveau rang : tu passes dans un salon ${rangeName(m.tier)}`, 3500); connect(R.path); return;
     case 'chat': case 'sys': return onChat(m);
     case 'preload': if (m.url) { pre.src = m.url; } return;
     case 'ends': if (R.st?.cur) { R.st.cur.end = m.end; R.st.ends = m.end; } return;
@@ -1272,7 +1286,7 @@ function applyGame(st) {
   S.games = [...S.games, st.gameId].slice(-30);
   const n = st.results.length;
   const pod = n >= 2 ? r.rank : 99;
-  const xp = 10 + Math.round(r.score / 2) + ({ 1: 25, 2: 15, 3: 10 }[pod] || 0);
+  const xp = 20 + Math.round(r.score / 2) + ({ 1: 25, 2: 15, 3: 10 }[pod] || 0);
   const coins = 5 + Math.floor(r.score / 10) + ({ 1: 30, 2: 20, 3: 10 }[pod] || 0);
   const before = level().l;
   rollPeriods();
@@ -1433,12 +1447,15 @@ function rankSheet() {
   openSheet(`<h3>Rangs et saison <button data-close data-i="x"></button></h3>
     <div class="card rankcard">${tierBadge(r.tier, 64)}<div><small>Saison de ${seasonName(r.sc)}</small><b>${TIERS[r.tier].name}</b><span>${r.rp} PR${r.pos ? ` • ${r.pos}${r.pos === 1 ? 'er' : 'e'} du classement` : ''}</span>
       <div class="bar"><i style="width:${pr.pct}%"></i></div><small>${pr.next ? `Encore ${pr.next.min - r.rp} PR pour ${pr.next.name}` : 'Rang maximum atteint !'}</small></div></div>
-    <p>🎮 Les parties de <b>Jouer maintenant</b> sont classées : tu gagnes des points de rang (PR) en finissant dans le haut du classement, tu en perds en finissant en bas. Plus ton rang est haut, plus c’est exigeant.</p>
-    <p>⚖️ Tu joues contre des joueurs de ton niveau (<b>${BRACKETS[bracketOf(r.tier)]}</b>). S’il manque du monde, des bots du même niveau complètent.</p>
+    <p>🎮 Les parties de <b>Jouer maintenant</b> sont classées : le podium gagne beaucoup de points de rang (PR), les suivants un peu moins, le milieu rien et les deux derniers en perdent un peu. Une mauvaise partie rapporte quand même de l’XP. Plus ton rang est haut, plus c’est exigeant.</p>
+    <p class="ptsh">Points par place en ${TIERS[r.tier].name} <small>(partie à 10 joueurs)</small></p>
+    <div class="ptsgrid">${RP_TABLE[r.tier].map((v, i) => `<div class="${v > 0 ? 'up' : v < 0 ? 'down' : ''}"><small>${i + 1}${i ? 'e' : 'er'}</small>${v > 0 ? '+' : ''}${v}</div>`).join('')}</div>
+    <p class="muted" style="font-size:12.5px;margin-top:6px">Partie parfaite : +5. Avec moins de joueurs, même logique : le 1er et le dernier gardent leurs points.</p>
+    <p>⚖️ Tu joues seulement avec ton rang, un rang en dessous ou un rang au-dessus (<b>${rangeName(r.tier)}</b>). S’il manque du monde, des bots du même niveau complètent.</p>
     <p>📅 Fin de saison le <b>${seasonEnd()}</b> : des pièces selon ton meilleur rang, puis ton rang redescend de moitié pour la saison suivante. Chaque nouveau rang atteint rapporte aussi des pièces.</p>
     <p><b>🖼️ Les cadres de rang</b> : chaque rang atteint débloque son cadre pour toujours (Boutique → Cadres).</p>
     <div class="fxstrip">${TIERS.map((x, i) => `<div class="it">${framedAvatar(S.av, 'r' + i, 118, 84, 52, (S.rank.bestEver || 0) < i)}<b>${x.name}</b>${(S.rank.bestEver || 0) >= i ? 'débloqué' : '🔒'}</div>`).join('')}</div>
-    <div class="tiers">${TIERS.map((x, i) => `<div class="${i === r.tier ? 'cur' : ''}">${framedAvatar(S.av, 'r' + i, 76, 52, 34)}<b>${x.name}</b><span class="pr">${x.min} PR</span><em><span class="coin">$</span>${fmt(SEASON_COINS[i])}</em></div>`).join('')}</div>
+    <div class="tiers">${TIERS.map((x, i) => `<div class="${i === r.tier ? 'cur' : ''}">${framedAvatar(S.av, 'r' + i, 76, 52, 34)}<b>${x.name}</b><span class="pr">${fmt(x.min)} PR</span><em><span class="coin">$</span>${fmt(SEASON_COINS[i])}</em></div>`).join('')}</div>
     <p class="muted" style="font-size:12.5px">Les salons privés entre amis sont des parties amicales : sans points de rang.</p>
     <button class="cta" data-close>OK</button>`);
 }
@@ -1512,7 +1529,7 @@ function openCats(mode) {
   catsMode = mode;
   catSel = mode === 'change' ? R.st.cat : (S.cat || 'mix');
   $('#catsTitle').textContent = mode === 'public' ? 'Jouer maintenant' : 'Choisir une catégorie';
-  $('#catsSub').innerHTML = mode === 'public' ? `Partie classée ${tierBadge(S.rank.tier, 16)} contre des joueurs de ton niveau (${BRACKETS[bracketOf(S.rank.tier)]})` : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
+  $('#catsSub').innerHTML = mode === 'public' ? `Partie classée ${tierBadge(S.rank.tier, 16)} avec ton rang, un en dessous ou un au-dessus (${rangeName(S.rank.tier)})` : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
   $('#catsOk').textContent = mode === 'change' ? 'Valider la catégorie' : mode === 'public' ? 'Entrer dans le salon' : 'Créer le salon';
   if (mode === 'change') { history.pushState({ v: 'room' }, ''); show('cats'); } else go('cats');
   renderCats();
@@ -1526,7 +1543,7 @@ function renderCats() {
 }
 async function loadCounts() {
   clearTimeout(countsT);
-  const b = curView === 'cats' && catsMode === 'public' ? `?b=${bracketOf(S.rank.tier)}` : '';
+  const b = curView === 'cats' && catsMode === 'public' ? `?t=${S.rank.tier}` : '';
   try { counts = await (await fetch('/api/counts' + b)).json(); } catch (e) { counts = {}; }
   if (curView === 'cats') { renderCats(); countsT = setTimeout(loadCounts, 10000); }
   if (curView === 'home') renderOnline();
