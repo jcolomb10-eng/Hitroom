@@ -18,6 +18,8 @@ const PTS = { title: 15, artist: 10 };
 const ROUNDS = [5, 10, 15, 20];
 const DURS = [15, 20, 30];
 const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie']);
+// cadres de rang (r2 = Or … r8 = Grand Maître) : seulement si le rang a été atteint ; cadres de saison : s2026-10
+const frameOk = (fr, best) => FRAMES.has(fr) || /^s\d{4}-\d{2}$/.test(fr) || (/^r[2-8]$/.test(fr) && +fr[1] <= best);
 
 const BOT_NAMES = ['DJ_Lila', 'MarieFan90', 'TonyRock', 'ZazieZouk', 'MelodyLover', 'VinylBoy', 'KikiKaraoke',
   'Sophie78', 'BeatMax', 'LunaStar', 'ZikMaster', 'ClaraMusic', 'Flow', 'Niko', 'SamPlay', 'Melody'];
@@ -94,7 +96,7 @@ export class Room extends DurableObject {
       t: 'state', now: Date.now(), pub: this.pub, ranked: this.pub, bracket: this.bracket, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
       phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
-        id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, bot: !!p.bot, on: !!p.on,
+        id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, title: p.title || '', show: p.show || [], bot: !!p.bot, on: !!p.on,
         score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
       })),
       cur: this.phase === 'play' || this.phase === 'reveal' ? { url: c.s.url, art: c.s.art, start: c.start, end: c.end } : null,
@@ -154,6 +156,7 @@ export class Room extends DurableObject {
     p.on = true;
     p.off = 0;
     p.tier = Math.min(8, Math.max(0, parseInt(q.get('tier'), 10) || 0)); // fourni par le serveur, pas par l'appli
+    p.best = Math.min(8, Math.max(0, parseInt(q.get('best'), 10) || 0));
     this.profile(p, q);
     if (!this.pub && !this.players.get(this.host)?.on) this.host = p.id;
     ws.addEventListener('message', e => this.onMessage(p, ws, e.data));
@@ -174,7 +177,13 @@ export class Room extends DurableObject {
     if (!p.name) p.name = 'Joueur' + Math.floor(100 + Math.random() * 900);
     const av = Array.from(String(get('av') || '')).slice(0, 4).join('');
     if (av) p.av = av; else if (!p.av) p.av = '🎧';
-    if (FRAMES.has(get('fr'))) p.fr = get('fr'); else if (!p.fr) p.fr = 'def';
+    if (frameOk(get('fr'), p.best || 0)) p.fr = get('fr'); else if (!p.fr) p.fr = 'def';
+    const title = get('title');
+    // titres de rang : seulement si le rang a été atteint
+    const rankTitle = { 'r-maitre': 7, 'r-gm': 8 }[title];
+    if (title != null) p.title = /^[a-z0-9-]{1,24}$/.test(title) && !(rankTitle > (p.best || 0)) ? title : '';
+    const show = get('show');
+    if (show != null) p.show = String(show).split(',').filter(x => /^[a-z]{2,10}:[0-4]$/.test(x)).slice(0, 3);
     const lvl = parseInt(get('lvl'), 10);
     if (lvl > 0 && lvl < 1000) p.lvl = lvl; else if (!p.lvl) p.lvl = 1;
   }
@@ -434,7 +443,7 @@ export class Room extends DurableObject {
     this.clearTimers();
     const list = [...this.players.values()].sort((a, b) => b.score - a.score);
     this.results = list.map((p, i) => ({
-      id: p.id, rank: i + 1, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, bot: !!p.bot, score: p.score,
+      id: p.id, rank: i + 1, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, title: p.title || '', show: p.show || [], bot: !!p.bot, score: p.score,
       nT: p.nT || 0, nA: p.nA || 0, best: p.best || 0, speed: p.speed || 0, fast: p.fast || 0, rounds: p.rounds || 0,
     }));
     this.phase = 'end';
@@ -468,6 +477,7 @@ export class Room extends DurableObject {
       if (line) Object.assign(line, { drp: r.delta, tier: r.tier });
       if (p) {
         p.tier = r.tier;
+        p.best = Math.max(p.best || 0, r.tier);
         this.send(p.ws, { t: 'rank', gameId, rp: r.rp, delta: r.delta, tier: r.tier, prev: r.prev, promo: r.promo, sc: r.sc });
       }
     }

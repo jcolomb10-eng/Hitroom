@@ -45,11 +45,11 @@ const ok = (cond, label) => { console.log(cond ? '✅' : '❌', label); if (!con
     log(`manche ${round} : ${a.title} — ${a.artist}`);
     const inp = '#guessIn';
     if (round === 1) {
-      const start = a.title.slice(0, Math.max(3, Math.ceil(a.title.length / 2)));
+      const start = a.title.slice(0, Math.ceil(a.title.length / 2));
       await page.fill(inp, '');
       await page.type(inp, start, { delay: 60 });
       await sleep(800);
-      ok(!(await has('#fT', 'ok')), `début du titre « ${start} » refusé pendant la frappe`);
+      if (start.length >= 2) ok(!(await has('#fT', 'ok')), `début du titre « ${start} » refusé pendant la frappe`);
       await page.type(inp, a.title.slice(start.length), { delay: 60 });
       await sleep(800);
       ok(await has('#fT', 'ok'), 'titre complet accepté sans Entrée');

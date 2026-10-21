@@ -22,10 +22,11 @@ async function toRoom(req, env, name, pub) {
   if (req.headers.get('Upgrade') !== 'websocket') return new Response('websocket attendu', { status: 426 });
   const u = new URL(req.url);
   const uid = cleanUid(u.searchParams.get('uid'));
-  const { tier } = uid.length >= 8 ? await hub(env).rankOf(uid) : { tier: 0 };
+  const { tier, bestEver } = uid.length >= 8 ? await hub(env).rankOf(uid) : { tier: 0, bestEver: 0 };
   if (pub) name += ':' + bracketOf(tier);
   u.searchParams.set('room', name);
   u.searchParams.set('tier', tier);
+  u.searchParams.set('best', bestEver);
   return room(env, name).fetch(new Request(u, req));
 }
 
@@ -56,6 +57,17 @@ export default {
     if (path === '/api/me') {
       const uid = cleanUid(url.searchParams.get('uid'));
       return uid.length >= 8 ? json(await hub(env).me(uid)) : json({ error: 'identifiant invalide' }, 400);
+    }
+    if (path === '/api/save') {
+      const code = (url.searchParams.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (req.method === 'POST') {
+        let b;
+        try { b = await req.json(); } catch { return json({ error: 'données illisibles' }, 400); }
+        const c = String(b.code || '').toUpperCase().replace(/[^A-Z0-9]/g, ''), uid = cleanUid(b.uid), data = String(b.data || '');
+        if (c.length !== 12 || uid.length < 8 || data.length > 40000) return json({ error: 'sauvegarde refusée' }, 400);
+        return json(await hub(env).saveProgress(c, uid, data));
+      }
+      return code.length === 12 ? json(await hub(env).loadProgress(code)) : json({ ok: 0 });
     }
     if (path === '/api/status') return json(await hub(env).catalogStatus(url.searchParams.has('test')));
     if (path === '/api/introuvables') return json(await hub(env).failedSongs());

@@ -8,6 +8,7 @@ Blind test musical **multijoueur en direct**, dans l'esprit de QuiChante : tout 
 - Réponses : le titre ou l'artiste **en entier** ; petites fautes acceptées en appuyant sur Entrée.
 - **Rejoindre un salon** : avec le code.
 - Classement en direct, chat, séries, bonus de rapidité, classement mensuel, défis du jour et de saison, niveaux, pièces, boutique de cadres et de thèmes.
+- Récompenses : médailles à 4 niveaux, titres sous le pseudo, carte de joueur avec vitrine, cadres exclusifs de rang, route de saison gratuite (30 paliers par mois) et code de sauvegarde pour changer de téléphone.
 
 ## Comment ça marche
 
@@ -16,6 +17,7 @@ Tout tourne sur **Cloudflare Workers** (gratuit) :
 | Fichier | Rôle |
 |---|---|
 | `public/index.html` | L'appli (HTML, CSS et JavaScript en un seul fichier) |
+| `public/art.js` | Dessins vectoriels : emblèmes de rang et médailles |
 | `src/worker.js` | Point d'entrée : sert le site et les routes `/api/` |
 | `src/room.js` | Un salon = un mini-serveur (Durable Object) : extraits, chrono, réponses, points, bots, chat |
 | `src/hub.js` | Recherche des extraits (iTunes, Deezer en secours), compteurs des salons publics, rangs, saisons, classements |
@@ -48,4 +50,5 @@ npm test                              # tests de la reconnaissance des réponses
 NODE_PATH=$(npm root -g) node test/e2e-multijoueur.cjs   # partie complète à 3 joueurs (Playwright)
 node test/e2e-cas-limites.mjs        # hôte qui part, code inconnu, double onglet, grossièretés…
 NODE_PATH=$(npm root -g) node test/e2e-classe.cjs        # partie classée, rangs, changement de saison
+NODE_PATH=$(npm root -g) node test/e2e-recompenses.cjs   # médailles, titres, route de saison, cadres, code de sauvegarde
 ```

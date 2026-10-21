@@ -289,10 +289,6 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .li span{flex:1}
 .li .e,.li .muted,.li .chev{flex:none}
 .li .chev{color:var(--muted)}
-.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
-.bd{text-align:center;padding:10px 4px;border-radius:12px;font-size:10.5px;line-height:1.25;color:var(--muted)}
-.bd .e{font-size:28px;display:block;margin-bottom:4px}
-.bd.lock{opacity:.32;filter:grayscale(1)}
 .defi{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px}
 .defi .e{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;border:1.5px solid rgba(var(--glow),.6);flex:none}
 .defi .mid{flex:1;min-width:0}
@@ -319,9 +315,74 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .tg.on::after{left:23px}
 input[type=range]{accent-color:var(--gold);width:120px}
 
-/* rangs */
-svg.tb{flex:none;vertical-align:-3px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
-svg.tb.gm{filter:drop-shadow(0 0 6px rgba(255,80,120,.85))}
+/* rangs, cadres exclusifs et animations des dessins (public/art.js) */
+svg.emb{flex:none;vertical-align:middle;overflow:visible}
+svg.med{flex:none;overflow:visible}
+.av[class*=" f-r"],.av.f-s{border:3px solid transparent}
+.av.f-r2{background:radial-gradient(circle at 35% 30%,#3b2b4b,#150f1c) padding-box,linear-gradient(135deg,#fff6c2,#ffc93a 45%,#a86a00) border-box;box-shadow:0 0 12px rgba(255,201,58,.7)}
+.av.f-r3{background:radial-gradient(circle at 35% 30%,#24363b,#0d1719) padding-box,linear-gradient(135deg,#f3fffd,#8fe3dc 45%,#2b8f88) border-box;box-shadow:0 0 14px rgba(127,247,238,.7)}
+.av.f-r4{background:radial-gradient(circle at 35% 30%,#1f2c4d,#0b1020) padding-box,linear-gradient(135deg,#e8f6ff,#6ab8ff 45%,#1b4fd1) border-box;box-shadow:0 0 16px rgba(90,168,255,.8)}
+.av.f-r5{background:radial-gradient(circle at 35% 30%,#4b1f2b,#1c0a10) padding-box,linear-gradient(135deg,#ffd0da,#ff3b62 45%,#8a0024) border-box;animation:rpulse 1.8s ease-in-out infinite;--g:255,46,92}
+.av.f-r6{background:radial-gradient(circle at 35% 30%,#1b3d2f,#08160f) padding-box,linear-gradient(135deg,#d6ffef,#2fe39c 45%,#05794a) border-box;animation:rpulse 1.8s ease-in-out infinite;--g:47,240,168}
+.av.f-r7{background:radial-gradient(circle at 35% 30%,#33204d,#120a1e) padding-box,conic-gradient(from var(--ga,0deg),#f3dcff,#b46bff,#4b119e,#b46bff,#f3dcff) border-box;animation:gal 3s linear infinite,rpulse 2s ease-in-out infinite;--g:176,92,255}
+.av.f-r8{background:radial-gradient(circle at 35% 30%,#4b2a1f,#1c0d0a) padding-box,conic-gradient(from var(--ga,0deg),#fff1b8,#ffb627,#ff4d6d,#c0123a,#ffb627,#fff1b8) border-box;animation:gal 2.2s linear infinite,rpulse 1.2s ease-in-out infinite;--g:255,90,60}
+.av.f-s{background:radial-gradient(circle at 35% 30%,#2b2140,#100b1a) padding-box,conic-gradient(from var(--ga,0deg),hsl(var(--h),95%,70%),hsl(calc(var(--h) + 60),95%,55%),hsl(calc(var(--h) + 180),90%,60%),hsl(var(--h),95%,70%)) border-box;animation:gal 4s linear infinite;box-shadow:0 0 14px hsla(var(--h),95%,60%,.7)}
+.av .fr-em{position:absolute;right:-16%;bottom:-16%;line-height:0;width:calc(var(--s)*.5);height:calc(var(--s)*.5);z-index:1}
+.av .fr-em svg{width:100%;height:100%}
+@keyframes rpulse{0%,100%{box-shadow:0 0 10px rgba(var(--g),.55)}50%{box-shadow:0 0 22px rgba(var(--g),.95)}}
+.em-pulse{animation:empulse 2s ease-in-out infinite;transform-origin:60px 60px}
+@keyframes empulse{50%{opacity:.55;transform:scale(1.06)}}
+.em-tw{animation:tw 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.em-tw2{animation-delay:-.6s}.em-tw3{animation-delay:-1.2s}
+@keyframes tw{0%,100%{opacity:.2;transform:scale(.5)}50%{opacity:1;transform:scale(1)}}
+.em-flame{animation:flame .9s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:bottom center}
+@keyframes flame{to{transform:scaleY(1.08) scaleX(.97)}}
+/* titres, médailles, vitrine, carte de joueur */
+.ttl{display:block;font-size:11.5px;font-weight:600;font-style:normal;color:var(--gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meds{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.md{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 6px;border-radius:12px;background:#0f0a13;border:1px solid #2a2033;font-size:10px;line-height:1.2;color:var(--muted);text-align:center}
+.md b{color:#fff;font-size:10.5px;font-weight:600}
+.md.lock svg{filter:grayscale(1) brightness(.45)}
+.md.on{border-color:var(--gold2);box-shadow:0 0 12px rgba(255,200,60,.4)}
+.mlv{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 10px}
+.mlv div{display:flex;flex-direction:column;align-items:center;text-align:center;font-size:11px;color:var(--muted);gap:2px}
+.mlv b{color:#fff;font-size:12px}.mlv em{font-style:normal;color:var(--gold2);font-weight:700}
+.mlv .lock svg{filter:grayscale(1) brightness(.45)}
+.tlist{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.ti{text-align:left;padding:10px 12px;border-radius:12px}
+.ti b{display:block;font-size:14px}.ti small{color:var(--muted);font-size:11.5px}
+.ti.lock{opacity:.5}.ti.on{border-color:var(--gold2);box-shadow:0 0 12px rgba(255,200,60,.35)}
+.pcard{display:flex;flex-direction:column;align-items:center;text-align:center}
+.pcard h3{margin:10px 0 2px;justify-content:center}
+.pcard .ttl{font-size:13px}
+.pc-rank{display:flex;align-items:center;gap:8px;margin:8px 0 12px;font-size:14px;color:var(--muted)}
+.pc-rank b{color:#fff}
+.pc-show{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-bottom:12px}
+.prow,.rr.click,.pod.click{cursor:pointer}
+/* route de saison */
+.roadcard{display:block;width:100%;text-align:left;padding:12px 14px;margin-bottom:12px;border-radius:var(--r)}
+.roadcard .rc-top{display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.roadcard .rc-top span{color:var(--gold2);font-weight:700;font-size:13px}
+.roadcard .bar{margin:8px 0 6px}
+.roadcard small{color:var(--muted);font-size:12px}
+.roadcard.hot{border-color:var(--pink);box-shadow:0 0 18px rgba(255,46,147,.45)}
+.roadcard.hot small{color:#ff8cc6;font-weight:600}
+.roadhead{padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:center}
+.roadhead>div{flex:1}
+.roadhead b{font-size:17px}.roadhead small{display:block;color:var(--muted);font-size:12px}
+.roadhead .bar{margin:6px 0 4px}
+.road{display:flex;flex-direction:column;gap:8px;padding-bottom:16px}
+.node{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:14px}
+.node .num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:#1d1526;color:var(--muted);flex:none}
+.node.done .num,.node.ready .num{background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk)}
+.node .rw2{flex:1;display:flex;align-items:center;gap:10px;font-size:14px;min-width:0}
+.node .rw2 .big2{font-size:28px;line-height:1}
+.node .st2{font-size:12px;color:var(--muted);flex:none}
+.node .st2 button{padding:7px 10px;border-radius:9px;font-size:12px;font-weight:700;background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk)}
+.node.ready{border-color:var(--pink);box-shadow:0 0 14px rgba(255,46,147,.4)}
+.node.final{padding:14px 12px}
+.node.lockd{opacity:.6}
+.sec{grid-column:1/-1;margin:10px 0 0;font-size:14px;color:var(--gold2)}
 .rankcard{display:flex;gap:14px;align-items:center;padding:14px;margin-bottom:10px}
 .rankcard>div{flex:1;min-width:0}
 .rankcard small{display:block;color:var(--muted);font-size:12px}
@@ -406,6 +467,7 @@ svg.tb.gm{filter:drop-shadow(0 0 6px rgba(255,80,120,.85))}
     <button class="big card main" id="bPlay"><div class="ico" data-i="play"></div><div><b>Jouer maintenant</b><span>Rejoindre une partie rapide</span></div></button>
     <button class="big card alt" id="bCreate"><div class="ico" data-i="users"></div><div><b>Créer un salon</b><span>Joue avec tes amis, choisis tes options</span></div></button>
     <button class="big card alt" id="bJoin"><div class="ico" data-i="link"></div><div><b>Rejoindre un salon</b><span>Avec un code</span></div></button>
+    <button class="card roadcard" id="homeRoad"></button>
     <div class="online" id="homeOnline"></div>
   </div>
   <div class="nav">
@@ -513,6 +575,13 @@ svg.tb.gm{filter:drop-shadow(0 0 6px rgba(255,80,120,.85))}
   <div class="scroll"><div class="shop" id="shopGrid"></div><p class="muted" style="font-size:12.5px;text-align:center;margin-top:16px">Gagne des pièces en jouant et en réussissant tes défis.</p></div>
 </section>
 
+<!-- ===== Route de saison ===== -->
+<section class="view hide" id="v-road">
+  <div class="top"><button class="ibtn back" data-i="back"></button><h2>Route de saison<small id="roadSub"></small></h2><div style="width:40px"></div></div>
+  <div class="card roadhead" id="roadHead"></div>
+  <div class="scroll"><div class="road" id="roadList"></div></div>
+</section>
+
 <!-- ===== 10. Réglages ===== -->
 <section class="view hide" id="v-settings">
   <div class="top"><button class="ibtn back" data-i="back"></button><h2>Paramètres</h2><div style="width:40px"></div></div>
@@ -524,10 +593,11 @@ svg.tb.gm{filter:drop-shadow(0 0 6px rgba(255,80,120,.85))}
 </div>
 <audio id="audio" preload="auto" playsinline></audio>
 
+<script src="/art.js"></script>
 <script>
 (() => {
 'use strict';
-const VERSION = '1.1';
+const VERSION = '1.2';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -597,16 +667,62 @@ const SEASON = [
   { id: 's3', e: '🎵', label: 'Trouver 100 titres', k: 'nT', goal: 100, xp: 250, coins: 120 },
   { id: 's4', e: '🥇', label: 'Gagner 5 parties', k: 'wins', goal: 5, xp: 400, coins: 200 },
 ];
-const BADGES = [
-  { e: '🎉', name: 'Première partie', ok: s => s.games >= 1 },
-  { e: '🥇', name: 'Première victoire', ok: s => s.wins >= 1 },
-  { e: '🔥', name: 'Série de 5', ok: s => s.streak >= 5 },
-  { e: '⚡', name: 'Réflexe éclair', ok: s => s.fast > 0 && s.fast < 3000 },
-  { e: '🎤', name: '100 artistes', ok: s => s.nA >= 100 },
-  { e: '🎵', name: '100 titres', ok: s => s.nT >= 100 },
-  { e: '🏆', name: '10 victoires', ok: s => s.wins >= 10 },
-  { e: '💯', name: 'Partie parfaite', ok: s => s.perfect >= 1 },
+// médailles d'exploits : 4 niveaux (Bronze, Argent, Or, Légendaire), dessins dans public/art.js
+const MEDALS = [
+  { id: 'explo', icon: 'first', name: 'Explorateur', unit: 'catégories jouées', steps: [3, 6, 10, 13], v: s => (s.cats || []).length },
+  { id: 'win', icon: 'win', name: 'Champion', unit: 'victoires', steps: [1, 10, 50, 200], v: s => s.wins },
+  { id: 'fire', icon: 'fire', name: 'Série de feu', unit: 'manches d’affilée', steps: [3, 5, 8, 10], v: s => s.streak },
+  { id: 'flash', icon: 'flash', name: 'Réflexe éclair', unit: 's', steps: [5, 3, 2, 1.2], low: true, v: s => (s.fast ? s.fast / 1000 : 0) },
+  { id: 'artist', icon: 'artist', name: 'Chasseur d’artistes', unit: 'artistes trouvés', steps: [50, 250, 1000, 5000], v: s => s.nA },
+  { id: 'title', icon: 'title', name: 'Collectionneur de titres', unit: 'titres trouvés', steps: [50, 250, 1000, 5000], v: s => s.nT },
+  { id: 'perfect', icon: 'perfect', name: 'Perfectionniste', unit: 'parties parfaites', steps: [1, 5, 20, 50], v: s => s.perfect },
+  { id: 'marathon', icon: 'marathon', name: 'Marathonien', unit: 'parties jouées', steps: [10, 50, 200, 1000], v: s => s.games },
 ];
+const MEDAL_LV = ['Bronze', 'Argent', 'Or', 'Légendaire'];
+const MEDAL_COINS = [25, 60, 150, 400];
+const MEDAL_TITLE = { explo: 'Globe-trotteur musical', win: 'Champion', fire: 'Increvable', flash: 'Sniper', artist: 'Encyclopédie vivante', title: 'Disque d’or', perfect: 'Perfectionniste', marathon: 'Marathonien' };
+// niveau atteint : 0 = pas encore, 1 = Bronze … 4 = Légendaire
+function medalLevel(m, st = S.st) {
+  const v = m.v(st);
+  let l = 0;
+  m.steps.forEach((x, i) => { if (m.low ? v > 0 && v <= x : v >= x) l = i + 1; });
+  return l;
+}
+const medalSVG = (m, l, size) => HitArt.medal(m.icon, Math.max(0, l - 1), size);
+const fmtNum = v => String(Math.round(v * 10) / 10).replace('.', ',');
+
+// titres affichés sous le pseudo
+const CAT_TITLES = { '80': 'Légende des 80s', '90': 'Enfant des 90s', '2000': 'Pilier des années 2000', '2010': 'Hitmaker des années 2010', '2020': 'Toujours à la page',
+  variete: 'Âme de la chanson française', rapfr: 'Roi du Rap FR', rapus: 'Boss du Rap US', rock: 'Rockstar', electro: 'DJ en chef', kpop: 'Star de la K-Pop', cine: 'Cinéphile', mix: 'Touche-à-tout' };
+const TITLES = [
+  { id: 'recrue', name: 'Nouvelle recrue', how: 'Offert au départ', ok: () => true },
+  { id: 'fidele', name: 'Fidèle au poste', how: 'Palier 15 de la route de saison', ok: () => S.titles.includes('fidele') },
+  ...MEDALS.map(m => ({ id: 'm-' + m.id, name: MEDAL_TITLE[m.id], how: `Médaille ${m.name} au niveau Or`, ok: () => medalLevel(m) >= 3 })),
+  { id: 'legende', name: 'Légende du blind test', how: 'Une médaille au niveau Légendaire', ok: () => MEDALS.some(m => medalLevel(m) >= 4) },
+  ...Object.entries(CAT_TITLES).map(([c, n]) => ({ id: 'c-' + c, name: n, how: `100 réponses trouvées en ${catOf(c).name}`, ok: () => (S.st.byCat[c] || 0) >= 100 })),
+  { id: 'r-maitre', name: 'Maître du son', how: 'Atteindre le rang Maître', ok: () => (S.rank.bestEver || 0) >= 7 },
+  { id: 'r-gm', name: 'Grand Maître du blind test', how: 'Atteindre le rang Grand Maître', ok: () => (S.rank.bestEver || 0) >= 8 },
+];
+const titleName = id => TITLES.find(t => t.id === id)?.name || '';
+
+// route de saison : 30 paliers par mois, 100 XP chacun
+const ROAD_XP = 100;
+const RARE_AV = ['🐲', '🦩', '🪐', '🛸', '🎻', '🪩', '🦚', '🐳', '👾', '🧞', '🦖', '🌈', '🦋', '🪗', '🦜', '🎮', '🐞', '🦈'];
+function roadRewards(sc) {
+  const k = (+sc.slice(0, 4) * 12 + +sc.slice(5, 7)) * 3;
+  const av = [0, 1, 2].map(i => RARE_AV[(k + i) % RARE_AV.length]);
+  return Array.from({ length: 30 }, (_, i) => {
+    const n = i + 1;
+    if (n === 5) return { n, type: 'av', v: av[0] };
+    if (n === 12) return { n, type: 'av', v: av[1] };
+    if (n === 15) return { n, type: 'title', v: 'fidele' };
+    if (n === 22) return { n, type: 'av', v: av[2] };
+    if (n === 30) return { n, type: 'frame', v: 's' + sc };
+    if (n % 10 === 0 || n === 25) return { n, type: 'coins', v: 250 };
+    return { n, type: 'coins', v: 20 + n * 3 };
+  });
+}
+const seasonHue = sc => (+sc.slice(5, 7) * 67 + +sc.slice(0, 4) * 13) % 360;
 
 // rangs (copie de src/ranks.js) et couleurs des écussons
 const TIERS = [
@@ -629,16 +745,8 @@ function tierProgress(rp) {
   const t = tierOfRp(rp), next = TIERS[t + 1];
   return { t, next, pct: next ? 100 * (rp - TIERS[t].min) / (next.min - TIERS[t].min) : 100 };
 }
-function tierBadge(t, s = 22) {
-  t = Math.max(0, Math.min(8, t | 0));
-  const inner = t >= 7 ? '<path d="M7.3 15.2h9.4l.9-6.3-3 2.4L12 7.2l-2.6 4.1-3-2.4z" fill="#fff"/>'
-    : t >= 4 ? '<path d="M8.2 9.6l2-2.6h3.6l2 2.6L12 15.8z" fill="#fff"/>'
-    : '<path d="M12 6.6l1.6 3.3 3.6.5-2.6 2.5.6 3.6L12 14.8l-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="#fff"/>';
-  return `<svg class="tb${t === 8 ? ' gm' : ''}" viewBox="0 0 24 24" width="${s}" height="${s}"><path d="M12 1.6l8.4 3.1v6.3c0 5.3-3.6 9.5-8.4 11.4C7.2 20.5 3.6 16.3 3.6 11V4.7z" fill="url(#tg${t})" stroke="rgba(0,0,0,.45)" stroke-width=".8"/>${inner}</svg>`;
-}
-// dégradés des écussons, définis une seule fois dans la page (toujours affichée)
-document.body.insertAdjacentHTML('afterbegin', `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${TIERS.map((x, i) =>
-  `<linearGradient id="tg${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${x.c[0]}"/><stop offset="1" stop-color="${x.c[1]}"/></linearGradient>`).join('')}</defs></svg>`);
+// emblème de rang (dessin de public/art.js), un peu plus grand que le texte voisin car il a un halo
+const tierBadge = (t, s = 22) => HitArt.emblem(Math.max(0, Math.min(8, t | 0)), Math.round(s * 1.3), s >= 40);
 const seasonName = sc => new Date((sc || new Date().toISOString().slice(0, 7)) + '-15').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 const seasonEnd = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth() + 1, 0).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }); };
 
@@ -650,25 +758,35 @@ function fresh() {
   return {
     uid: (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()).replace(/-/g, ''),
     name: '', av: AVATARS[Math.floor(Math.random() * 8)], fr: 'def', theme: 'or', xp: 0, coins: 200, owned: ['def'], themes: ['or'],
-    st: { games: 0, wins: 0, nT: 0, nA: 0, rounds: 0, top: 0, streak: 0, fast: 0, perfect: 0 },
+    st: { games: 0, wins: 0, nT: 0, nA: 0, rounds: 0, top: 0, streak: 0, fast: 0, perfect: 0, cats: [], byCat: {} },
     day: { d: today(), games: 0, nA: 0, streak: 0, top5: 0, claimed: [] },
     sea: { m: month(), games: 0, nA: 0, nT: 0, wins: 0, claimed: [] },
     set: { sfx: true, vol: 0.9, chat: true, others: true, live: true }, games: [], cat: 'mix',
-    rank: { sc: '', rp: 0, tier: 0, best: 0, games: 0, pos: null }, seasons: [], promos: {},
+    rank: { sc: '', rp: 0, tier: 0, best: 0, bestEver: 0, games: 0, pos: null }, seasons: [], promos: {},
+    road: { sc: month(), xp: 0, claimed: [] }, avs: [], titles: [], sframes: [], title: 'recrue', show: [], medals: {}, knownTitles: [], code: '',
   };
 }
 let S = fresh();
 try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(fresh(), o, { st: Object.assign(fresh().st, o.st), set: Object.assign(fresh().set, o.set) }); } } catch (e) { /* stockage indisponible */ }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* stockage indisponible */ } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* stockage indisponible */ } scheduleSync(); }
 function rollPeriods() {
   if (S.day?.d !== today()) S.day = { d: today(), games: 0, nA: 0, streak: 0, top5: 0, claimed: [] };
   if (S.sea?.m !== month()) S.sea = { m: month(), games: 0, nA: 0, nT: 0, wins: 0, claimed: [] };
+  if (S.road?.sc !== month()) S.road = { sc: month(), xp: 0, claimed: [] };
 }
 rollPeriods();
 
 // niveau : il faut 100 × niveau XP pour passer au suivant
 function level(xp = S.xp) { let l = 1; while (xp >= 100 * l) { xp -= 100 * l; l++; } return { l, cur: xp, need: 100 * l }; }
-const avHTML = (av, fr, size, extra = '') => `<div class="av f-${esc(fr || 'def')}" style="--s:${size}px">${esc(av || '🎧')}${extra}</div>`;
+// avatar dans son cadre ; cadres de rang (r2 … r8) avec leur emblème, cadres de saison (s2026-10) à la couleur du mois
+function avHTML(av, fr, size, extra = '') {
+  fr = fr || 'def';
+  let cls = 'f-' + fr, style = `--s:${size}px`, em = '';
+  const r = /^r([2-8])$/.exec(fr);
+  if (r) em = `<span class="fr-em">${HitArt.emblem(+r[1], Math.round(size * 0.5))}</span>`;
+  if (/^s\d{4}-\d{2}$/.test(fr)) { cls = 'f-s'; style += `;--h:${seasonHue(fr.slice(1))}`; }
+  return `<div class="av ${esc(cls)}" style="${style}">${esc(av || '🎧')}${em}${extra}</div>`;
+}
 
 // ---------- interface : vues, toasts, feuilles ----------
 let curView = null;
@@ -682,6 +800,7 @@ function show(v) {
   if (v === 'defis') renderDefis();
   if (v === 'shop') renderShop();
   if (v === 'settings') renderSettings();
+  if (v === 'road') renderRoad();
 }
 function go(v, replace) {
   if (!ROOM_VIEWS.includes(v) || !ROOM_VIEWS.includes(curView)) history[replace ? 'replaceState' : 'pushState']({ v }, '');
@@ -787,7 +906,7 @@ const sNow = () => Date.now() + offset;
 // ---------- connexion au salon ----------
 const R = { ws: null, st: null, me: null, path: null, params: null, chat: [], unread: 0, retry: 0, closing: false, feed: [], you: { title: null, artist: null }, sameLobby: null, gameCounted: null };
 function wsURL(path, params) {
-  const q = new URLSearchParams({ uid: S.uid, name: S.name, av: S.av, fr: S.fr, lvl: level().l, ...params });
+  const q = new URLSearchParams({ uid: S.uid, name: S.name, av: S.av, fr: S.fr, lvl: level().l, title: S.title || '', show: showStr(), ...params });
   return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${path}?${q}`;
 }
 function connect(path, params = {}) {
@@ -965,11 +1084,12 @@ function renderLobby() {
   else if (host) { btn.disabled = false; btn.innerHTML = icon('playf') + 'Lancer la partie'; }
   else { btn.disabled = true; btn.innerHTML = 'En attente de l’hôte…'; }
   const players = [...st.players].sort((a, b) => (b.id === st.host) - (a.id === st.host) || a.bot - b.bot);
-  $('#lobbyPlayers').innerHTML = players.map(p => `<div class="card prow ${p.on ? '' : 'off'}">
+  $('#lobbyPlayers').innerHTML = players.map(p => `<div class="card prow ${p.on ? '' : 'off'}" data-pid="${p.id}">
     ${avHTML(p.av, p.fr, 44, p.id === st.host ? '<span class="crown">👑</span>' : '')}
-    <div class="nm"><b>${esc(p.name)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b><span>${tierBadge(p.tier, 14)} ${TIERS[p.tier || 0].name} • Niv. ${p.lvl}${p.on ? '' : ' • hors ligne'}</span></div>
+    <div class="nm"><b>${esc(p.name)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b>${titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}<span>${tierBadge(p.tier, 14)} ${TIERS[p.tier || 0].name} • Niv. ${p.lvl}${p.on ? '' : ' • hors ligne'}</span></div>
     ${p.id === st.host ? '<span class="tag">Hôte</span>' : p.bot ? '<span class="tag bot">BOT</span>' : ''}
     ${p.on ? '<div class="eqi"><i></i><i></i><i></i><i></i></div>' : ''}</div>`).join('');
+  $$('#lobbyPlayers [data-pid]').forEach(el => el.onclick = () => { const p = R.st.players.find(x => x.id === el.dataset.pid); if (p) playerCard(p); });
   $('#lobbyChat').classList.toggle('hide', !S.set.chat);
   renderChatInto($('#lobbyMsgs'));
 }
@@ -1088,12 +1208,55 @@ function applyGame(st) {
   if (r.fast && (!s.fast || r.fast < s.fast)) s.fast = r.fast;
   if (pod === 1) s.wins++;
   if (r.rounds >= 5 && r.nT >= st.rounds && r.nA >= st.rounds) s.perfect++;
+  if (!s.cats.includes(st.cat)) s.cats.push(st.cat);
+  s.byCat[st.cat] = (s.byCat[st.cat] || 0) + r.nT + r.nA;
+  S.road.xp += xp;
   S.day.games++; S.day.nA += r.nA; S.day.streak = Math.max(S.day.streak, r.best); if (n >= 2 && r.rank <= 5) S.day.top5 = 1;
   S.sea.games++; S.sea.nA += r.nA; S.sea.nT += r.nT; if (pod === 1) S.sea.wins++;
   save();
   lastGain = { id: st.gameId, xp, coins, up: level().l > before ? level().l : 0 };
   if (lastGain.up) setTimeout(() => toast(`🎉 Niveau ${lastGain.up} atteint !`, 3500), 1200);
-  send({ t: 'profile', lvl: level().l });
+  checkUnlocks();
+  profileChanged();
+}
+
+// nouvelles médailles (pièces à chaque niveau) et nouveaux titres
+let toastQueue = [];
+function queueToast(msg) {
+  toastQueue.push(msg);
+  if (toastQueue.length === 1) nextToast();
+}
+function nextToast() {
+  if (!toastQueue.length) return;
+  toast(toastQueue[0], 3600);
+  setTimeout(() => { toastQueue.shift(); nextToast(); }, 3900);
+}
+function checkUnlocks() {
+  const meds = [], titles = [];
+  let coins = 0;
+  for (const m of MEDALS) {
+    const l = medalLevel(m), had = S.medals[m.id] || 0;
+    if (l > had) {
+      for (let i = had; i < l; i++) coins += MEDAL_COINS[i];
+      S.medals[m.id] = l;
+      meds.push({ m, l });
+    }
+  }
+  S.coins += coins;
+  const known = new Set(S.knownTitles);
+  for (const t of TITLES) {
+    if (!known.has(t.id) && t.ok()) {
+      known.add(t.id);
+      if (t.id !== 'recrue') titles.push(t);
+    }
+  }
+  S.knownTitles = [...known];
+  save();
+  // plusieurs déblocages d'un coup : un seul message récapitulatif
+  if (meds.length === 1) queueToast(`${medalSVG(meds[0].m, meds[0].l, 30)} Médaille <b>${meds[0].m.name}</b> ${MEDAL_LV[meds[0].l - 1]} ! +${coins} pièces`);
+  else if (meds.length > 1) queueToast(`${meds.slice(0, 3).map(x => medalSVG(x.m, x.l, 26)).join('')}<br><b>${meds.length} nouvelles médailles</b> ! +${coins} pièces (voir ton profil)`);
+  if (titles.length === 1) queueToast(`🏷️ Nouveau titre : <b>${titles[0].name}</b> (à choisir dans ton profil)`);
+  else if (titles.length > 1) queueToast(`🏷️ <b>${titles.length} nouveaux titres</b> débloqués : ${titles.map(t => t.name).join(', ')}`);
 }
 function renderEnd() {
   const st = R.st;
@@ -1104,8 +1267,8 @@ function renderEnd() {
   $('#podium').innerHTML = top.map((p, i) => {
     if (!p) return '<div></div>';
     const k = [2, 1, 3][i];
-    return `<div class="pod p${k}">${avHTML(p.av, p.fr, k === 1 ? 80 : 64, `${k === 1 ? '<span class="crown">👑</span>' : ''}<span class="rk">${k}</span>`)}
-      <b>${p.id === R.me ? 'Toi' : esc(p.name)}</b><span>${p.score} pts</span><div class="ped"></div></div>`;
+    return `<div class="pod p${k} click" data-rid="${p.id}">${avHTML(p.av, p.fr, k === 1 ? 80 : 64, `${k === 1 ? '<span class="crown">👑</span>' : ''}<span class="rk">${k}</span>`)}
+      <b>${p.id === R.me ? 'Toi' : esc(p.name)}</b>${titleName(p.title) ? `<i class="ttl" style="max-width:100%">${esc(titleName(p.title))}</i>` : ''}<span>${p.score} pts</span><div class="ped"></div></div>`;
   }).join('');
   const r = res.find(x => x.id === R.me);
   $('#myrow').innerHTML = r ? `<span class="r">${r.rank}</span>${avHTML(S.av, S.fr, 36)}<b>Toi</b><em>${r.score} pts</em>` : '<span class="muted" style="padding:6px 0">Tu as rejoint le salon après le début de cette partie.</span>';
@@ -1126,7 +1289,8 @@ function renderEnd() {
     <div class="card st"><span class="e">🔥</span><div><small>Meilleure série</small><b>x${r.best}</b></div></div>
     <div class="card st"><span class="e">⚡</span><div><small>Bonus rapidité</small><b>+${r.speed} pts</b></div></div>
   </div>${g ? `<p style="text-align:center;margin:12px 0 0;font-weight:600"><span class="coin">$</span> +${g.coins} pièces</p>` : ''}` : '';
-  $('#endFull').innerHTML = res.map(p => `<div class="card rr ${p.id === R.me ? 'me' : ''}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${tierBadge(p.tier, 16)} ${esc(p.name)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
+  $('#endFull').innerHTML = res.map(p => `<div class="card rr click ${p.id === R.me ? 'me' : ''}" data-rid="${p.id}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${tierBadge(p.tier, 16)} ${esc(p.name)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
+  $$('#v-end [data-rid]').forEach(el => el.onclick = () => { const p = res.find(x => x.id === el.dataset.rid); if (p) playerCard(p); });
   $('#endRecap').classList.toggle('hide', endTab !== 'recap');
   $('#endFull').classList.toggle('hide', endTab !== 'full');
   $$('[data-et]').forEach(b => b.classList.toggle('on', b.dataset.et === endTab));
@@ -1145,7 +1309,9 @@ $$('[data-et]').forEach(b => b.onclick = () => { endTab = b.dataset.et; renderEn
 let lastRank = null, meLoaded = 0;
 function onRank(m) {
   lastRank = m;
-  S.rank = { ...S.rank, sc: m.sc, rp: m.rp, tier: m.tier, best: Math.max(S.rank.sc === m.sc ? S.rank.best : 0, m.tier), games: (S.rank.games || 0) + 1 };
+  const before = S.rank.bestEver || 0;
+  S.rank = { ...S.rank, sc: m.sc, rp: m.rp, tier: m.tier, best: Math.max(S.rank.sc === m.sc ? S.rank.best : 0, m.tier), bestEver: Math.max(before, m.tier), games: (S.rank.games || 0) + 1 };
+  if (m.tier > before && m.tier >= 2) queueToast(`${avHTML(S.av, 'r' + m.tier, 30)} Cadre exclusif <b>${TIERS[m.tier].name}</b> débloqué ! (Boutique → Cadres)`);
   if (m.promo && !((S.promos[m.sc] || 0) >= m.promo)) {
     const coins = 50 * m.promo;
     S.promos[m.sc] = m.promo;
@@ -1162,7 +1328,7 @@ async function loadMe(force) {
   let d;
   try { d = await (await fetch(`/api/me?uid=${S.uid}`)).json(); } catch (e) { return; }
   if (!d || d.error) return;
-  S.rank = { sc: d.sc, rp: d.rp, tier: d.tier, best: d.best, games: d.games, pos: d.pos };
+  S.rank = { sc: d.sc, rp: d.rp, tier: d.tier, best: d.best, bestEver: d.bestEver || 0, games: d.games, pos: d.pos };
   if (d.reward && !S.seasons.some(x => x.sc === d.reward.sc)) {
     const coins = SEASON_COINS[d.reward.tier] || 0;
     S.coins += coins;
@@ -1174,7 +1340,7 @@ async function loadMe(force) {
       <p>Nouvelle saison : tu repars en <b>${TIERS[d.tier].name}</b>. À toi de remonter !</p>
       <button class="cta" data-close>Super !</button></div>`);
   }
-  save();
+  checkUnlocks();
   if (curView === 'home') renderHome();
   if (curView === 'profile') renderProfile();
 }
@@ -1344,6 +1510,11 @@ function renderHome() {
   $('#homeXp').style.width = (100 * lv.cur / lv.need) + '%';
   $('#coinVal').textContent = fmt(S.coins);
   $('#defiDot').classList.toggle('hide', !claimable());
+  const rs = roadState(), ready = rs.ready.length;
+  const hr = $('#homeRoad');
+  hr.classList.toggle('hot', ready > 0);
+  hr.innerHTML = `<div class="rc-top"><b>🎁 Route de saison</b><span>Palier ${rs.step}/30</span></div><div class="bar"><i style="width:${rs.step >= 30 ? 100 : rs.cur}%"></i></div>
+    <small>${ready ? `${ready} récompense${ready > 1 ? 's' : ''} à récupérer !` : rs.step >= 30 ? 'Route terminée, bravo ! 🏆' : `Prochain palier : ${rewardLabel(rs.rewards[rs.step])}`}</small>`;
   renderOnline();
   loadCounts();
 }
@@ -1358,44 +1529,112 @@ $('#homeSet').onclick = () => go('settings');
 $('#homeAv').onclick = () => go('profile');
 $('#v-home .who').onclick = () => rankSheet();
 $('#homeCoins').onclick = () => go('defis');
+$('#homeRoad').onclick = () => go('road');
 $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
 
 // ---------- profil ----------
 function renderProfile() {
   const lv = level(), s = S.st;
   const rate = s.rounds ? Math.round(100 * (s.nT + s.nA) / (2 * s.rounds)) : 0;
+  const nMed = MEDALS.filter(m => medalLevel(m) > 0).length;
   $('#profBody').innerHTML = `<div class="card prof"><button id="profAv">${avHTML(S.av, S.fr, 84)}</button>
     <div class="info"><b>${esc(S.name || 'Toi')} <button id="profEdit" data-i="edit" style="color:var(--muted)"></button></b>
+      <button id="profTitle" class="ttl" style="font-size:13px">🏷️ ${esc(titleName(S.title) || 'Choisir un titre')} ›</button>
       <div class="rank">${tierBadge(S.rank.tier, 16)} ${TIERS[S.rank.tier].name} • ${S.rank.rp} PR</div><div>Niveau ${lv.l}</div>
       <div class="bar"><i style="width:${100 * lv.cur / lv.need}%"></i></div><small>${fmt(lv.cur)} / ${fmt(lv.need)} XP</small></div></div>
     <div class="nums"><div class="card"><b>${s.games}</b><small>Parties</small></div><div class="card"><b>${s.nA}</b><small>Artistes</small></div>
       <div class="card"><b>${s.nT}</b><small>Titres</small></div><div class="card"><b>${rate}%</b><small>Réussite</small></div></div>
     <div class="list">
-      <div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">🏅</span><span>Mes badges</span><span class="muted">${BADGES.filter(b => b.ok(s)).length}/${BADGES.length}</span></div>
-        <div class="badges">${BADGES.map(b => `<div class="card bd ${b.ok(s) ? '' : 'lock'}"><span class="e">${b.e}</span>${b.name}</div>`).join('')}</div></div>
-      <div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">📈</span><span>Mes statistiques</span></div>
-        <div class="muted" style="font-size:13px;line-height:1.9;margin-top:6px">🥇 Victoires : <b style="color:#fff">${s.wins}</b><br>🏆 Meilleur score : <b style="color:#fff">${s.top} pts</b><br>🔥 Meilleure série : <b style="color:#fff">x${s.streak}</b><br>⚡ Réponse la plus rapide : <b style="color:#fff">${s.fast ? (s.fast / 1000).toFixed(1).replace('.', ',') + ' s' : '—'}</b></div></div>
-      <button class="card li" id="profRank"><span class="e">${tierBadge(S.rank.tier, 22)}</span><span>Mon rang de la saison</span><span class="muted">${TIERS[S.rank.tier].name}</span><span class="chev">›</span></button>
+      <div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">🏅</span><span>Mes médailles</span><span class="muted">${nMed}/${MEDALS.length}</span></div>
+        <div class="meds">${MEDALS.map(m => {
+          const l = medalLevel(m), v = m.v(s), next = m.steps[l];
+          const prog = l >= 4 ? 'Niveau max' : m.low ? (v ? `${fmtNum(v)} s → ${fmtNum(next)} s` : `moins de ${fmtNum(next)} s`) : `${fmt(Math.min(v, next))} / ${fmt(next)}`;
+          return `<button class="md ${l ? '' : 'lock'}" data-med="${m.id}">${medalSVG(m, l, 54)}<b>${m.name}</b>${l ? MEDAL_LV[l - 1] + '<br>' : ''}${prog}</button>`;
+        }).join('')}</div></div>
+      <button class="card li" id="profShow"><span class="e">🖼️</span><span>Ma vitrine</span><span class="muted">${showIds().map(id => medalSVG(MEDALS.find(m => m.id === id), S.medals[id] || 1, 26)).join('') || 'vide'}</span><span class="chev">›</span></button>
+      <button class="card li" id="profCard"><span class="e">🪪</span><span>Voir ma carte de joueur</span><span class="chev">›</span></button>
+      <button class="card li" id="profRank"><span class="e">${tierBadge(S.rank.tier, 20)}</span><span>Mon rang de la saison</span><span class="muted">${TIERS[S.rank.tier].name}</span><span class="chev">›</span></button>
       ${S.seasons.length ? `<div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">🏆</span><span>Mes saisons</span></div>
         <div class="seasons">${S.seasons.slice().reverse().map(x => `<div>${tierBadge(x.tier, 18)} ${seasonName(x.sc)} : ${TIERS[x.tier].name}</div>`).join('')}</div></div>` : ''}
-      <button class="card li" id="profPerso"><span class="e">🎨</span><span>Personnalisation</span><span class="chev">›</span></button>
+      <div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">📈</span><span>Mes statistiques</span></div>
+        <div class="muted" style="font-size:13px;line-height:1.9;margin-top:6px">🥇 Victoires : <b style="color:#fff">${s.wins}</b><br>🏆 Meilleur score : <b style="color:#fff">${s.top} pts</b><br>🔥 Meilleure série : <b style="color:#fff">x${s.streak}</b><br>⚡ Réponse la plus rapide : <b style="color:#fff">${s.fast ? fmtNum(s.fast / 1000) + ' s' : '—'}</b></div></div>
+      <button class="card li" id="profPerso"><span class="e">🎨</span><span>Cadres et thèmes</span><span class="chev">›</span></button>
     </div>`;
   paintIcons($('#profBody'));
   $('#profAv').onclick = () => avatarSheet();
   $('#profEdit').onclick = () => nameSheet();
+  $('#profTitle').onclick = () => titleSheet();
   $('#profPerso').onclick = () => go('shop');
   $('#profRank').onclick = () => rankSheet();
+  $('#profShow').onclick = () => showcaseSheet();
+  $('#profCard').onclick = () => playerCard({ name: S.name, av: S.av, fr: S.fr, lvl: level().l, tier: S.rank.tier, title: S.title, show: showStr().split(',').filter(Boolean) });
+  $$('#profBody [data-med]').forEach(b => b.onclick = () => medalSheet(MEDALS.find(m => m.id === b.dataset.med)));
   loadMe();
 }
+function medalSheet(m) {
+  const l = medalLevel(m), v = m.v(S.st);
+  openSheet(`<h3>${m.name} <button data-close data-i="x"></button></h3>
+    <div class="mlv">${m.steps.map((x, i) => `<div class="${l > i ? '' : 'lock'}">${HitArt.medal(m.icon, i, 62)}<b>${MEDAL_LV[i]}</b>${m.low ? `moins de ${fmtNum(x)} s` : `${fmt(x)} ${m.unit}`}<em><span class="coin">$</span> ${MEDAL_COINS[i]}</em></div>`).join('')}</div>
+    <p>Ton record : <b style="color:#fff">${m.low ? (v ? fmtNum(v) + ' s pour trouver une réponse' : 'pas encore') : `${fmt(v)} ${m.unit}`}</b></p>
+    <p>${l >= 3 ? '🏷️ Titre débloqué' : '🏷️ Au niveau Or, tu débloques le titre'} « <b style="color:var(--gold2)">${MEDAL_TITLE[m.id]}</b> ».</p>
+    <button class="cta" data-close>OK</button>`);
+}
+function titleSheet() {
+  openSheet(`<h3>Mon titre <button data-close data-i="x"></button></h3><p>Il s’affiche sous ton pseudo dans les salons et sur ta carte de joueur.</p>
+    <div class="tlist">${TITLES.map(t => { const ok = t.ok(); return `<button class="card ti ${ok ? '' : 'lock'} ${S.title === t.id ? 'on' : ''}" data-t="${t.id}"><b>${ok ? '' : '🔒 '}${t.name}</b><small>${t.how}</small></button>`; }).join('')}</div>`);
+  $$('#sheetBox [data-t]').forEach(b => b.onclick = () => {
+    const t = TITLES.find(x => x.id === b.dataset.t);
+    if (!t.ok()) return toast(`Pour le débloquer : ${t.how}`, 3200);
+    S.title = t.id; save(); closeSheet(); profileChanged(); renderProfile();
+  });
+}
+function showcaseSheet() {
+  const got = MEDALS.filter(m => medalLevel(m) > 0);
+  if (!got.length) return toast('Gagne ta première médaille pour remplir ta vitrine !');
+  const sel = new Set(showIds());
+  openSheet(`<h3>Ma vitrine <button data-close data-i="x"></button></h3><p>Choisis jusqu’à 3 médailles : les autres joueurs les voient en touchant ton nom.</p>
+    <div class="meds" id="scGrid"></div><button class="cta" id="scOk" style="margin-top:12px">Enregistrer</button>`);
+  const draw = () => {
+    $('#scGrid').innerHTML = got.map(m => `<button class="md ${sel.has(m.id) ? 'on' : ''}" data-m="${m.id}">${medalSVG(m, medalLevel(m), 54)}<b>${m.name}</b>${MEDAL_LV[medalLevel(m) - 1]}</button>`).join('');
+    $$('#scGrid [data-m]').forEach(b => b.onclick = () => {
+      const id = b.dataset.m;
+      if (sel.has(id)) sel.delete(id); else if (sel.size < 3) sel.add(id); else return toast('3 médailles maximum');
+      draw();
+    });
+  };
+  draw();
+  $('#scOk').onclick = () => { S.show = [...sel]; save(); closeSheet(); profileChanged(); renderProfile(); };
+}
+// carte d'un joueur : avatar, titre, rang, vitrine
+function playerCard(p) {
+  const show = (p.show || []).map(x => {
+    const [id, l] = x.split(':'), m = MEDALS.find(y => y.id === id);
+    return m && +l ? `<div class="md">${medalSVG(m, +l, 60)}<b>${m.name}</b>${MEDAL_LV[+l - 1]}</div>` : '';
+  }).join('');
+  openSheet(`<div class="pcard">${avHTML(p.av, p.fr, 96)}<h3>${esc(p.name)}${p.bot ? ' 🤖' : ''}</h3>${p.title && titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}
+    <div class="pc-rank">${tierBadge(p.tier || 0, 30)} <b>${TIERS[p.tier || 0].name}</b> • Niveau ${p.lvl || 1}</div>
+    <div class="pc-show">${show || '<p class="muted" style="grid-column:1/-1">Pas encore de médaille en vitrine.</p>'}</div>
+    ${p.bot ? '<p class="note">Joueur virtuel qui complète les salons quand il manque du monde.</p>' : ''}
+    <button class="cta" data-close>Fermer</button></div>`);
+}
 function avatarSheet() {
-  openSheet(`<h3>Choisis ton avatar <button data-close data-i="x"></button></h3><div class="avgrid">${AVATARS.map(a => `<button class="${a === S.av ? 'on' : ''}">${a}</button>`).join('')}</div>`);
+  const all = [...AVATARS, ...S.avs];
+  openSheet(`<h3>Choisis ton avatar <button data-close data-i="x"></button></h3><div class="avgrid">${all.map(a => `<button class="${a === S.av ? 'on' : ''}"${S.avs.includes(a) ? ' title="Avatar rare"' : ''}>${a}</button>`).join('')}</div>
+    <p class="note">${S.avs.length ? `✨ ${S.avs.length} avatar${S.avs.length > 1 ? 's' : ''} rare${S.avs.length > 1 ? 's' : ''} gagné${S.avs.length > 1 ? 's' : ''} sur la route de saison` : '✨ Gagne des avatars rares sur la route de saison'}</p>`);
   $$('#sheetBox .avgrid button').forEach(b => b.onclick = () => { S.av = b.textContent; save(); closeSheet(); renderProfile(); profileChanged(); });
 }
 function nameSheet() {
   openSheet(`<h3>Ton pseudo <button data-close data-i="x"></button></h3><input class="txtin" id="nameIn" maxlength="16" value="${esc(S.name)}"><button class="cta" id="nameOk">Enregistrer</button>`);
   $('#nameOk').onclick = () => { const v = $('#nameIn').value.trim(); if (v.length < 2) return toast('2 caractères minimum'); S.name = v; save(); closeSheet(); show(curView); profileChanged(); };
 }
-function profileChanged() { send({ t: 'profile', name: S.name, av: S.av, fr: S.fr, lvl: level().l }); }
+function profileChanged() { send({ t: 'profile', name: S.name, av: S.av, fr: S.fr, lvl: level().l, title: S.title || '', show: showStr() }); }
+// vitrine : les médailles choisies, sinon les 3 plus hautes
+function showIds() {
+  const got = MEDALS.filter(m => medalLevel(m) > 0);
+  const chosen = S.show.filter(id => got.some(m => m.id === id));
+  return chosen.length ? chosen : got.sort((a, b) => medalLevel(b) - medalLevel(a)).slice(0, 3).map(m => m.id);
+}
+const showStr = () => showIds().map(id => `${id}:${medalLevel(MEDALS.find(m => m.id === id))}`).join(',');
 
 // ---------- classements ----------
 let boardTab = 'season';
@@ -1427,9 +1666,59 @@ function renderDefis() {
   }).join('') + `<p class="muted" style="font-size:12.5px;text-align:center">${defiTab === 'day' ? 'Nouveaux défis chaque jour à minuit.' : 'Les défis de saison changent chaque mois.'} Chaque défi rapporte aussi des pièces.</p>`;
   $$('[data-claim]').forEach(b => b.onclick = () => {
     const d = list.find(x => x.id === b.dataset.claim);
-    per.claimed.push(d.id); S.xp += d.xp; S.coins += d.coins; save();
+    per.claimed.push(d.id); S.xp += d.xp; S.road.xp += d.xp; S.coins += d.coins; save();
     toast(`🎁 +${d.xp} XP et +${d.coins} pièces !`); renderDefis();
   });
+}
+
+// ---------- route de saison ----------
+function roadState() {
+  rollPeriods();
+  const r = S.road, step = Math.min(30, Math.floor(r.xp / ROAD_XP)), rewards = roadRewards(r.sc);
+  return { r, step, cur: r.xp % ROAD_XP, rewards, ready: rewards.filter(w => w.n <= step && !r.claimed.includes(w.n)) };
+}
+function rewardLabel(w) {
+  if (!w) return '';
+  if (w.type === 'coins') return `${w.v} pièces`;
+  if (w.type === 'av') return `avatar rare ${w.v}`;
+  if (w.type === 'title') return `titre « ${titleName(w.v)} »`;
+  return 'cadre de saison exclusif';
+}
+function rewardPic(w) {
+  if (w.type === 'coins') return `<span class="coin" style="width:30px;height:30px;font-size:15px">$</span><b>${w.v} pièces</b>`;
+  if (w.type === 'av') return `<span class="big2">${w.v}</span><b>Avatar rare</b>`;
+  if (w.type === 'title') return `<span class="big2">🏷️</span><span><b>Titre</b><br><small class="muted">${titleName(w.v)}</small></span>`;
+  return `${avHTML(S.av, w.v, 54)}<span><b>Cadre de saison</b><br><small class="muted">exclusif ${seasonName(w.v.slice(1))}</small></span>`;
+}
+function renderRoad() {
+  const rs = roadState();
+  $('#roadSub').textContent = `${seasonName(rs.r.sc)} • fin le ${seasonEnd()}`;
+  $('#roadHead').innerHTML = `<span style="font-size:30px">🎁</span><div><b>Palier ${rs.step} / 30</b>
+    <div class="bar"><i style="width:${rs.step >= 30 ? 100 : rs.cur}%"></i></div>
+    <small>${rs.step >= 30 ? 'Route terminée, bravo !' : `${rs.cur} / ${ROAD_XP} XP avant le palier ${rs.step + 1} • l’XP se gagne en jouant et avec les défis`}</small></div>`;
+  $('#roadList').innerHTML = rs.rewards.map(w => {
+    const done = rs.r.claimed.includes(w.n), ready = w.n <= rs.step && !done;
+    return `<div class="card node ${done ? 'done' : ready ? 'ready' : 'lockd'} ${w.n === 30 ? 'final' : ''}"><span class="num">${w.n}</span><div class="rw2">${rewardPic(w)}</div>
+      <div class="st2">${done ? '✅' : ready ? `<button data-claim-road="${w.n}">Récupérer</button>` : '🔒'}</div></div>`;
+  }).join('');
+  $$('[data-claim-road]').forEach(b => b.onclick = () => claimRoad(+b.dataset.claimRoad));
+}
+function claimRoad(n) {
+  const rs = roadState(), w = rs.rewards[n - 1];
+  if (!w || n > rs.step || rs.r.claimed.includes(n)) return;
+  rs.r.claimed.push(n);
+  if (w.type === 'coins') { S.coins += w.v; toast(`<span class="coin">$</span> +${w.v} pièces !`); }
+  if (w.type === 'av') { if (!S.avs.includes(w.v)) S.avs.push(w.v); toast(`✨ Avatar rare ${w.v} débloqué ! (Profil → avatar)`, 3200); }
+  if (w.type === 'title') { if (!S.titles.includes(w.v)) S.titles.push(w.v); }
+  if (w.type === 'frame') {
+    if (!S.sframes.includes(w.v)) S.sframes.push(w.v);
+    openSheet(`<div class="pcard"><h3>Récompense finale !</h3>${avHTML(S.av, w.v, 110)}<p>Cadre de saison exclusif de ${seasonName(w.v.slice(1))} : il ne sera plus jamais disponible.</p>
+      <button class="cta" id="eqSeason">L’équiper</button><button class="ghost" data-close style="width:100%;margin-top:8px">Plus tard</button></div>`);
+    $('#eqSeason').onclick = () => { S.fr = w.v; save(); profileChanged(); closeSheet(); };
+  }
+  save();
+  checkUnlocks();
+  renderRoad();
 }
 
 // ---------- boutique ----------
@@ -1437,21 +1726,38 @@ let shopTab = 'frames';
 $$('[data-st]').forEach(b => b.onclick = () => { shopTab = b.dataset.st; $$('[data-st]').forEach(x => x.classList.toggle('on', x === b)); renderShop(); });
 function renderShop() {
   $('#shopCoins').textContent = fmt(S.coins);
-  const items = shopTab === 'frames' ? FRAMES : THEMES, owned = shopTab === 'frames' ? S.owned : S.themes, cur = shopTab === 'frames' ? S.fr : S.theme;
-  $('#shopGrid').innerHTML = items.map(it => {
-    const has = owned.includes(it.id), eq = cur === it.id;
-    const pic = shopTab === 'frames' ? avHTML(S.av, it.id, 58) : `<div class="sw" style="background:${it.c}"></div>`;
-    return `<button class="card item ${eq ? 'eq' : ''}" data-it="${it.id}">${eq ? '<span class="ok">✓</span>' : ''}${pic}<b>${it.name}</b>
-      <small>${eq ? 'Équipé' : has ? 'Choisir' : `<span class="coin">$</span>${fmt(it.price)}`}</small></button>`;
-  }).join('');
-  $$('[data-it]').forEach(b => b.onclick = () => {
-    const it = items.find(x => x.id === b.dataset.it);
-    if (!owned.includes(it.id)) {
-      if (S.coins < it.price) return toast(`Il te manque ${fmt(it.price - S.coins)} pièces. Joue et réussis tes défis pour en gagner !`, 3200);
-      if (!confirm(`Acheter « ${it.name} » pour ${fmt(it.price)} pièces ?`)) return;
-      S.coins -= it.price; owned.push(it.id);
+  const card = (kind, id, pic, name, small, eq) => `<button class="card item ${eq ? 'eq' : ''}" data-kind="${kind}" data-it="${id}">${eq ? '<span class="ok">✓</span>' : ''}${pic}<b>${name}</b><small>${small}</small></button>`;
+  let html = '';
+  if (shopTab === 'frames') {
+    html += FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : `<span class="coin">$</span>${fmt(it.price)}`, S.fr === it.id)).join('');
+    html += '<h4 class="sec">🏆 Cadres de rang : impossibles à acheter</h4>';
+    html += [2, 3, 4, 5, 6, 7, 8].map(t => {
+      const ok = (S.rank.bestEver || 0) >= t, id = 'r' + t;
+      return card('rank', id, `<div style="${ok ? '' : 'filter:grayscale(1) brightness(.55)'}">${avHTML(S.av, id, 58)}</div>`, TIERS[t].name, ok ? (S.fr === id ? 'Équipé' : 'Choisir') : `🔒 Rang ${TIERS[t].name}`, S.fr === id);
+    }).join('');
+    html += '<h4 class="sec">🎁 Cadres de saison</h4>';
+    html += S.sframes.length ? S.sframes.map(id => card('season', id, avHTML(S.av, id, 58), seasonName(id.slice(1)), S.fr === id ? 'Équipé' : 'Choisir', S.fr === id)).join('')
+      : '<p class="note" style="grid-column:1/-1;margin:4px 0 0">Récompense finale de la route de saison (palier 30), différente chaque mois.</p>';
+  } else {
+    html = THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : `<span class="coin">$</span>${fmt(it.price)}`, S.theme === it.id)).join('');
+  }
+  $('#shopGrid').innerHTML = html;
+  $$('#shopGrid [data-it]').forEach(b => b.onclick = () => {
+    const id = b.dataset.it, kind = b.dataset.kind;
+    if (kind === 'rank') {
+      const t = +id.slice(1);
+      if ((S.rank.bestEver || 0) < t) return toast(`Atteins le rang ${TIERS[t].name} en partie classée (Jouer maintenant) pour débloquer ce cadre.`, 3500);
+      S.fr = id; profileChanged();
+    } else if (kind === 'season') { S.fr = id; profileChanged(); }
+    else {
+      const items = kind === 'buy' ? FRAMES : THEMES, owned = kind === 'buy' ? S.owned : S.themes, it = items.find(x => x.id === id);
+      if (!owned.includes(id)) {
+        if (S.coins < it.price) return toast(`Il te manque ${fmt(it.price - S.coins)} pièces. Joue et réussis tes défis pour en gagner !`, 3200);
+        if (!confirm(`Acheter « ${it.name} » pour ${fmt(it.price)} pièces ?`)) return;
+        S.coins -= it.price; owned.push(id);
+      }
+      if (kind === 'buy') { S.fr = id; profileChanged(); } else { S.theme = id; applyTheme(); }
     }
-    if (shopTab === 'frames') { S.fr = it.id; profileChanged(); } else { S.theme = it.id; applyTheme(); }
     save(); renderShop();
   });
 }
@@ -1468,6 +1774,7 @@ function renderSettings() {
     ${tg('live', '👁️', 'Réponses trouvées visibles en direct')}
     <button class="card li" data-go2="shop"><span class="e">🎨</span><span>Thème</span><span class="muted">${THEMES.find(t => t.id === S.theme)?.name || 'Or'}</span><span class="chev">›</span></button>
     <button class="card li" data-go2="profile"><span class="e">👤</span><span>Pseudo et avatar</span><span class="chev">›</span></button>
+    <button class="card li" id="saveBtn"><span class="e">💾</span><span>Code de sauvegarde</span><span class="muted">changer de téléphone</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
     <button class="card li" id="resetBtn"><span class="e">🗑️</span><span>Effacer mes données</span><span class="chev">›</span></button>
     <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
@@ -1475,7 +1782,56 @@ function renderSettings() {
   $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); };
   $$('[data-go2]').forEach(b => b.onclick = () => go(b.dataset.go2));
   $('#rulesBtn').onclick = rules;
+  $('#saveBtn').onclick = saveSheet;
   $('#resetBtn').onclick = () => { if (confirm('Effacer ta progression (niveau, pièces, achats, statistiques) sur cet appareil ?')) { const name = S.name, av = S.av; S = fresh(); S.name = name; S.av = av; save(); applyTheme(); toast('Progression effacée.'); renderSettings(); } };
+}
+// code de sauvegarde : la progression est copiée sur le serveur et récupérable sur un autre appareil
+const SAVE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function ensureCode() {
+  if (!S.code) S.code = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => SAVE_CHARS[b % SAVE_CHARS.length]).join('');
+  return S.code;
+}
+const fmtCode = c => c.match(/.{4}/g).join('-');
+let syncT = null, lastSync = '';
+function scheduleSync() { clearTimeout(syncT); syncT = setTimeout(syncSave, 4000); }
+async function syncSave() {
+  if (!S.name) return;
+  const code = ensureCode();
+  const data = JSON.stringify(S);
+  if (data === lastSync) return;
+  try {
+    const r = await (await fetch('/api/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code, uid: S.uid, data }) })).json();
+    if (r.ok) lastSync = data;
+  } catch (e) { /* hors ligne : nouvel essai à la prochaine sauvegarde */ }
+}
+function saveSheet() {
+  const code = ensureCode();
+  save();
+  openSheet(`<h3>Code de sauvegarde <button data-close data-i="x"></button></h3>
+    <p>Ce code permet de retrouver toute ta progression (niveau, pièces, médailles, cadres, rang) sur un autre téléphone. <b>Garde-le pour toi</b> : quelqu’un qui l’a peut récupérer ton profil.</p>
+    <div class="codein" style="font-size:24px;letter-spacing:3px;display:grid;place-items:center">${fmtCode(code)}</div>
+    <button class="ghost" id="copySave" style="width:100%">Copier mon code</button>
+    <h3 style="margin-top:20px">Récupérer une progression</h3>
+    <p>Sur ce téléphone, entre le code affiché sur ton ancien appareil.</p>
+    <input class="txtin" id="restoreIn" placeholder="XXXX-XXXX-XXXX" autocapitalize="characters" autocomplete="off">
+    <button class="cta" id="restoreGo">Récupérer</button>`);
+  $('#copySave').onclick = () => copy(fmtCode(code), 'Code copié !');
+  $('#restoreGo').onclick = async () => {
+    const c = $('#restoreIn').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (c.length !== 12) return toast('Le code fait 12 caractères.');
+    if (c === code) return toast('C’est déjà le code de ce téléphone 🙂');
+    let d;
+    try { d = await (await fetch(`/api/save?code=${c}`)).json(); } catch (e) { return toast('Pas de connexion internet ?'); }
+    if (!d.ok) return toast('Code introuvable. Vérifie-le !', 3000);
+    let o;
+    try { o = JSON.parse(d.data); } catch (e) { return toast('Sauvegarde illisible.'); }
+    if (!confirm(`Remplacer la progression de ce téléphone par celle de ${o.name || 'ce code'} (niveau, pièces, médailles…) ?`)) return;
+    S = Object.assign(fresh(), o, { st: Object.assign(fresh().st, o.st), set: Object.assign(fresh().set, o.set), code: c, uid: d.uid });
+    lastSync = JSON.stringify(S);
+    try { localStorage.setItem(KEY, lastSync); } catch (e) { /* stockage indisponible */ }
+    toast('Progression récupérée !');
+    setTimeout(() => location.reload(), 900);
+  };
 }
 function rules() {
   openSheet(`<h3>Comment jouer ? <button data-close data-i="x"></button></h3>
@@ -1483,6 +1839,7 @@ function rules() {
     <p>⌨️ Tape <b>l’artiste</b> ou <b>le titre en entier</b> (ou les deux d’un coup). La bonne réponse est reconnue pendant que tu tapes ; les accents, majuscules et la ponctuation ne comptent pas. Si tu as fait une petite faute, appuie sur <b>Entrée</b> : quelques fautes sont tolérées.</p>
     <p>🏆 <b>Titre : +15 pts</b>, <b>artiste : +10 pts</b>, plus un <b>bonus de rapidité</b> (jusqu’à +5) et un <b>bonus de série</b> si tu trouves plusieurs manches d’affilée.</p>
     <p>👥 <b>Jouer maintenant</b> : parties classées contre des joueurs de ton niveau, qui font monter ou descendre ton rang (de Bronze à Grand Maître, saison chaque mois). <b>Créer un salon</b> : partie amicale avec tes amis, sans points de rang.</p>
+    <p>🏅 Gagne des <b>médailles</b> (4 niveaux), des <b>titres</b> à afficher sous ton pseudo, des <b>cadres exclusifs</b> en montant de rang et des cadeaux sur la <b>route de saison</b>. Touche un joueur pour voir sa carte.</p>
     <p>🤖 Les joueurs marqués « BOT » sont des joueurs virtuels qui complètent les salons quand il y a peu de monde.</p>
     <button class="cta" data-close>J’ai compris</button>`);
 }
@@ -1513,7 +1870,7 @@ paintIcons();
 crowd();
 applyTheme();
 history.replaceState({ v: 'home' }, '');
-if (!S.name) onboarding(); else { show('home'); startDeepLink(); }
+if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); }
 })();
 </script>
 </body>

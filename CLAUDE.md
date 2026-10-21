@@ -4,7 +4,7 @@ Blind test musical **multijoueur en direct** (l'esprit de QuiChante.com), en app
 Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisateur francophone, non développeur : répondre en français, simplement, avec des étapes claires.
 
 - Maquette de référence : 10 écrans (accueil, catégories, salon, partie, fin, profil, classements, défis, boutique, paramètres), noir avec bordures néon or et rose. L'utilisateur autorise à l'améliorer.
-- Version : **1.1** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
+- Version : **1.2** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
 - Hébergement : **Cloudflare Workers** (gratuit, Durable Objects en SQLite) relié au dépôt GitHub (Workers Builds), publication automatique depuis `main`. Worker nommé **`hitroom`** : https://hitroom.jcolomb10.workers.dev. Le `name` de `wrangler.jsonc` doit rester identique au nom du Worker, sinon la publication échoue. Résultat des publications visible sur GitHub (check « Workers Builds: hitroom » sur chaque commit de `main`).
 - Projet Cloudflare **Pages** « hitroom » (hitroom.pages.dev) créé par erreur : il publie seulement l'affichage, sans serveur ; à supprimer.
 - **Vercel** : le dépôt y est encore relié (ancien prototype). `vercel.json` y coupe toute publication automatique ; le projet Vercel est à débrancher ou supprimer par l'utilisateur (Vercel ne gère pas les WebSockets des salons).
@@ -29,8 +29,16 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 - **Déconnexion** : 15 s de grâce (on garde les points), même `uid` = même joueur, un 2e onglet remplace le 1er.
 - **Extraits** (`src/hub.js`, `src/sources.js`) : iTunes d'abord puis **Deezer en secours**. En ligne, iTunes répond **429** à Cloudflare (adresse partagée par tous les Workers, constaté le 21/10/2026) : en pratique tout vient de Deezer. Meilleure version choisie par `src/itunes.js` (`pickBest`, aussi pour Deezer), mémorisée 30 jours en SQLite (colonnes `src`, `ext` = id Deezer) ; les liens Deezer expirent, donc lien frais (`/track/<id>`) à chaque partie. Catalogue préchargé par alarme (8 morceaux par minute). Diagnostic : `/api/status` (erreurs par source), `/api/status?test=1` (test en direct des deux sources), `/api/introuvables`. Source qui limite → pause de 5 min.
 - **Catalogue** (`src/catalog.js`) : 13 catégories, 354 morceaux, format `Titre ~ variante | Artiste ~ variante`.
-- **Côté joueur** (`public/index.html`, sauvegarde `localStorage` `hitroom.v1`) : pseudo, avatar emoji, XP (100 × niveau pour passer au suivant), pièces, cadres, thèmes (`data-theme` : or, neon, cyan), défis du jour et de saison, badges. Classement mensuel et « tous les temps » sur le serveur (`/api/board`).
-- **API** : `/api/public/<cat>/ws`, `POST /api/salon` (nouveau code), `/api/salon/<CODE>` (infos), `/api/salon/<CODE>/ws`, `/api/counts?b=<niveau>`, `/api/board?sc=season|all&uid=`, `/api/me?uid=` (rang, place, récompense de saison).
+- **Côté joueur** (`public/index.html`, sauvegarde `localStorage` `hitroom.v1`) : pseudo, avatar emoji, XP (100 × niveau pour passer au suivant), pièces, cadres, thèmes (`data-theme` : or, neon, cyan), défis du jour et de saison. Classement mensuel et « tous les temps » sur le serveur (`/api/board`).
+- **Récompenses** (demandées par l'utilisateur pour donner envie de jouer) : dessins vectoriels dans `public/art.js` (`HitArt.emblem(rang, taille, animé)` pour les 9 emblèmes de rang, `HitArt.medal(icône, niveau 0-3, taille)` pour les médailles ; chaque dessin a ses propres dégradés à identifiants uniques).
+  - 8 **médailles** à 4 niveaux (`MEDALS` : Explorateur, Champion, Série de feu, Réflexe éclair, Chasseur d'artistes, Collectionneur de titres, Perfectionniste, Marathonien), pièces à chaque niveau (25/60/150/400).
+  - **Titres** sous le pseudo (`TITLES` : médaille au niveau Or, une Légendaire, 100 réponses dans une catégorie comme « Roi du Rap FR », rang Maître et Grand Maître, palier 15 de la route) ; titres de rang vérifiés par le serveur.
+  - **Carte de joueur** (toucher un joueur dans le salon ou en fin de partie) avec **vitrine** de 3 médailles (`show` = `id:niveau`).
+  - **Cadres de rang** `r2` (Or) … `r8` (Grand Maître), impossibles à acheter, débloqués par le meilleur rang toutes saisons (`bestEver`), vérifiés par le serveur (`frameOk` dans `room.js`).
+  - **Route de saison** gratuite : 30 paliers par mois (100 XP chacun) : pièces, 3 avatars rares, titre « Fidèle au poste », et au palier 30 un **cadre de saison** exclusif `sAAAA-MM` (couleur du mois).
+  - **Code de sauvegarde** (12 caractères, Réglages) : progression copiée sur le serveur (`/api/save`, table `saves`) quelques secondes après chaque changement, récupérable sur un autre appareil (même `uid`, donc même rang).
+  - Limite connue : médailles et titres (sauf rang) sont calculés sur l'appareil, donc trichables en modifiant le stockage local ; à passer côté serveur si besoin.
+- **API** (aussi `/api/save` : POST `{code, uid, data}`, GET `?code=`) : `/api/public/<cat>/ws`, `POST /api/salon` (nouveau code), `/api/salon/<CODE>` (infos), `/api/salon/<CODE>/ws`, `/api/counts?b=<niveau>`, `/api/board?sc=season|all&uid=`, `/api/me?uid=` (rang, place, récompense de saison).
 
 ## Tests
 
@@ -38,6 +46,7 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 - Local : `.dev.vars` avec `MOCK_MUSIC=1` (extraits simulés `/__mock/…`, parties publiques courtes, `/__mock/saison`), `npx wrangler dev --port 8787`.
 - `NODE_PATH=$(npm root -g) node test/e2e-multijoueur.cjs` : 3 joueurs (création, lien, code, réglages, 5 manches, chat, coupure réseau, relance) + 1 joueur en salon public, captures dans `/tmp/hitroom-shots`.
 - `node test/e2e-cas-limites.mjs` : code inconnu, droits de l'hôte, transfert d'hôte, double onglet, grossièretés, salon public abandonné.
+- `NODE_PATH=$(npm root -g) node test/e2e-recompenses.cjs` : médailles, titres, vitrine, carte, route de saison, cadres de rang (refus du tricheur), code de sauvegarde sur un 2e appareil.
 - `NODE_PATH=$(npm root -g) node test/e2e-classe.cjs` : partie classée complète (réponses strictes, PR gagnés, classement, partie amicale, niveau des bots, changement de saison via `/__mock/saison`). En local (MOCK_MUSIC), les parties publiques durent 5 manches de 15 s.
 - iTunes n'est pas joignable depuis l'environnement Claude : la vraie recherche ne se vérifie qu'une fois en ligne.
 

@@ -35,6 +35,7 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS ranks(uid TEXT, sc TEXT, rp INTEGER, best INTEGER, games INTEGER, wins INTEGER, name TEXT, av TEXT, fr TEXT, PRIMARY KEY(uid, sc))`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS ranks_rp ON ranks(sc, rp DESC)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS rewards(uid TEXT, sc TEXT, tier INTEGER, claimed INTEGER, PRIMARY KEY(uid, sc))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS saves(code TEXT PRIMARY KEY, uid TEXT, data TEXT, ts INTEGER)`);
     this.rooms = new Map(); // cat -> { n, ts } (salons publics)
     this.paused = { it: 0, dz: 0 }; // source qui nous limite : on attend
     this.diag = { it: { ok: 0, ko: 0, last: '' }, dz: { ok: 0, ko: 0, last: '' } };
@@ -181,9 +182,14 @@ export class Hub extends DurableObject {
     return { rp, best: rp, games: 0, wins: 0 };
   }
 
+  // meilleur rang atteint, toutes saisons confondues (débloque les cadres de rang)
+  bestEver(uid) {
+    return tierOf(this.sql.exec(`SELECT MAX(best) AS b FROM ranks WHERE uid = ?`, uid).one().b || 0);
+  }
+
   rankOf(uid) {
     const r = this.rankRow(uid);
-    return { rp: r.rp, tier: tierOf(r.rp) };
+    return { rp: r.rp, tier: tierOf(r.rp), bestEver: this.bestEver(uid) };
   }
 
   // infos de rang pour l'appli ; la récompense de fin de saison n'est donnée qu'une fois
@@ -193,7 +199,7 @@ export class Hub extends DurableObject {
     const pos = r.games ? this.sql.exec(`SELECT COUNT(*) AS n FROM ranks WHERE sc = ? AND games > 0 AND rp > ?`, sc, r.rp).one().n + 1 : null;
     const rw = this.sql.exec(`SELECT sc, tier FROM rewards WHERE uid = ? AND claimed = 0 ORDER BY sc DESC LIMIT 1`, uid).toArray()[0];
     if (rw) this.sql.exec(`UPDATE rewards SET claimed = 1 WHERE uid = ? AND sc = ?`, uid, rw.sc);
-    return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), games: r.games, wins: r.wins, pos, reward: rw || null };
+    return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), bestEver: this.bestEver(uid), games: r.games, wins: r.wins, pos, reward: rw || null };
   }
 
   // fin d'une partie classée : rows = [{ uid, name, av, fr, delta, win }]
@@ -269,6 +275,19 @@ export class Hub extends DurableObject {
       }
     }
     return out;
+  }
+
+  // ---------- code de sauvegarde (progression récupérable sur un autre appareil) ----------
+  saveProgress(code, uid, data) {
+    const row = this.sql.exec(`SELECT uid FROM saves WHERE code = ?`, code).toArray()[0];
+    if (row && row.uid !== uid) return { ok: 0 };
+    this.sql.exec(`INSERT OR REPLACE INTO saves(code, uid, data, ts) VALUES(?,?,?,?)`, code, uid, data, Date.now());
+    return { ok: 1 };
+  }
+
+  loadProgress(code) {
+    const row = this.sql.exec(`SELECT uid, data, ts FROM saves WHERE code = ?`, code).toArray()[0];
+    return row ? { ok: 1, uid: row.uid, data: row.data, ts: row.ts } : { ok: 0 };
   }
 
   // tests en local uniquement (MOCK_MUSIC) : simule une saison précédente pour tester le changement de saison
