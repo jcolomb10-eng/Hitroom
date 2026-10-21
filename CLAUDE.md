@@ -7,6 +7,7 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 - Version : **1.4** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
 - Hébergement : **Cloudflare Workers** (gratuit, Durable Objects en SQLite) relié au dépôt GitHub (Workers Builds), publication automatique depuis `main`. Worker nommé **`hitroom`** : https://hitroom.jcolomb10.workers.dev. Le `name` de `wrangler.jsonc` doit rester identique au nom du Worker, sinon la publication échoue. Résultat des publications visible sur GitHub (check « Workers Builds: hitroom » sur chaque commit de `main`).
 - Projet Cloudflare **Pages** « hitroom » (hitroom.pages.dev) créé par erreur : il publie seulement l'affichage, sans serveur ; à supprimer.
+- Worker en double **`hitrooom`** (3 « o », reste de l'erreur de nom) : encore relié au dépôt, il publie aussi à chaque envoi sur `main` (check « Workers Builds: hitrooom ») ; à supprimer par l'utilisateur. Le bon est `hitroom`.
 - **Vercel** : le dépôt y est encore relié (ancien prototype). `vercel.json` y coupe toute publication automatique ; le projet Vercel est à débrancher ou supprimer par l'utilisateur (Vercel ne gère pas les WebSockets des salons).
 - Ancien prototype V0 (solo contre bots) remplacé ; `logo.jpg` à la racine = logo d'origine (source de `public/logo.webp` et des icônes).
 
