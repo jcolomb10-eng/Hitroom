@@ -957,7 +957,7 @@ function renderGame() {
     const finders = st.players.filter(p => p.ft);
     rv.innerHTML = `<img src="${esc(r.art)}" alt=""><div class="t"><small>C'était…</small><b>${esc(r.t)}</b><span>${esc(r.a)}</span>
       <small>${finders.length ? 'Trouvé par ' + finders.map(p => p.id === R.me ? 'toi' : esc(p.name)).slice(0, 4).join(', ') + (finders.length > 4 ? '…' : '') : 'Personne n’a trouvé 😮'}</small>
-      ${r.link ? `<br><a href="${esc(r.link)}" target="_blank" rel="noopener">Écouter sur Apple Music ↗</a>` : ''}</div>`;
+      ${r.link ? `<br><a href="${esc(r.link)}" target="_blank" rel="noopener">Écouter sur ${/deezer\./.test(r.link) ? 'Deezer' : 'Apple Music'} ↗</a>` : ''}</div>`;
     rv.classList.remove('hide');
   } else rv.classList.add('hide');
   // écrans d'attente
@@ -1339,7 +1339,7 @@ function renderSettings() {
     <button class="card li" data-go2="profile"><span class="e">👤</span><span>Pseudo et avatar</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
     <button class="card li" id="resetBtn"><span class="e">🗑️</span><span>Effacer mes données</span><span class="chev">›</span></button>
-    <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
+    <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
   $$('[data-tg]').forEach(b => b.onclick = () => { S.set[b.dataset.tg] = !S.set[b.dataset.tg]; save(); b.classList.toggle('on', S.set[b.dataset.tg]); });
   $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); };
   $$('[data-go2]').forEach(b => b.onclick = () => go(b.dataset.go2));

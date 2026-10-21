@@ -23,7 +23,7 @@ Tout tourne sur **Cloudflare Workers** (gratuit) :
 | `src/filter.js` | Grossièretés masquées (chat et pseudos) |
 | `wrangler.jsonc` | Configuration Cloudflare |
 
-Les extraits de 30 secondes et les pochettes viennent de l'API officielle iTunes (lien « Écouter sur Apple Music » affiché à chaque réponse). Les réponses ne sont jamais envoyées aux joueurs avant la fin de la manche : c'est le serveur qui les vérifie.
+Les extraits de 30 secondes et les pochettes viennent des API publiques de Deezer et d'iTunes (lien « Écouter sur Deezer / Apple Music » affiché à chaque réponse). Depuis Cloudflare, iTunes refuse souvent (erreur 429) : Deezer prend le relais. Les réponses ne sont jamais envoyées aux joueurs avant la fin de la manche : c'est le serveur qui les vérifie.
 
 ## Mise en ligne (une seule fois)
 
