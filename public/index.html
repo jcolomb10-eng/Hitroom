@@ -420,11 +420,12 @@ svg.med{flex:none;overflow:visible}
 .rankcard span{color:var(--gold2);font-weight:600;font-size:14px}
 .rankcard .bar{margin:8px 0 4px}
 .tiers{display:grid;gap:6px;margin:10px 0}
-.tiers div{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:#0f0a13;border:1px solid #2a2033}
-.tiers div.cur{border-color:var(--gold2);box-shadow:0 0 10px rgba(255,200,60,.3)}
-.tiers b{flex:1;font-size:14px}
+.tiers>div{display:flex;align-items:center;gap:10px;padding:4px 10px 4px 4px;border-radius:10px;background:#0f0a13;border:1px solid #2a2033}
+.tiers>div.cur{border-color:var(--gold2);box-shadow:0 0 10px rgba(255,200,60,.3)}
+.tiers>div>.fxbox{flex:none}
+.tiers>div>b{flex:1;font-size:14px}
 .tiers .pr{color:var(--muted);font-size:12px;width:58px}
-.tiers em{font-style:normal;font-size:12px;font-weight:700;color:var(--gold2);display:flex;align-items:center;gap:4px;width:70px;justify-content:flex-end}
+.tiers>div>em{font-style:normal;font-size:12px;font-weight:700;color:var(--gold2);display:flex;align-items:center;gap:4px;width:70px;justify-content:flex-end}
 .rankres{display:flex;gap:12px;align-items:center;padding:10px 14px;margin-bottom:12px}
 .rankres>div{flex:1;min-width:0}
 .rankres b{display:flex;align-items:center;gap:8px;font-size:17px}
@@ -627,7 +628,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.3';
+const VERSION = '1.4';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1437,7 +1438,7 @@ function rankSheet() {
     <p>📅 Fin de saison le <b>${seasonEnd()}</b> : des pièces selon ton meilleur rang, puis ton rang redescend de moitié pour la saison suivante. Chaque nouveau rang atteint rapporte aussi des pièces.</p>
     <p><b>🖼️ Les cadres de rang</b> : chaque rang atteint débloque son cadre pour toujours (Boutique → Cadres).</p>
     <div class="fxstrip">${TIERS.map((x, i) => `<div class="it">${framedAvatar(S.av, 'r' + i, 118, 84, 52, (S.rank.bestEver || 0) < i)}<b>${x.name}</b>${(S.rank.bestEver || 0) >= i ? 'débloqué' : '🔒'}</div>`).join('')}</div>
-    <div class="tiers">${TIERS.map((x, i) => `<div class="${i === r.tier ? 'cur' : ''}">${tierBadge(i, 30)}<b>${x.name}</b><span class="pr">${x.min} PR</span><em><span class="coin">$</span>${fmt(SEASON_COINS[i])}</em></div>`).join('')}</div>
+    <div class="tiers">${TIERS.map((x, i) => `<div class="${i === r.tier ? 'cur' : ''}">${framedAvatar(S.av, 'r' + i, 76, 52, 34)}<b>${x.name}</b><span class="pr">${x.min} PR</span><em><span class="coin">$</span>${fmt(SEASON_COINS[i])}</em></div>`).join('')}</div>
     <p class="muted" style="font-size:12.5px">Les salons privés entre amis sont des parties amicales : sans points de rang.</p>
     <button class="cta" data-close>OK</button>`);
 }
