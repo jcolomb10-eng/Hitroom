@@ -37,6 +37,7 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS rewards(uid TEXT, sc TEXT, tier INTEGER, claimed INTEGER, PRIMARY KEY(uid, sc))`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS saves(code TEXT PRIMARY KEY, uid TEXT, data TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS shields(uid TEXT, day TEXT, PRIMARY KEY(uid, day))`);
     // version 1.5 : points de rang convertis une fois vers les paliers progressifs (chacun garde son rang)
     if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'paliers'`).toArray().length) {
       ctx.storage.transactionSync(() => {
@@ -228,17 +229,24 @@ export class Hub extends DurableObject {
     return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), bestEver: this.bestEver(uid), games: r.games, wins: r.wins, pos, reward: rw || null };
   }
 
-  // fin d'une partie classée : rows = [{ uid, name, av, fr, delta, win }]
+  // fin d'une partie classée : rows = [{ uid, name, av, fr, delta, win, shield }]
+  // bouclier de rang (acheté en boutique) : une perte annulée, une fois par jour au plus
   applyRanked(rows) {
-    const sc = season();
+    const sc = season(), day = new Date().toISOString().slice(0, 10);
     return rows.map(x => {
       const r = this.rankRow(x.uid);
+      let saved = 0;
+      if (x.delta < 0 && x.shield && r.rp > 0 && !this.sql.exec(`SELECT 1 FROM shields WHERE uid = ? AND day = ?`, x.uid, day).toArray().length) {
+        this.sql.exec(`INSERT INTO shields(uid, day) VALUES(?,?)`, x.uid, day);
+        saved = Math.min(-x.delta, r.rp);
+        x.delta = 0;
+      }
       const rp = Math.max(0, r.rp + x.delta);
       const best = Math.max(r.best, rp);
       this.sql.exec(`UPDATE ranks SET rp = ?, best = ?, games = games + 1, wins = wins + ?, name = ?, av = ?, fr = ? WHERE uid = ? AND sc = ?`,
         rp, best, x.win ? 1 : 0, x.name, x.av, x.fr, x.uid, sc);
       const promo = tierOf(best) > tierOf(r.best) ? tierOf(best) : 0;
-      return { uid: x.uid, rp, delta: rp - r.rp, tier: tierOf(rp), prev: tierOf(r.rp), promo, sc };
+      return { uid: x.uid, rp, delta: rp - r.rp, tier: tierOf(rp), prev: tierOf(r.rp), promo, sc, saved };
     });
   }
 

@@ -49,3 +49,12 @@ test('catalogue : chaque catégorie a assez de morceaux, sans ligne cassée', ()
     }
   }
 });
+
+test('salon Premium : jusqu’à 3 catégories mélangées, sans doublon', () => {
+  const rock = songsOf('rock'), s80 = songsOf('80'), mixed = songsOf('rock+80');
+  const keys = new Set([...rock, ...s80].map(s => s.k));
+  assert.equal(mixed.length, keys.size);
+  assert.equal(new Set(mixed.map(s => s.k)).size, mixed.length);
+  assert.ok(mixed.length > rock.length && mixed.length > s80.length);
+  assert.equal(songsOf('inconnue+autre').length, songsOf('mix').length, 'catégories inconnues : tout le catalogue');
+});

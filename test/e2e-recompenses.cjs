@@ -27,7 +27,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await page.evaluate(() => {
     const S = JSON.parse(localStorage.getItem('hitroom.v1'));
     Object.assign(S.st, { games: 12, wins: 2, nA: 60, nT: 55, streak: 5, fast: 2500, perfect: 1, rounds: 120, cats: ['rock', '80', '90'], byCat: { rapfr: 120 } });
-    S.road.xp = 1650;
+    S.road.xp = 16 * (S.road.sc < '2026-11' ? 100 : 500) + 50; // palier 16 (XP par palier : roadXp dans index.html)
     localStorage.setItem('hitroom.v1', JSON.stringify(S));
   });
   const coins0 = 200;

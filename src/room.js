@@ -15,9 +15,18 @@ const REVEAL = 6000;        // affichage de la réponse
 const PUBLIC_NEXT = 15000;  // salon public : pause entre deux parties
 const OFFLINE_GRACE = 15000;
 const PTS = { title: 15, artist: 10 };
-const ROUNDS = [5, 10, 15, 20];
+const ROUNDS = [5, 10, 15, 20, 30]; // 30 : salon privé Premium
 const DURS = [15, 20, 30];
-const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie']);
+// cadres achetés (boutique, cadres de prestige compris) et cadre « Légendaire » (médaille au niveau Légendaire) :
+// pièces et médailles sont sur l'appareil, le serveur ne peut que vérifier que le cadre existe
+const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie', 'arc', 'aurore', 'royal', 'icone', 'legend']);
+const NAME_STYLES = new Set(['', 'gold', 'rainbow']);   // pseudo doré, arc-en-ciel (boutique, Prestige)
+const WIN_FX = new Set(['', 'confetti', 'fireworks']);  // effet de victoire vu par tout le salon
+// une catégorie, ou jusqu'à 3 mélangées (salon privé Premium)
+const cleanCat = c => {
+  const parts = [...new Set(String(c || '').split('+'))].filter(x => CAT_IDS.has(x)).slice(0, 3);
+  return parts.includes('mix') ? 'mix' : parts.join('+') || null;
+};
 // cadres de rang (r0 = Bronze … r8 = Grand Maître) : seulement si le rang a été atteint ; cadres de saison : s2026-10
 const frameOk = (fr, best) => FRAMES.has(fr) || /^s\d{4}-\d{2}$/.test(fr) || (/^r[0-8]$/.test(fr) && +fr[1] <= best);
 
@@ -97,7 +106,7 @@ export class Room extends DurableObject {
       phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
         id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, title: p.title || '', show: p.show || [], bot: !!p.bot, on: !!p.on,
-        score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
+        nc: p.nc || '', vfx: p.vfx || '', score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
       })),
       cur: this.phase === 'play' || this.phase === 'reveal' ? { url: c.s.url, art: c.s.art, start: c.start, end: c.end } : null,
       reveal: this.phase === 'reveal' ? this.reveal : null,
@@ -186,11 +195,15 @@ export class Room extends DurableObject {
     if (show != null) p.show = String(show).split(',').filter(x => /^[a-z]{2,10}:[0-4]$/.test(x)).slice(0, 3);
     const lvl = parseInt(get('lvl'), 10);
     if (lvl > 0 && lvl < 1000) p.lvl = lvl; else if (!p.lvl) p.lvl = 1;
+    if (NAME_STYLES.has(get('nc'))) p.nc = get('nc');
+    if (WIN_FX.has(get('vfx'))) p.vfx = get('vfx');
+    if (get('sh') != null) p.sh = get('sh') === '1'; // a un bouclier de rang (1 utilisé par jour au plus, vérifié par le Hub)
   }
 
   setOpts(src) {
     const get = k => (src.get ? src.get(k) : src[k]);
-    if (CAT_IDS.has(get('cat'))) this.cat = get('cat');
+    const cat = cleanCat(get('cat'));
+    if (cat) this.cat = cat;
     const r = parseInt(get('rounds'), 10), d = parseInt(get('dur'), 10), b = parseInt(get('bots'), 10), l = parseInt(get('botlvl'), 10);
     if (ROUNDS.includes(r)) this.opts.rounds = r;
     if (DURS.includes(d)) this.opts.dur = d;
@@ -459,6 +472,7 @@ export class Room extends DurableObject {
     const list = [...this.players.values()].sort((a, b) => b.score - a.score);
     this.results = list.map((p, i) => ({
       id: p.id, rank: i + 1, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, title: p.title || '', show: p.show || [], bot: !!p.bot, score: p.score,
+      nc: p.nc || '', vfx: p.vfx || '',
       nT: p.nT || 0, nA: p.nA || 0, best: p.best || 0, speed: p.speed || 0, fast: p.fast || 0, rounds: p.rounds || 0,
     }));
     this.phase = 'end';
@@ -480,7 +494,7 @@ export class Room extends DurableObject {
   async ranked(list) {
     const gameId = this.gameId, n = list.length;
     const rows = list.map((p, i) => ({ p, rank: i + 1 })).filter(x => !x.p.bot && x.p.rounds > 0).map(({ p, rank }) => ({
-      uid: p.uid, name: p.name, av: p.av, fr: p.fr, win: rank === 1,
+      uid: p.uid, name: p.name, av: p.av, fr: p.fr, win: rank === 1, shield: !!p.sh,
       delta: rpDelta(p.tier || 0, rank, n, p.rounds / this.rounds, p.nT >= this.rounds && p.nA >= this.rounds),
     }));
     if (!rows.length) return;
@@ -493,7 +507,7 @@ export class Room extends DurableObject {
       if (p) {
         p.tier = r.tier;
         p.rbest = Math.max(p.rbest || 0, r.tier);
-        this.send(p.ws, { t: 'rank', gameId, rp: r.rp, delta: r.delta, tier: r.tier, prev: r.prev, promo: r.promo, sc: r.sc });
+        this.send(p.ws, { t: 'rank', gameId, rp: r.rp, delta: r.delta, tier: r.tier, prev: r.prev, promo: r.promo, sc: r.sc, saved: r.saved || 0 });
       }
     }
     this.broadcastState();

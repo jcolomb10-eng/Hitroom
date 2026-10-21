@@ -24,6 +24,19 @@
 }
 [data-theme="neon"]{--glow:255,46,147;--cta1:#ff6ab8;--cta2:#d0249a;--ctaInk:#fff}
 [data-theme="cyan"]{--glow:47,212,255;--cta1:#7be7ff;--cta2:#2a9dff;--ctaInk:#04182b}
+/* thèmes de luxe (boutique) : plus lumineux, reflet qui passe sur les boutons */
+[data-theme="lumiere"]{--glow:255,236,190;--glow2:255,200,120;--cta1:#fffdf6;--cta2:#ffd36b;--ctaInk:#2a1a00;--bg:#1e1626;--cardA:#2c2134;--cardB:#1f1727;--gold:#ffd27a;--gold2:#fff0c2}
+[data-theme="champagne"]{--glow:245,215,160;--glow2:200,160,100;--cta1:#fff6df;--cta2:#d9b77a;--ctaInk:#2b1d06;--bg:#0b0805;--cardA:#17110b;--cardB:#0d0906;--gold:#f0cf8f;--gold2:#ffe9bd}
+[data-theme="orrose"]{--glow:255,170,155;--glow2:220,120,140;--cta1:#ffe4dc;--cta2:#e3907e;--ctaInk:#3a130b;--bg:#0c0607;--cardA:#1a0f12;--cardB:#0e0809;--gold:#ffb9a6;--gold2:#ffd9cc}
+[data-theme="saphir"]{--glow:80,130,255;--glow2:255,200,90;--cta1:#ffe7a3;--cta2:#ffc23d;--ctaInk:#1a1200;--bg:#04071a;--cardA:#0c1330;--cardB:#060a1d;--gold:#ffd36b;--gold2:#ffe7a3}
+[data-theme="rubis"]{--glow:255,50,95;--glow2:255,190,110;--cta1:#ffd9a0;--cta2:#ff8a6b;--ctaInk:#2e0710;--bg:#100208;--cardA:#220712;--cardB:#13040a;--gold:#ffcf7a;--gold2:#ffe2b0}
+[data-theme="diamant"]{--glow:215,235,255;--glow2:150,200,255;--cta1:#ffffff;--cta2:#b9d6ff;--ctaInk:#0a1a33;--bg:#05070c;--cardA:#111723;--cardB:#090c13;--gold:#cfe6ff;--gold2:#ffffff}
+[data-theme="aurore"]{--glow:61,255,176;--glow2:163,77,255;--cta1:#7dffd0;--cta2:#7b6bff;--ctaInk:#06121a;--bg:#03070a;--cardA:#0c1418;--cardB:#060a0d;--gold:#9dffe0;--gold2:#d4fff1}
+[data-theme="aurore"] .card,[data-theme="aurore"] .ibtn,[data-theme="aurore"] .ghost,[data-theme="aurore"] .pill{transition:border-color 2.4s linear,box-shadow 2.4s linear}
+:root[data-lux] .card{box-shadow:0 0 18px rgba(var(--glow),.26),inset 0 0 26px rgba(var(--glow),.08)}
+:root[data-lux] .cta{position:relative;overflow:hidden}
+:root[data-lux] .cta::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%);background-size:250% 100%;animation:sheen 3.4s ease-in-out infinite}
+@keyframes sheen{0%{background-position:130% 0}60%,100%{background-position:-30% 0}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#020103;color:var(--ink);font-family:var(--font);overscroll-behavior:none}
 body{display:flex;justify-content:center}
@@ -32,14 +45,14 @@ button{cursor:pointer;border:0;background:none;padding:0}
 svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .hide{display:none!important}
 #app{position:relative;width:100%;max-width:480px;height:100vh;height:100dvh;overflow:hidden;
-  background:radial-gradient(120% 60% at 50% -10%,rgba(var(--glow),.13),transparent 60%),radial-gradient(90% 50% at 50% 110%,rgba(163,77,255,.12),transparent 60%),var(--bg)}
+  background:radial-gradient(120% 60% at 50% -10%,rgba(var(--glow),.13),transparent 60%),radial-gradient(90% 50% at 50% 110%,rgba(var(--glow2,163,77,255),.12),transparent 60%),var(--bg)}
 @media(min-width:520px){#app{border-left:1px solid #1d1424;border-right:1px solid #1d1424}}
 .view{position:absolute;inset:0;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 14px 0}
 .scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;margin:0 -14px;padding:0 14px 16px;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
 
 /* ---------- éléments communs ---------- */
-.card{background:linear-gradient(180deg,#130d19,#0b080f);border:1.5px solid rgba(var(--glow),.5);border-radius:var(--r);
+.card{background:linear-gradient(180deg,var(--cardA,#130d19),var(--cardB,#0b080f));border:1.5px solid rgba(var(--glow),.5);border-radius:var(--r);
   box-shadow:0 0 14px rgba(var(--glow),.16),inset 0 0 22px rgba(var(--glow),.05)}
 .top{display:flex;align-items:center;gap:10px;min-height:46px;margin-bottom:8px}
 .top h2{flex:1;margin:0;font-size:19px;font-weight:700;text-align:center;line-height:1.15}
@@ -67,7 +80,15 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 /* avatars et cadres */
 .av{--s:44px;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;font-size:calc(var(--s)*.5);line-height:1;flex:none;position:relative;
   border:2px solid #4b3e57;background:radial-gradient(circle at 35% 30%,#3b2b4b,#150f1c)}
-.av.f-or,.av.f-diamant,.av.f-flamme,.av.f-neon,.av.f-galaxie{border:3px solid transparent}
+.av.f-or,.av.f-diamant,.av.f-flamme,.av.f-neon,.av.f-galaxie,.av.f-arc,.av.f-aurore,.av.f-royal,.av.f-icone,.av.f-legend{border:3px solid transparent}
+/* cadres de prestige (boutique) et cadre Légendaire (médaille au niveau Légendaire) */
+.av.f-arc{background:radial-gradient(circle at 35% 30%,#2b2140,#100b1a) padding-box,conic-gradient(from var(--ga,0deg),#ff4d6d,#ffb627,#fff35c,#3dffb0,#2fd4ff,#a34dff,#ff4d6d) border-box;box-shadow:0 0 16px rgba(255,255,255,.35);animation:gal 3s linear infinite}
+.av.f-aurore{background:radial-gradient(circle at 35% 30%,#12302c,#06110f) padding-box,conic-gradient(from var(--ga,0deg),#3dffb0,#2fd4ff,#7b6bff,#ff4fd8,#3dffb0) border-box;animation:gal 5s linear infinite,rpulse 2.4s ease-in-out infinite;--g:61,255,176}
+.av.f-royal{background:radial-gradient(circle at 35% 30%,#3d2a10,#150d04) padding-box,conic-gradient(from var(--ga,0deg),#fff6c9,#ffc531,#a35a00,#fff6c9,#ffc531,#a35a00,#fff6c9) border-box;animation:gal 6s linear infinite,rpulse 2s ease-in-out infinite;--g:255,190,40}
+.av.f-royal::before{content:'👑';position:absolute;top:calc(var(--s)*-.44);left:50%;transform:translateX(-50%) rotate(-8deg);font-size:calc(var(--s)*.4);filter:drop-shadow(0 0 6px rgba(255,200,60,.8))}
+.av.f-icone{border-width:4px;background:radial-gradient(circle at 35% 30%,#1c1c1c,#050505) padding-box,conic-gradient(from var(--ga,0deg),#000,#ffd85c,#fff,#ffd85c,#000,#ff2e93,#000) border-box;animation:gal 2.4s linear infinite,rpulse 1.4s ease-in-out infinite;--g:255,216,92}
+.av.f-icone::after{content:'✦';position:absolute;top:-10%;right:-6%;font-size:calc(var(--s)*.3);color:#fff6c9;text-shadow:0 0 8px #ffd85c;animation:tw 1.6s ease-in-out infinite}
+.av.f-legend{background:radial-gradient(circle at 35% 30%,#3a1f4b,#12081a) padding-box,conic-gradient(from var(--ga,0deg),#ffd85c,#ff7a3d,#ff2e93,#a34dff,#ffd85c) border-box;animation:gal 3.5s linear infinite,rpulse 1.8s ease-in-out infinite;--g:255,140,80}
 .av.f-or{background:radial-gradient(circle at 35% 30%,#3b2b4b,#150f1c) padding-box,linear-gradient(135deg,#fff4b8,#ffb52e 45%,#a35a00) border-box;box-shadow:0 0 10px rgba(255,181,46,.6)}
 .av.f-diamant{background:radial-gradient(circle at 35% 30%,#24324b,#0f1420) padding-box,linear-gradient(135deg,#e8fdff,#2fd4ff 45%,#3d5bff) border-box;box-shadow:0 0 12px rgba(47,212,255,.65)}
 .av.f-flamme{background:radial-gradient(circle at 35% 30%,#4b2b22,#1c0f0c) padding-box,conic-gradient(#ff3d00,#ffb300,#ff6a00,#ff1f4b,#ff3d00) border-box;box-shadow:0 0 14px rgba(255,90,0,.7);animation:flick 1.6s ease-in-out infinite}
@@ -425,6 +446,26 @@ svg.med{flex:none;overflow:visible}
 .tiers>div>.fxbox{flex:none}
 .tiers>div>b{flex:1;font-size:14px}
 .tiers .pr{color:var(--muted);font-size:12px;width:66px}
+/* boutique : objets et prestige */
+.obj{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:12px;text-align:left;border-radius:14px;position:relative}
+.obj>.e{font-size:30px;flex:none;width:44px;text-align:center}
+.obj>div{flex:1;min-width:0}
+.obj b{display:block;font-size:15px}
+.obj small{display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:2px}
+.obj em{display:block;font-style:normal;font-size:12px;color:var(--gold2);font-weight:700;margin-top:4px}
+.obj .price{flex:none;font-size:13px;font-weight:800;color:var(--gold2);display:flex;align-items:center;gap:4px}
+.obj.eq{border-color:var(--gold2);box-shadow:0 0 18px rgba(255,200,60,.4)}
+.nmc.gold{background:linear-gradient(180deg,#fff3b0,#ffc531 55%,#d08a00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 5px rgba(255,190,40,.55))}
+.nmc.rainbow{background:linear-gradient(90deg,#ff4d6d,#ffb627,#3dffb0,#2fd4ff,#a34dff,#ff4d6d);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rbw 3s linear infinite}
+@keyframes rbw{to{background-position:200% 0}}
+.defi .rr2{margin-top:6px;font-size:12px;font-weight:700;padding:3px 8px;border-radius:9px;border:1px solid rgba(var(--glow),.5);background:#0f0a13}
+.boostpill{color:#7dffb5;font-weight:700}
+/* effet de victoire (boutique, Prestige) : vu par tout le salon */
+.winfx{position:absolute;inset:0;pointer-events:none;z-index:55;overflow:hidden}
+.winfx .cf{position:absolute;top:-14px;width:8px;height:13px;border-radius:2px;opacity:0;animation:cf 2.9s ease-in forwards}
+@keyframes cf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:.9;transform:translate(var(--dx),105vh) rotate(var(--r))}}
+.winfx .fw{position:absolute;width:6px;height:6px;border-radius:50%;opacity:0;animation:fw 1.5s ease-out forwards}
+@keyframes fw{0%{opacity:1;transform:translate(0,0) scale(1.2)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
 .ptsh{margin:12px 0 6px;font-weight:700}
 .ptsh small{color:var(--muted);font-weight:500}
 .ptsgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
@@ -609,7 +650,7 @@ svg.med{flex:none;overflow:visible}
 <!-- ===== 9. Boutique ===== -->
 <section class="view hide" id="v-shop">
   <div class="top"><button class="ibtn back" data-i="back"></button><h2>Boutique</h2><div class="pill"><span class="coin">$</span><span id="shopCoins"></span></div></div>
-  <div class="tabs"><button class="on" data-st="frames">Cadres</button><button data-st="themes">Thèmes</button></div>
+  <div class="tabs"><button class="on" data-st="frames">Cadres</button><button data-st="themes">Thèmes</button><button data-st="items">Objets</button><button data-st="prestige">Prestige</button></div>
   <div class="scroll"><div class="shop" id="shopGrid"></div><p class="muted" style="font-size:12.5px;text-align:center;margin-top:16px">Gagne des pièces en jouant et en réussissant tes défis.</p></div>
 </section>
 
@@ -635,7 +676,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.5';
+const VERSION = '1.6';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -682,22 +723,64 @@ const CATS = [
   { id: 'kpop', name: 'K-Pop', sub: 'K-Pop • Asie', e: '💗' },
   { id: 'cine', name: 'Ciné & séries', sub: 'B.O. cultes', e: '🎬' },
 ];
-const catOf = id => CATS.find(c => c.id === id) || CATS[0];
+// une catégorie, ou jusqu'à 3 mélangées (« rock+80 », salon privé Premium)
+const catOf = id => {
+  if (id && id.includes('+')) {
+    const cs = id.split('+').map(x => CATS.find(c => c.id === x)).filter(Boolean);
+    if (cs.length) return { id, name: cs.map(c => c.name).join(' + '), sub: 'Mélange Premium', e: cs.map(c => c.e).join('') };
+  }
+  return CATS.find(c => c.id === id) || CATS[0];
+};
 const AVATARS = ['🎧', '🎤', '🎸', '🥁', '🎹', '🎷', '🎺', '🦊', '🐱', '🐼', '🦁', '🐯', '🐸', '🦄', '🐙', '👽', '🤖', '😎', '🤠', '👑', '🔥', '⚡', '🌙', '💎'];
+// boutique (version 1.6 : plus complète et plus chère, pour garder des objectifs sur plusieurs mois)
 const FRAMES = [
-  { id: 'def', name: 'Par défaut', price: 0 }, { id: 'or', name: 'Or', price: 300 }, { id: 'diamant', name: 'Diamant', price: 800 },
-  { id: 'flamme', name: 'Flamme', price: 500 }, { id: 'neon', name: 'Néon', price: 400 }, { id: 'galaxie', name: 'Galaxie', price: 1200 },
+  { id: 'def', name: 'Par défaut', price: 0 }, { id: 'or', name: 'Or', price: 1000 }, { id: 'neon', name: 'Néon', price: 1500 },
+  { id: 'flamme', name: 'Flamme', price: 2000 }, { id: 'diamant', name: 'Diamant', price: 3000 }, { id: 'galaxie', name: 'Galaxie', price: 4000 },
+];
+const PRESTIGE_FRAMES = [
+  { id: 'arc', name: 'Arc-en-ciel', price: 6000 }, { id: 'aurore', name: 'Aurore', price: 10000 },
+  { id: 'royal', name: 'Couronne royale', price: 20000 }, { id: 'icone', name: 'Icône', price: 50000 },
 ];
 const THEMES = [
   { id: 'or', name: 'Or', price: 0, c: 'linear-gradient(135deg,#ffe066,#ff8a1f)' },
-  { id: 'neon', name: 'Néon rose', price: 600, c: 'linear-gradient(135deg,#ff6ab8,#a34dff)' },
-  { id: 'cyan', name: 'Cyan', price: 600, c: 'linear-gradient(135deg,#7be7ff,#3d5bff)' },
+  { id: 'neon', name: 'Néon rose', price: 1500, c: 'linear-gradient(135deg,#ff6ab8,#a34dff)' },
+  { id: 'cyan', name: 'Cyan', price: 1500, c: 'linear-gradient(135deg,#7be7ff,#3d5bff)' },
+  { id: 'lumiere', name: 'Lumière', price: 2500, lux: 1, c: 'linear-gradient(135deg,#fffaf0,#ffe3a3 55%,#ffc861)' },
+  { id: 'champagne', name: 'Champagne', price: 3000, lux: 1, c: 'linear-gradient(135deg,#fff6df,#e9cf9a 50%,#b8955a)' },
+  { id: 'orrose', name: 'Or rose', price: 3500, lux: 1, c: 'linear-gradient(135deg,#ffe4dc,#f2a99a 50%,#b76e5d)' },
+  { id: 'saphir', name: 'Saphir royal', price: 4500, lux: 1, c: 'linear-gradient(135deg,#0c1a55,#2f5fe0 55%,#ffd36b)' },
+  { id: 'rubis', name: 'Velours rubis', price: 4500, lux: 1, c: 'linear-gradient(135deg,#4a0717,#c0123a 55%,#ffcf7a)' },
+  { id: 'diamant', name: 'Diamant blanc', price: 7000, lux: 1, c: 'linear-gradient(135deg,#ffffff,#d7ecff 45%,#9cc7ff)' },
+  { id: 'aurore', name: 'Aurore', price: 10000, lux: 1, anim: 1, c: 'linear-gradient(135deg,#3dffb0,#2fd4ff 40%,#a34dff 75%,#ff4fd8)' },
 ];
+// objets utiles : rien qui aide à trouver les réponses en partie classée
+const ITEMS = [
+  { id: 'shield', e: '🛡️', name: 'Bouclier de rang', price: 400, max: 3, desc: 'Si tu finis une partie classée en perte, tu ne perds aucun point. Un seul utilisé par jour.' },
+  { id: 'boost', e: '⚡', name: 'XP ×2 pendant 1 heure', price: 500, desc: 'Double l’XP de tes parties (niveau et route de saison). Jusqu’à 3 heures d’avance.' },
+  { id: 'reroll', e: '🔄', name: 'Changer un défi du jour', price: 150, max: 5, desc: 'Remplace un défi du jour par un autre : dans Défis, touche 🔄.' },
+  { id: 'premium', e: '🎛️', name: 'Salon privé Premium', price: 6000, perm: 1, desc: 'Pour toujours : mélange jusqu’à 3 catégories et joue jusqu’à 30 manches dans tes salons privés.' },
+];
+// prestige : vu par tous les joueurs du salon
+const PRESTIGE = [
+  { id: 'nc-gold', k: 'nc', v: 'gold', e: '✨', name: 'Pseudo doré', price: 8000, desc: 'Ton pseudo en lettres d’or dans les salons.' },
+  { id: 'nc-rainbow', k: 'nc', v: 'rainbow', e: '🌈', name: 'Pseudo arc-en-ciel', price: 15000, desc: 'Ton pseudo aux couleurs qui défilent.' },
+  { id: 'vfx-confetti', k: 'vfx', v: 'confetti', e: '🎉', name: 'Victoire : confettis', price: 6000, desc: 'Quand tu gagnes, une pluie de confettis pour tout le salon.' },
+  { id: 'vfx-fireworks', k: 'vfx', v: 'fireworks', e: '🎆', name: 'Victoire : feu d’artifice', price: 12000, desc: 'Quand tu gagnes, un feu d’artifice pour tout le salon.' },
+];
+const hasPerk = id => (S.perks || []).includes(id);
+const boostLeft = () => Math.max(0, (S.boost || 0) - Date.now());
+// défis du jour : 4 tirés chaque jour parmi 10 (🔄 en remplace un)
 const DAILY = [
   { id: 'd1', e: '⭐', label: 'Participer à 3 parties', k: 'games', goal: 3, xp: 30, coins: 20 },
   { id: 'd2', e: '🎤', label: 'Trouver 10 artistes', k: 'nA', goal: 10, xp: 20, coins: 15 },
   { id: 'd3', e: '🔥', label: 'Obtenir une série de 3', k: 'streak', goal: 3, xp: 25, coins: 15 },
   { id: 'd4', e: '🏆', label: 'Terminer dans le top 5', k: 'top5', goal: 1, xp: 40, coins: 25 },
+  { id: 'd5', e: '🎵', label: 'Trouver 10 titres', k: 'nT', goal: 10, xp: 25, coins: 15 },
+  { id: 'd6', e: '🥇', label: 'Gagner une partie', k: 'wins', goal: 1, xp: 50, coins: 30 },
+  { id: 'd7', e: '🎮', label: 'Participer à 5 parties', k: 'games', goal: 5, xp: 50, coins: 30 },
+  { id: 'd8', e: '💥', label: 'Obtenir une série de 5', k: 'streak', goal: 5, xp: 45, coins: 30 },
+  { id: 'd9', e: '🎤', label: 'Trouver 25 artistes', k: 'nA', goal: 25, xp: 45, coins: 30 },
+  { id: 'd10', e: '🎵', label: 'Trouver 20 titres', k: 'nT', goal: 20, xp: 45, coins: 30 },
 ];
 const SEASON = [
   { id: 's1', e: '🎮', label: 'Jouer 30 parties', k: 'games', goal: 30, xp: 300, coins: 150 },
@@ -706,18 +789,19 @@ const SEASON = [
   { id: 's4', e: '🥇', label: 'Gagner 5 parties', k: 'wins', goal: 5, xp: 400, coins: 200 },
 ];
 // médailles d'exploits : 4 niveaux (Bronze, Argent, Or, Légendaire), dessins dans public/art.js
+// pièces à chaque niveau, selon l'effort (version 1.6) ; une médaille Légendaire débloque aussi le cadre « Légendaire »
 const MEDALS = [
-  { id: 'explo', icon: 'first', name: 'Explorateur', unit: 'catégories jouées', steps: [3, 6, 10, 13], v: s => (s.cats || []).length },
-  { id: 'win', icon: 'win', name: 'Champion', unit: 'victoires', steps: [1, 10, 50, 200], v: s => s.wins },
-  { id: 'fire', icon: 'fire', name: 'Série de feu', unit: 'manches d’affilée', steps: [3, 5, 8, 10], v: s => s.streak },
-  { id: 'flash', icon: 'flash', name: 'Réflexe éclair', unit: 's', steps: [5, 3, 2, 1.2], low: true, v: s => (s.fast ? s.fast / 1000 : 0) },
-  { id: 'artist', icon: 'artist', name: 'Chasseur d’artistes', unit: 'artistes trouvés', steps: [50, 250, 1000, 5000], v: s => s.nA },
-  { id: 'title', icon: 'title', name: 'Collectionneur de titres', unit: 'titres trouvés', steps: [50, 250, 1000, 5000], v: s => s.nT },
-  { id: 'perfect', icon: 'perfect', name: 'Perfectionniste', unit: 'parties parfaites', steps: [1, 5, 20, 50], v: s => s.perfect },
-  { id: 'marathon', icon: 'marathon', name: 'Marathonien', unit: 'parties jouées', steps: [10, 50, 200, 1000], v: s => s.games },
+  { id: 'explo', icon: 'first', name: 'Explorateur', unit: 'catégories jouées', steps: [3, 6, 10, 13], coins: [50, 150, 500, 2000], v: s => (s.cats || []).length },
+  { id: 'win', icon: 'win', name: 'Champion', unit: 'victoires', steps: [1, 10, 50, 200], coins: [50, 200, 800, 4000], v: s => s.wins },
+  { id: 'fire', icon: 'fire', name: 'Série de feu', unit: 'manches d’affilée', steps: [3, 5, 8, 10], coins: [50, 150, 600, 2500], v: s => s.streak },
+  { id: 'flash', icon: 'flash', name: 'Réflexe éclair', unit: 's', steps: [5, 3, 2, 1.2], low: true, coins: [50, 150, 600, 2500], v: s => (s.fast ? s.fast / 1000 : 0) },
+  { id: 'artist', icon: 'artist', name: 'Chasseur d’artistes', unit: 'artistes trouvés', steps: [50, 250, 1000, 5000], coins: [50, 200, 800, 5000], v: s => s.nA },
+  { id: 'title', icon: 'title', name: 'Collectionneur de titres', unit: 'titres trouvés', steps: [50, 250, 1000, 5000], coins: [50, 200, 800, 5000], v: s => s.nT },
+  { id: 'perfect', icon: 'perfect', name: 'Perfectionniste', unit: 'parties parfaites', steps: [1, 5, 20, 50], coins: [50, 200, 800, 4000], v: s => s.perfect },
+  { id: 'marathon', icon: 'marathon', name: 'Marathonien', unit: 'parties jouées', steps: [10, 50, 200, 1000], coins: [50, 200, 800, 5000], v: s => s.games },
 ];
 const MEDAL_LV = ['Bronze', 'Argent', 'Or', 'Légendaire'];
-const MEDAL_COINS = [25, 60, 150, 400];
+const legendOk = () => MEDALS.some(m => (S.medals[m.id] || 0) >= 4);
 const MEDAL_TITLE = { explo: 'Globe-trotteur musical', win: 'Champion', fire: 'Increvable', flash: 'Sniper', artist: 'Encyclopédie vivante', title: 'Disque d’or', perfect: 'Perfectionniste', marathon: 'Marathonien' };
 // niveau atteint : 0 = pas encore, 1 = Bronze … 4 = Légendaire
 function medalLevel(m, st = S.st) {
@@ -743,8 +827,8 @@ const TITLES = [
 ];
 const titleName = id => TITLES.find(t => t.id === id)?.name || '';
 
-// route de saison : 30 paliers par mois, 100 XP chacun
-const ROAD_XP = 100;
+// route de saison : 30 paliers par mois ; 500 XP chacun à partir de novembre 2026 (100 avant : finie en quelques heures)
+const roadXp = sc => (sc < '2026-11' ? 100 : 500);
 const RARE_AV = ['🐲', '🦩', '🪐', '🛸', '🎻', '🪩', '🦚', '🐳', '👾', '🧞', '🦖', '🌈', '🦋', '🪗', '🦜', '🎮', '🐞', '🦈'];
 function roadRewards(sc) {
   const k = (+sc.slice(0, 4) * 12 + +sc.slice(5, 7)) * 3;
@@ -756,8 +840,8 @@ function roadRewards(sc) {
     if (n === 15) return { n, type: 'title', v: 'fidele' };
     if (n === 22) return { n, type: 'av', v: av[2] };
     if (n === 30) return { n, type: 'frame', v: 's' + sc };
-    if (n % 10 === 0 || n === 25) return { n, type: 'coins', v: 250 };
-    return { n, type: 'coins', v: 20 + n * 3 };
+    if (n % 10 === 0 || n === 25) return { n, type: 'coins', v: 500 };
+    return { n, type: 'coins', v: 30 + n * 5 };
   });
 }
 // cadres de rang en image (public/frames/r0 … r8.webp) : taille, centre et diamètre de l'ouverture (fractions de l'image)
@@ -847,22 +931,33 @@ function fresh() {
     uid: (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()).replace(/-/g, ''),
     name: '', av: AVATARS[Math.floor(Math.random() * 8)], fr: 'def', theme: 'or', xp: 0, coins: 200, owned: ['def'], themes: ['or'],
     st: { games: 0, wins: 0, nT: 0, nA: 0, rounds: 0, top: 0, streak: 0, fast: 0, perfect: 0, cats: [], byCat: {} },
-    day: { d: today(), games: 0, nA: 0, streak: 0, top5: 0, claimed: [] },
+    day: { d: today(), games: 0, nA: 0, nT: 0, streak: 0, top5: 0, wins: 0, claimed: [] },
     sea: { m: month(), games: 0, nA: 0, nT: 0, wins: 0, claimed: [] },
     set: { sfx: true, vol: 0.9, chat: true, others: true, live: true }, games: [], cat: 'mix',
     rank: { sc: '', rp: 0, tier: 0, best: 0, bestEver: 0, games: 0, pos: null }, seasons: [], promos: {},
     road: { sc: month(), xp: 0, claimed: [] }, avs: [], titles: [], sframes: [], title: 'recrue', show: [], medals: {}, knownTitles: [], code: '',
+    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '',
   };
 }
 let S = fresh();
 try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(fresh(), o, { st: Object.assign(fresh().st, o.st), set: Object.assign(fresh().set, o.set) }); } } catch (e) { /* stockage indisponible */ }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* stockage indisponible */ } scheduleSync(); }
 function rollPeriods() {
-  if (S.day?.d !== today()) S.day = { d: today(), games: 0, nA: 0, streak: 0, top5: 0, claimed: [] };
+  if (S.day?.d !== today()) S.day = { d: today(), games: 0, nA: 0, nT: 0, streak: 0, top5: 0, wins: 0, claimed: [] };
   if (S.sea?.m !== month()) S.sea = { m: month(), games: 0, nA: 0, nT: 0, wins: 0, claimed: [] };
   if (S.road?.sc !== month()) S.road = { sc: month(), xp: 0, claimed: [] };
 }
 rollPeriods();
+S.inv = Object.assign({ shield: 0, reroll: 0 }, S.inv);
+// version 1.6 : médailles revalorisées, la différence est versée une fois pour les niveaux déjà atteints
+if ((S.eco || 0) < 16) {
+  const OLD = [25, 60, 150, 400];
+  let gift = 0;
+  for (const m of MEDALS) for (let i = 0; i < (S.medals[m.id] || 0); i++) gift += m.coins[i] - OLD[i];
+  S.eco = 16;
+  S.coins += gift;
+  if (gift > 0) setTimeout(() => { save(); toast(`🏅 Récompenses des médailles revalorisées : +${fmt(gift)} pièces !`, 5000); }, 1500);
+}
 
 // niveau : il faut 100 × niveau XP pour passer au suivant
 function level(xp = S.xp) { let l = 1; while (xp >= 100 * l) { xp -= 100 * l; l++; } return { l, cur: xp, need: 100 * l }; }
@@ -994,7 +1089,7 @@ const sNow = () => Date.now() + offset;
 // ---------- connexion au salon ----------
 const R = { ws: null, st: null, me: null, path: null, params: null, chat: [], unread: 0, retry: 0, closing: false, feed: [], you: { title: null, artist: null }, sameLobby: null, gameCounted: null };
 function wsURL(path, params) {
-  const q = new URLSearchParams({ uid: S.uid, name: S.name, av: S.av, fr: S.fr, lvl: level().l, title: S.title || '', show: showStr(), ...params });
+  const q = new URLSearchParams({ uid: S.uid, name: S.name, av: S.av, fr: S.fr, lvl: level().l, title: S.title || '', show: showStr(), nc: S.nc || '', vfx: S.vfx || '', sh: S.inv.shield > 0 ? 1 : 0, ...params });
   return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${path}?${q}`;
 }
 function connect(path, params = {}) {
@@ -1074,6 +1169,7 @@ function onState(st) {
     if (st.phase === 'reveal') setHint('');
     if (st.phase === 'end' && st.results) applyGame(st);
     if (st.phase === 'end' && prev?.phase !== 'end') sfx.end();
+    if (st.phase === 'end' && prev?.phase !== 'end' && st.results?.length > 1 && st.results[0].vfx) setTimeout(() => winFx(st.results[0].vfx), 700);
   }
   // son
   if ((st.phase === 'play' || st.phase === 'reveal') && st.cur) setTrack(st.cur);
@@ -1158,6 +1254,29 @@ function renderRoom() {
 }
 const isHost = () => R.st && !R.st.pub && R.st.host === R.me;
 const humansOf = st => st.players.filter(p => !p.bot);
+// pseudo avec son style (doré, arc-en-ciel : boutique, Prestige)
+const nameHTML = (p, txt = p.name) => (p.nc ? `<span class="nmc ${esc(p.nc)}">${esc(txt)}</span>` : esc(txt));
+// effet de victoire du gagnant, vu par tout le salon
+function winFx(kind) {
+  const cols = ['#ffd85c', '#ff4d6d', '#3dffb0', '#2fd4ff', '#a34dff', '#ffffff'];
+  let h = '';
+  if (kind === 'confetti') {
+    for (let i = 0; i < 70; i++) h += `<i class="cf" style="left:${(Math.random() * 100).toFixed(1)}%;background:${cols[i % 6]};animation-delay:${(Math.random() * 0.9).toFixed(2)}s;--dx:${Math.round(Math.random() * 120 - 60)}px;--r:${Math.round(Math.random() * 720)}deg"></i>`;
+  } else {
+    for (let b = 0; b < 5; b++) {
+      const x = 15 + Math.random() * 70, y = 12 + Math.random() * 40, c = cols[b % 6];
+      for (let i = 0; i < 20; i++) {
+        const a = i / 20 * 2 * Math.PI;
+        h += `<i class="fw" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;background:${c};box-shadow:0 0 8px ${c};--dx:${Math.round(Math.cos(a) * 95)}px;--dy:${Math.round(Math.sin(a) * 95)}px;animation-delay:${(b * 0.45).toFixed(2)}s"></i>`;
+      }
+    }
+  }
+  const box = document.createElement('div');
+  box.className = 'winfx';
+  box.innerHTML = h;
+  $('#app').appendChild(box);
+  setTimeout(() => box.remove(), 4300);
+}
 
 function renderLobby() {
   const st = R.st, c = catOf(st.cat);
@@ -1175,7 +1294,7 @@ function renderLobby() {
   const players = [...st.players].sort((a, b) => (b.id === st.host) - (a.id === st.host) || a.bot - b.bot);
   $('#lobbyPlayers').innerHTML = players.map(p => `<div class="card prow ${p.on ? '' : 'off'}" data-pid="${p.id}">
     ${avHTML(p.av, p.fr, 44, p.id === st.host ? '<span class="crown">👑</span>' : '')}
-    <div class="nm"><b>${esc(p.name)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b>${titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}<span>${tierBadge(p.tier, 14)} ${TIERS[p.tier || 0].name} • Niv. ${p.lvl}${p.on ? '' : ' • hors ligne'}</span></div>
+    <div class="nm"><b>${nameHTML(p)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b>${titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}<span>${tierBadge(p.tier, 14)} ${TIERS[p.tier || 0].name} • Niv. ${p.lvl}${p.on ? '' : ' • hors ligne'}</span></div>
     ${p.id === st.host ? '<span class="tag">Hôte</span>' : p.bot ? '<span class="tag bot">BOT</span>' : ''}
     ${p.on ? '<div class="eqi"><i></i><i></i><i></i><i></i></div>' : ''}</div>`).join('');
   $$('#lobbyPlayers [data-pid]').forEach(el => el.onclick = () => { const p = R.st.players.find(x => x.id === el.dataset.pid); if (p) playerCard(p); });
@@ -1221,8 +1340,8 @@ function renderGame() {
   }).join('');
   // classement en direct
   const sorted = [...st.players].sort((a, b) => b.score - a.score);
-  $('#podmini').innerHTML = sorted.slice(0, 3).map((p, i) => `<div class="card pm ${p.id === R.me ? 'me' : ''}">${avHTML(p.av, p.fr, 30, `<span class="rk" style="transform:translateX(-50%) scale(.75)">${i + 1}</span>`)}<div><b>${esc(p.name)}${p.bot ? ' 🤖' : ''}</b>${p.score} pts</div></div>`).join('');
-  $('#others').innerHTML = sorted.slice(3).map((p, i) => `<div class="${p.id === R.me ? 'me' : ''}"><b>${i + 4}.</b>${avHTML(p.av, p.fr, 20)}<span>${esc(p.name)}${p.bot ? ' 🤖' : ''}</span>${p.score}</div>`).join('');
+  $('#podmini').innerHTML = sorted.slice(0, 3).map((p, i) => `<div class="card pm ${p.id === R.me ? 'me' : ''}">${avHTML(p.av, p.fr, 30, `<span class="rk" style="transform:translateX(-50%) scale(.75)">${i + 1}</span>`)}<div><b>${nameHTML(p)}${p.bot ? ' 🤖' : ''}</b>${p.score} pts</div></div>`).join('');
+  $('#others').innerHTML = sorted.slice(3).map((p, i) => `<div class="${p.id === R.me ? 'me' : ''}"><b>${i + 4}.</b>${avHTML(p.av, p.fr, 20)}<span>${nameHTML(p)}${p.bot ? ' 🤖' : ''}</span>${p.score}</div>`).join('');
   // réponse
   const rv = $('#reveal');
   if (st.phase === 'reveal' && st.reveal) {
@@ -1286,7 +1405,8 @@ function applyGame(st) {
   S.games = [...S.games, st.gameId].slice(-30);
   const n = st.results.length;
   const pod = n >= 2 ? r.rank : 99;
-  const xp = 20 + Math.round(r.score / 2) + ({ 1: 25, 2: 15, 3: 10 }[pod] || 0);
+  const boost = boostLeft() > 0;
+  const xp = (20 + Math.round(r.score / 2) + ({ 1: 25, 2: 15, 3: 10 }[pod] || 0)) * (boost ? 2 : 1);
   const coins = 5 + Math.floor(r.score / 10) + ({ 1: 30, 2: 20, 3: 10 }[pod] || 0);
   const before = level().l;
   rollPeriods();
@@ -1297,13 +1417,14 @@ function applyGame(st) {
   if (r.fast && (!s.fast || r.fast < s.fast)) s.fast = r.fast;
   if (pod === 1) s.wins++;
   if (r.rounds >= 5 && r.nT >= st.rounds && r.nA >= st.rounds) s.perfect++;
-  if (!s.cats.includes(st.cat)) s.cats.push(st.cat);
-  s.byCat[st.cat] = (s.byCat[st.cat] || 0) + r.nT + r.nA;
+  for (const c of st.cat.split('+')) if (!s.cats.includes(c)) s.cats.push(c);
+  if (!st.cat.includes('+')) s.byCat[st.cat] = (s.byCat[st.cat] || 0) + r.nT + r.nA;
   S.road.xp += xp;
-  S.day.games++; S.day.nA += r.nA; S.day.streak = Math.max(S.day.streak, r.best); if (n >= 2 && r.rank <= 5) S.day.top5 = 1;
+  S.day.games++; S.day.nA += r.nA; S.day.nT = (S.day.nT || 0) + r.nT; S.day.streak = Math.max(S.day.streak, r.best); if (n >= 2 && r.rank <= 5) S.day.top5 = 1;
+  if (pod === 1) S.day.wins = (S.day.wins || 0) + 1;
   S.sea.games++; S.sea.nA += r.nA; S.sea.nT += r.nT; if (pod === 1) S.sea.wins++;
   save();
-  lastGain = { id: st.gameId, xp, coins, up: level().l > before ? level().l : 0 };
+  lastGain = { id: st.gameId, xp, coins, boost, up: level().l > before ? level().l : 0 };
   if (lastGain.up) setTimeout(() => toast(`🎉 Niveau ${lastGain.up} atteint !`, 3500), 1200);
   checkUnlocks();
   profileChanged();
@@ -1322,11 +1443,12 @@ function nextToast() {
 }
 function checkUnlocks() {
   const meds = [], titles = [];
-  let coins = 0;
+  let coins = 0, legend = false;
   for (const m of MEDALS) {
     const l = medalLevel(m), had = S.medals[m.id] || 0;
     if (l > had) {
-      for (let i = had; i < l; i++) coins += MEDAL_COINS[i];
+      for (let i = had; i < l; i++) coins += m.coins[i];
+      if (l >= 4 && !legendOk()) legend = true;
       S.medals[m.id] = l;
       meds.push({ m, l });
     }
@@ -1346,6 +1468,7 @@ function checkUnlocks() {
   else if (meds.length > 1) queueToast(`${meds.slice(0, 3).map(x => medalSVG(x.m, x.l, 26)).join('')}<br><b>${meds.length} nouvelles médailles</b> ! +${coins} pièces (voir ton profil)`);
   if (titles.length === 1) queueToast(`🏷️ Nouveau titre : <b>${titles[0].name}</b> (à choisir dans ton profil)`);
   else if (titles.length > 1) queueToast(`🏷️ <b>${titles.length} nouveaux titres</b> débloqués : ${titles.map(t => t.name).join(', ')}`);
+  if (legend) queueToast(`${avHTML(S.av, 'legend', 30)} Cadre <b>Légendaire</b> débloqué ! (Boutique → Cadres)`);
 }
 function renderEnd() {
   const st = R.st;
@@ -1357,7 +1480,7 @@ function renderEnd() {
     if (!p) return '<div></div>';
     const k = [2, 1, 3][i];
     return `<div class="pod p${k} click" data-rid="${p.id}">${avHTML(p.av, p.fr, k === 1 ? 80 : 64, `${k === 1 ? '<span class="crown">👑</span>' : ''}<span class="rk">${k}</span>`)}
-      <b>${p.id === R.me ? 'Toi' : esc(p.name)}</b>${titleName(p.title) ? `<i class="ttl" style="max-width:100%">${esc(titleName(p.title))}</i>` : ''}<span>${p.score} pts</span><div class="ped"></div></div>`;
+      <b>${nameHTML(p, p.id === R.me ? 'Toi' : p.name)}</b>${titleName(p.title) ? `<i class="ttl" style="max-width:100%">${esc(titleName(p.title))}</i>` : ''}<span>${p.score} pts</span><div class="ped"></div></div>`;
   }).join('');
   const r = res.find(x => x.id === R.me);
   $('#myrow').innerHTML = r ? `<span class="r">${r.rank}</span>${avHTML(S.av, S.fr, 36)}<b>Toi</b><em>${r.score} pts</em>` : '<span class="muted" style="padding:6px 0">Tu as rejoint le salon après le début de cette partie.</span>';
@@ -1374,11 +1497,11 @@ function renderEnd() {
     <div class="card st"><span class="e">🎤</span><div><small>Artistes trouvés</small><b>${r.nA} / ${st.rounds}</b></div></div>
     <div class="card st"><span class="e">🎵</span><div><small>Points de partie</small><b>${r.score} pts</b></div></div>
     <div class="card st"><span class="e">🎶</span><div><small>Titres trouvés</small><b>${r.nT} / ${st.rounds}</b></div></div>
-    <div class="card st"><span class="e">⭐</span><div><small>XP gagnée</small><b>+${g ? g.xp : 0} XP</b></div></div>
+    <div class="card st"><span class="e">⭐</span><div><small>XP gagnée${g?.boost ? ' (×2)' : ''}</small><b>+${g ? g.xp : 0} XP</b></div></div>
     <div class="card st"><span class="e">🔥</span><div><small>Meilleure série</small><b>x${r.best}</b></div></div>
     <div class="card st"><span class="e">⚡</span><div><small>Bonus rapidité</small><b>+${r.speed} pts</b></div></div>
   </div>${g ? `<p style="text-align:center;margin:12px 0 0;font-weight:600"><span class="coin">$</span> +${g.coins} pièces</p>` : ''}` : '';
-  $('#endFull').innerHTML = res.map(p => `<div class="card rr click ${p.id === R.me ? 'me' : ''}" data-rid="${p.id}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${tierBadge(p.tier, 16)} ${esc(p.name)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
+  $('#endFull').innerHTML = res.map(p => `<div class="card rr click ${p.id === R.me ? 'me' : ''}" data-rid="${p.id}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${tierBadge(p.tier, 16)} ${nameHTML(p)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
   $$('#v-end [data-rid]').forEach(el => el.onclick = () => { const p = res.find(x => x.id === el.dataset.rid); if (p) playerCard(p); });
   $('#endRecap').classList.toggle('hide', endTab !== 'recap');
   $('#endFull').classList.toggle('hide', endTab !== 'full');
@@ -1398,6 +1521,11 @@ $$('[data-et]').forEach(b => b.onclick = () => { endTab = b.dataset.et; renderEn
 let lastRank = null, meLoaded = 0;
 function onRank(m) {
   lastRank = m;
+  if (m.saved > 0) {
+    S.inv.shield = Math.max(0, S.inv.shield - 1);
+    setTimeout(() => toast(`🛡️ Bouclier utilisé : tu ne perds pas tes ${m.saved} PR`, 4000), 400);
+    profileChanged();
+  }
   const before = S.rank.bestEver || 0;
   S.rank = { ...S.rank, sc: m.sc, rp: m.rp, tier: m.tier, best: Math.max(S.rank.sc === m.sc ? S.rank.best : 0, m.tier), bestEver: Math.max(before, m.tier), games: (S.rank.games || 0) + 1 };
   if (m.tier > before) setTimeout(() => frameReveal(m.tier), 1800);
@@ -1510,7 +1638,7 @@ function hostSettings() {
   const seg = (k, vals, unit = '') => `<div class="seg" data-k="${k}">${vals.map(v => `<button data-v="${v}" class="${o[k] === v ? 'on' : ''}">${v}${unit}</button>`).join('')}</div>`;
   openSheet(`<h3>Paramètres du salon <button data-close data-i="x"></button></h3>
     <div class="opt"><label>Catégorie</label><button class="ghost" style="width:100%" id="optCat">${catOf(R.st.cat).e} ${esc(catOf(R.st.cat).name)} — changer</button></div>
-    <div class="opt"><label>Nombre de manches</label>${seg('rounds', [5, 10, 15, 20])}</div>
+    <div class="opt"><label>Nombre de manches${hasPerk('premium') ? ' (Premium : jusqu’à 30)' : ''}</label>${seg('rounds', hasPerk('premium') ? [5, 10, 15, 20, 30] : [5, 10, 15, 20])}</div>
     <div class="opt"><label>Durée de chaque extrait</label>${seg('dur', [15, 20, 30], ' s')}</div>
     <div class="opt"><label>Bots (joueurs virtuels pour compléter)</label>${seg('bots', [0, 1, 2, 3, 4])}</div>
     <div class="opt"><label>Niveau des bots</label><div class="seg" data-k="botlvl">${BOT_LVLS.map((l, i) => `<button data-v="${i}" class="${(o.botlvl || 0) === i ? 'on' : ''}">${l}</button>`).join('')}</div></div>
@@ -1528,18 +1656,29 @@ let catsMode = 'public', catSel = S.cat || 'mix', counts = {}, countsT = null;
 function openCats(mode) {
   catsMode = mode;
   catSel = mode === 'change' ? R.st.cat : (S.cat || 'mix');
-  $('#catsTitle').textContent = mode === 'public' ? 'Jouer maintenant' : 'Choisir une catégorie';
-  $('#catsSub').innerHTML = mode === 'public' ? `Partie classée ${tierBadge(S.rank.tier, 16)} avec ton rang, un en dessous ou un au-dessus (${rangeName(S.rank.tier)})` : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
+  if (!multiCats()) catSel = catSel.split('+')[0];
+  $('#catsTitle').textContent = mode === 'public' ? 'Jouer maintenant' : multiCats() ? 'Choisir jusqu’à 3 catégories' : 'Choisir une catégorie';
+  $('#catsSub').innerHTML = mode === 'public' ? `Partie classée ${tierBadge(S.rank.tier, 16)} avec ton rang, un en dessous ou un au-dessus (${rangeName(S.rank.tier)})` : multiCats() ? '🎛️ Salon Premium : touche plusieurs catégories pour les mélanger.' : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
   $('#catsOk').textContent = mode === 'change' ? 'Valider la catégorie' : mode === 'public' ? 'Entrer dans le salon' : 'Créer le salon';
   if (mode === 'change') { history.pushState({ v: 'room' }, ''); show('cats'); } else go('cats');
   renderCats();
   if (mode === 'public') loadCounts();
 }
 function renderCats() {
-  $('#catsGrid').innerHTML = CATS.map(c => `<button class="card cat ${c.id === 'mix' ? 'wide' : ''} ${c.id === catSel ? 'sel' : ''}" data-c="${c.id}">
+  const sel = catSel.split('+');
+  $('#catsGrid').innerHTML = CATS.map(c => `<button class="card cat ${c.id === 'mix' ? 'wide' : ''} ${sel.includes(c.id) ? 'sel' : ''}" data-c="${c.id}">
     ${catsMode === 'public' && counts[c.id] ? `<span class="cnt">● ${counts[c.id]}</span>` : ''}
     <div class="e">${c.e}</div><div><b>${esc(c.name)}</b><span>${esc(c.sub)}</span></div></button>`).join('');
-  $$('#catsGrid .cat').forEach(b => b.onclick = () => { catSel = b.dataset.c; renderCats(); });
+  $$('#catsGrid .cat').forEach(b => b.onclick = () => { catSel = multiCats() ? toggleCat(catSel, b.dataset.c) : b.dataset.c; renderCats(); });
+}
+// salon privé Premium : jusqu'à 3 catégories mélangées (« Mix » reste seul)
+const multiCats = () => catsMode !== 'public' && hasPerk('premium');
+function toggleCat(cur, id) {
+  const sel = cur.split('+').filter(x => x !== 'mix');
+  if (id === 'mix') return 'mix';
+  if (sel.includes(id)) return sel.length > 1 ? sel.filter(x => x !== id).join('+') : id;
+  if (sel.length >= 3) { toast('3 catégories maximum'); return cur; }
+  return [...sel, id].join('+');
 }
 async function loadCounts() {
   clearTimeout(countsT);
@@ -1608,7 +1747,8 @@ function renderHome() {
   const lv = level();
   $('#homeAv').innerHTML = avHTML(S.av, S.fr, 46);
   $('#homeName').textContent = S.name || 'Toi';
-  $('#homeLvl').innerHTML = `${tierBadge(S.rank.tier, 16)} ${TIERS[S.rank.tier].name} • Niveau ${lv.l}`;
+  const bl = boostLeft();
+  $('#homeLvl').innerHTML = `${tierBadge(S.rank.tier, 16)} ${TIERS[S.rank.tier].name} • Niveau ${lv.l}${bl ? ` • <span class="boostpill">⚡ XP ×2 ${Math.ceil(bl / 60000)} min</span>` : ''}`;
   loadMe();
   $('#homeXp').style.width = (100 * lv.cur / lv.need) + '%';
   $('#coinVal').textContent = fmt(S.coins);
@@ -1616,7 +1756,7 @@ function renderHome() {
   const rs = roadState(), ready = rs.ready.length;
   const hr = $('#homeRoad');
   hr.classList.toggle('hot', ready > 0);
-  hr.innerHTML = `<div class="rc-top"><b>🎁 Route de saison</b><span>Palier ${rs.step}/30</span></div><div class="bar"><i style="width:${rs.step >= 30 ? 100 : rs.cur}%"></i></div>
+  hr.innerHTML = `<div class="rc-top"><b>🎁 Route de saison</b><span>Palier ${rs.step}/30</span></div><div class="bar"><i style="width:${rs.step >= 30 ? 100 : rs.pct}%"></i></div>
     <small>${ready ? `${ready} récompense${ready > 1 ? 's' : ''} à récupérer !` : rs.step >= 30 ? 'Route terminée, bravo ! 🏆' : `Prochain palier : ${rewardLabel(rs.rewards[rs.step])}`}</small>`;
   renderOnline();
   loadCounts();
@@ -1677,7 +1817,7 @@ function renderProfile() {
 function medalSheet(m) {
   const l = medalLevel(m), v = m.v(S.st);
   openSheet(`<h3>${m.name} <button data-close data-i="x"></button></h3>
-    <div class="mlv">${m.steps.map((x, i) => `<div class="${l > i ? '' : 'lock'}">${HitArt.medal(m.icon, i, 62)}<b>${MEDAL_LV[i]}</b>${m.low ? `moins de ${fmtNum(x)} s` : `${fmt(x)} ${m.unit}`}<em><span class="coin">$</span> ${MEDAL_COINS[i]}</em></div>`).join('')}</div>
+    <div class="mlv">${m.steps.map((x, i) => `<div class="${l > i ? '' : 'lock'}">${HitArt.medal(m.icon, i, 62)}<b>${MEDAL_LV[i]}</b>${m.low ? `moins de ${fmtNum(x)} s` : `${fmt(x)} ${m.unit}`}<em><span class="coin">$</span> ${fmt(m.coins[i])}</em></div>`).join('')}</div>
     <p>Ton record : <b style="color:#fff">${m.low ? (v ? fmtNum(v) + ' s pour trouver une réponse' : 'pas encore') : `${fmt(v)} ${m.unit}`}</b></p>
     <p>${l >= 3 ? '🏷️ Titre débloqué' : '🏷️ Au niveau Or, tu débloques le titre'} « <b style="color:var(--gold2)">${MEDAL_TITLE[m.id]}</b> ».</p>
     <button class="cta" data-close>OK</button>`);
@@ -1714,7 +1854,7 @@ function playerCard(p) {
     const [id, l] = x.split(':'), m = MEDALS.find(y => y.id === id);
     return m && +l ? `<div class="md">${medalSVG(m, +l, 60)}<b>${m.name}</b>${MEDAL_LV[+l - 1]}</div>` : '';
   }).join('');
-  openSheet(`<div class="pcard">${isRankFrame(p.fr) ? framedAvatar(p.av, p.fr, 320, 196, 104) : avHTML(p.av, p.fr, 96)}<h3>${esc(p.name)}${p.bot ? ' 🤖' : ''}</h3>${p.title && titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}
+  openSheet(`<div class="pcard">${isRankFrame(p.fr) ? framedAvatar(p.av, p.fr, 320, 196, 104) : avHTML(p.av, p.fr, 96)}<h3>${nameHTML(p)}${p.bot ? ' 🤖' : ''}</h3>${p.title && titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}
     <div class="pc-rank">${tierBadge(p.tier || 0, 30)} <b>${TIERS[p.tier || 0].name}</b> • Niveau ${p.lvl || 1}</div>
     <div class="pc-show">${show || '<p class="muted" style="grid-column:1/-1">Pas encore de médaille en vitrine.</p>'}</div>
     ${p.bot ? '<p class="note">Joueur virtuel qui complète les salons quand il manque du monde.</p>' : ''}
@@ -1730,7 +1870,7 @@ function nameSheet() {
   openSheet(`<h3>Ton pseudo <button data-close data-i="x"></button></h3><input class="txtin" id="nameIn" maxlength="16" value="${esc(S.name)}"><button class="cta" id="nameOk">Enregistrer</button>`);
   $('#nameOk').onclick = () => { const v = $('#nameIn').value.trim(); if (v.length < 2) return toast('2 caractères minimum'); S.name = v; save(); closeSheet(); show(curView); profileChanged(); };
 }
-function profileChanged() { send({ t: 'profile', name: S.name, av: S.av, fr: S.fr, lvl: level().l, title: S.title || '', show: showStr() }); }
+function profileChanged() { send({ t: 'profile', name: S.name, av: S.av, fr: S.fr, lvl: level().l, title: S.title || '', show: showStr(), nc: S.nc || '', vfx: S.vfx || '', sh: S.inv.shield > 0 ? '1' : '0' }); }
 // vitrine : les médailles choisies, sinon les 3 plus hautes
 function showIds() {
   const got = MEDALS.filter(m => medalLevel(m) > 0);
@@ -1758,15 +1898,42 @@ async function loadBoard() {
 // ---------- défis ----------
 let defiTab = 'day';
 $$('[data-dt]').forEach(b => b.onclick = () => { defiTab = b.dataset.dt; $$('[data-dt]').forEach(x => x.classList.toggle('on', x === b)); renderDefis(); });
-function claimable() { rollPeriods(); return DAILY.some(d => S.day[d.k] >= d.goal && !S.day.claimed.includes(d.id)) || SEASON.some(d => S.sea[d.k] >= d.goal && !S.sea.claimed.includes(d.id)); }
+function claimable() { rollPeriods(); return dailyList().some(d => S.day[d.k] >= d.goal && !S.day.claimed.includes(d.id)) || SEASON.some(d => S.sea[d.k] >= d.goal && !S.sea.claimed.includes(d.id)); }
+// 4 défis du jour tirés selon le jour et le joueur (ceux d'avant la version 1.6 gardés pour la journée en cours)
+function dailyIds() {
+  if (!S.day.ids) {
+    if (S.day.games || S.day.claimed.length) S.day.ids = ['d1', 'd2', 'd3', 'd4'];
+    else {
+      let h = [...S.uid + S.day.d].reduce((a, c) => Math.imul(a ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
+      const pool = DAILY.map(d => d.id), out = [];
+      while (out.length < 4) { h = (Math.imul(h, 1103515245) + 12345) >>> 0; out.push(pool.splice(h % pool.length, 1)[0]); }
+      S.day.ids = out;
+    }
+  }
+  return S.day.ids;
+}
+const dailyList = () => dailyIds().map(id => DAILY.find(d => d.id === id)).filter(Boolean);
+function rerollDaily(id) {
+  const ids = dailyIds(), free = DAILY.filter(d => !ids.includes(d.id) && !S.day.claimed.includes(d.id));
+  if (!free.length) return toast('Plus d’autre défi disponible aujourd’hui.');
+  if (S.inv.reroll > 0) S.inv.reroll--;
+  else {
+    if (S.coins < 150) return toast('Il faut 150 pièces (ou un jeton 🔄 de la boutique) pour changer un défi.', 3200);
+    if (!confirm('Changer ce défi pour 150 pièces ?')) return;
+    S.coins -= 150;
+  }
+  ids[ids.indexOf(id)] = free[Math.floor(Math.random() * free.length)].id;
+  save(); renderDefis();
+}
 function renderDefis() {
   rollPeriods();
-  const per = defiTab === 'day' ? S.day : S.sea, list = defiTab === 'day' ? DAILY : SEASON;
+  const per = defiTab === 'day' ? S.day : S.sea, list = defiTab === 'day' ? dailyList() : SEASON;
   $('#defiList').innerHTML = list.map(d => {
     const v = Math.min(d.goal, per[d.k] || 0), done = v >= d.goal, got = per.claimed.includes(d.id);
     return `<div class="card defi"><div class="e">${d.e}</div><div class="mid"><b>${d.label}</b><div class="row"><div class="bar"><i style="width:${100 * v / d.goal}%"></i></div>${v} / ${d.goal}</div></div>
-      <div class="rw"><span class="e2">${got ? '✅' : '🎁'}</span>+${d.xp} XP${done && !got ? `<br><button data-claim="${d.id}">Récupérer</button>` : ''}</div></div>`;
-  }).join('') + `<p class="muted" style="font-size:12.5px;text-align:center">${defiTab === 'day' ? 'Nouveaux défis chaque jour à minuit.' : 'Les défis de saison changent chaque mois.'} Chaque défi rapporte aussi des pièces.</p>`;
+      <div class="rw"><span class="e2">${got ? '✅' : '🎁'}</span>+${d.xp} XP${done && !got ? `<br><button data-claim="${d.id}">Récupérer</button>` : ''}${defiTab === 'day' && !done && !got ? `<br><button class="rr2" data-reroll="${d.id}">🔄 Changer</button>` : ''}</div></div>`;
+  }).join('') + `<p class="muted" style="font-size:12.5px;text-align:center">${defiTab === 'day' ? `Nouveaux défis chaque jour à minuit. 🔄 change un défi : ${S.inv.reroll ? `${S.inv.reroll} jeton${S.inv.reroll > 1 ? 's' : ''}` : '150 pièces'}.` : 'Les défis de saison changent chaque mois.'} Chaque défi rapporte aussi des pièces.</p>`;
+  $$('[data-reroll]').forEach(b => b.onclick = () => rerollDaily(b.dataset.reroll));
   $$('[data-claim]').forEach(b => b.onclick = () => {
     const d = list.find(x => x.id === b.dataset.claim);
     per.claimed.push(d.id); S.xp += d.xp; S.road.xp += d.xp; S.coins += d.coins; save();
@@ -1777,8 +1944,8 @@ function renderDefis() {
 // ---------- route de saison ----------
 function roadState() {
   rollPeriods();
-  const r = S.road, step = Math.min(30, Math.floor(r.xp / ROAD_XP)), rewards = roadRewards(r.sc);
-  return { r, step, cur: r.xp % ROAD_XP, rewards, ready: rewards.filter(w => w.n <= step && !r.claimed.includes(w.n)) };
+  const r = S.road, per = roadXp(r.sc), step = Math.min(30, Math.floor(r.xp / per)), rewards = roadRewards(r.sc);
+  return { r, step, per, cur: r.xp % per, pct: 100 * (r.xp % per) / per, rewards, ready: rewards.filter(w => w.n <= step && !r.claimed.includes(w.n)) };
 }
 function rewardLabel(w) {
   if (!w) return '';
@@ -1797,8 +1964,8 @@ function renderRoad() {
   const rs = roadState();
   $('#roadSub').textContent = `${seasonName(rs.r.sc)} • fin le ${seasonEnd()}`;
   $('#roadHead').innerHTML = `<span style="font-size:30px">🎁</span><div><b>Palier ${rs.step} / 30</b>
-    <div class="bar"><i style="width:${rs.step >= 30 ? 100 : rs.cur}%"></i></div>
-    <small>${rs.step >= 30 ? 'Route terminée, bravo !' : `${rs.cur} / ${ROAD_XP} XP avant le palier ${rs.step + 1} • l’XP se gagne en jouant et avec les défis`}</small></div>`;
+    <div class="bar"><i style="width:${rs.step >= 30 ? 100 : rs.pct}%"></i></div>
+    <small>${rs.step >= 30 ? 'Route terminée, bravo !' : `${rs.cur} / ${rs.per} XP avant le palier ${rs.step + 1} • l’XP se gagne en jouant et avec les défis`}</small></div>`;
   $('#roadList').innerHTML = rs.rewards.map(w => {
     const done = rs.r.claimed.includes(w.n), ready = w.n <= rs.step && !done;
     return `<div class="card node ${done ? 'done' : ready ? 'ready' : 'lockd'} ${w.n === 30 ? 'final' : ''}"><span class="num">${w.n}</span><div class="rw2">${rewardPic(w)}</div>
@@ -1831,8 +1998,13 @@ function renderShop() {
   $('#shopCoins').textContent = fmt(S.coins);
   const card = (kind, id, pic, name, small, eq) => `<button class="card item ${eq ? 'eq' : ''}" data-kind="${kind}" data-it="${id}">${eq ? '<span class="ok">✓</span>' : ''}${pic}<b>${name}</b><small>${small}</small></button>`;
   let html = '';
+  const price = it => `<span class="coin">$</span>${fmt(it.price)}`;
   if (shopTab === 'frames') {
-    html += FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : `<span class="coin">$</span>${fmt(it.price)}`, S.fr === it.id)).join('');
+    html += FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : price(it), S.fr === it.id)).join('');
+    html += '<h4 class="sec">💎 Cadres de prestige</h4>';
+    html += PRESTIGE_FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : price(it), S.fr === it.id)).join('');
+    html += '<h4 class="sec">🏅 Cadre Légendaire : impossible à acheter</h4>';
+    html += card('legend', 'legend', avHTML(S.av, 'legend', 58), 'Légendaire', legendOk() ? (S.fr === 'legend' ? 'Équipé' : 'Choisir') : '🔒 Une médaille Légendaire', S.fr === 'legend');
     html += '<h4 class="sec">🏆 Cadres de rang : impossibles à acheter</h4>';
     html += [0, 1, 2, 3, 4, 5, 6, 7, 8].map(t => {
       const ok = (S.rank.bestEver || 0) >= t, id = 'r' + t;
@@ -1841,8 +2013,15 @@ function renderShop() {
     html += '<h4 class="sec">🎁 Cadres de saison</h4>';
     html += S.sframes.length ? S.sframes.map(id => card('season', id, avHTML(S.av, id, 58), seasonName(id.slice(1)), S.fr === id ? 'Équipé' : 'Choisir', S.fr === id)).join('')
       : '<p class="note" style="grid-column:1/-1;margin:4px 0 0">Récompense finale de la route de saison (palier 30), différente chaque mois.</p>';
+  } else if (shopTab === 'themes') {
+    html = THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : price(it), S.theme === it.id)).join('');
   } else {
-    html = THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : `<span class="coin">$</span>${fmt(it.price)}`, S.theme === it.id)).join('');
+    const list = shopTab === 'items' ? ITEMS : PRESTIGE;
+    html = list.map(it => {
+      const own = it.perm ? hasPerk(it.id) : it.k ? hasPerk(it.id) : false, eq = it.k && S[it.k] === it.v;
+      const info = it.id === 'shield' ? `En réserve : ${S.inv.shield} / ${it.max}` : it.id === 'reroll' ? `Jetons : ${S.inv.reroll}` : it.id === 'boost' && boostLeft() ? `En cours : encore ${Math.ceil(boostLeft() / 60000)} min` : it.k && own ? (eq ? 'Équipé : touche pour retirer' : 'Touche pour équiper') : own ? 'Débloqué ✓' : '';
+      return `<button class="card obj ${eq ? 'eq' : ''}" data-kind="${shopTab}" data-it="${it.id}"><span class="e">${it.e}</span><div><b>${it.name}</b><small>${it.desc}</small>${info ? `<em>${info}</em>` : ''}</div>${own ? '' : `<span class="price">${price(it)}</span>`}</button>`;
+    }).join('');
   }
   $('#shopGrid').innerHTML = html;
   $$('#shopGrid [data-it]').forEach(b => b.onclick = () => {
@@ -1852,8 +2031,12 @@ function renderShop() {
       if ((S.rank.bestEver || 0) < t) return toast(`Atteins le rang ${TIERS[t].name} en partie classée (Jouer maintenant) pour débloquer ce cadre.`, 3500);
       S.fr = id; profileChanged();
     } else if (kind === 'season') { S.fr = id; profileChanged(); }
+    else if (kind === 'legend') {
+      if (!legendOk()) return toast('Monte une médaille au niveau Légendaire (Profil → Médailles) pour débloquer ce cadre.', 3500);
+      S.fr = id; profileChanged();
+    } else if (kind === 'items' || kind === 'prestige') { if (!buyThing(kind, id)) return; }
     else {
-      const items = kind === 'buy' ? FRAMES : THEMES, owned = kind === 'buy' ? S.owned : S.themes, it = items.find(x => x.id === id);
+      const items = kind === 'buy' ? [...FRAMES, ...PRESTIGE_FRAMES] : THEMES, owned = kind === 'buy' ? S.owned : S.themes, it = items.find(x => x.id === id);
       if (!owned.includes(id)) {
         if (S.coins < it.price) return toast(`Il te manque ${fmt(it.price - S.coins)} pièces. Joue et réussis tes défis pour en gagner !`, 3200);
         if (!confirm(`Acheter « ${it.name} » pour ${fmt(it.price)} pièces ?`)) return;
@@ -1864,7 +2047,41 @@ function renderShop() {
     save(); renderShop();
   });
 }
-function applyTheme() { document.documentElement.dataset.theme = S.theme; }
+// objets et prestige : renvoie true si quelque chose a changé
+function buyThing(kind, id) {
+  const it = (kind === 'items' ? ITEMS : PRESTIGE).find(x => x.id === id);
+  if (!it) return false;
+  if (it.k && hasPerk(id)) { // déjà acheté : équiper ou retirer
+    S[it.k] = S[it.k] === it.v ? '' : it.v;
+    if (it.k === 'vfx' && S.vfx) winFx(S.vfx);
+    profileChanged();
+    return true;
+  }
+  if (it.perm && hasPerk(id)) return false;
+  if (it.max && S.inv[id] >= it.max) { toast(`Tu en as déjà ${it.max} en réserve.`); return false; }
+  if (id === 'boost' && boostLeft() > 2 * 3600000) { toast('Tu as déjà 3 heures d’XP ×2 d’avance.'); return false; }
+  if (S.coins < it.price) { toast(`Il te manque ${fmt(it.price - S.coins)} pièces. Joue et réussis tes défis pour en gagner !`, 3200); return false; }
+  if (!confirm(`Acheter « ${it.name} » pour ${fmt(it.price)} pièces ?`)) return false;
+  S.coins -= it.price;
+  if (it.perm || it.k) S.perks = [...(S.perks || []), id];
+  if (it.k) { S[it.k] = it.v; if (it.k === 'vfx') winFx(it.v); }
+  if (it.max) S.inv[id] = (S.inv[id] || 0) + 1;
+  if (id === 'boost') S.boost = Math.max(Date.now(), S.boost || 0) + 3600000;
+  toast(id === 'boost' ? `⚡ XP ×2 activé : encore ${Math.ceil(boostLeft() / 60000)} min` : `« ${it.name} » acheté !`);
+  profileChanged();
+  return true;
+}
+// thème : couleurs (data-theme), reflets des thèmes de luxe (data-lux), couleurs qui changent pour Aurore
+const AURORA = ['61,255,176', '47,212,255', '123,107,255', '255,79,216'];
+let auroraT = null;
+function applyTheme() {
+  const th = THEMES.find(t => t.id === S.theme) || THEMES[0], root = document.documentElement;
+  root.dataset.theme = th.id;
+  if (th.lux) root.dataset.lux = '1'; else delete root.dataset.lux;
+  clearInterval(auroraT);
+  root.style.removeProperty('--glow');
+  if (th.anim) { let i = 0; auroraT = setInterval(() => root.style.setProperty('--glow', AURORA[++i % AURORA.length]), 2500); }
+}
 
 // ---------- réglages ----------
 function renderSettings() {

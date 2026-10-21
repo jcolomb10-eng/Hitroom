@@ -452,7 +452,13 @@ for (const [id, block] of Object.entries(RAW)) {
 }
 BY_CAT.mix = [...ALL.values()];
 
+// cat : une catégorie, ou jusqu'à 3 mélangées (« rock+80+90 », salons privés Premium)
 export function songsOf(cat) {
+  if (cat && cat.includes('+')) {
+    const seen = new Set();
+    const list = cat.split('+').flatMap(c => BY_CAT[c] || []).filter(s => !seen.has(s.k) && seen.add(s.k));
+    if (list.length) return list;
+  }
   return BY_CAT[cat] || BY_CAT.mix;
 }
 
