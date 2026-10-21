@@ -44,7 +44,7 @@ export default {
     if (path === '/api/board') {
       return json(await hub(env).board(url.searchParams.get('sc'), (url.searchParams.get('uid') || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40)));
     }
-    if (path === '/api/status') return json(await hub(env).catalogStatus());
+    if (path === '/api/status') return json(await hub(env).catalogStatus(url.searchParams.has('test')));
     if (path === '/api/introuvables') return json(await hub(env).failedSongs());
     if (env.MOCK_MUSIC && path.startsWith('/__mock/')) return mock(path);
 

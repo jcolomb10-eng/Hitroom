@@ -54,6 +54,7 @@ export class Room extends DurableObject {
     this.chat = [];
     this.gameId = null;
     this.starting = false;
+    this.msg = '';
   }
 
   // ---------- outils ----------
@@ -89,7 +90,7 @@ export class Room extends DurableObject {
     const c = this.cur;
     return {
       t: 'state', now: Date.now(), pub: this.pub, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
-      phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId,
+      phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
         id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, bot: !!p.bot, on: !!p.on,
         score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
@@ -295,11 +296,15 @@ export class Room extends DurableObject {
     if (!this.humans().length) return this.stop();
     if (songs.length < 3) {
       this.phase = 'lobby';
-      this.sys("Impossible de charger les extraits pour l'instant. Réessaie dans un moment.");
+      this.msg = this.pub ? 'Les extraits musicaux ne répondent pas pour le moment. Nouvel essai dans 30 secondes…'
+        : "Les extraits musicaux ne répondent pas pour le moment. Réessaie dans une minute.";
+      this.sys(this.msg);
+      this.ends = this.pub ? Date.now() + 30000 : 0;
       this.broadcastState();
-      if (this.pub) this.later(20000, () => this.startGame());
+      if (this.pub) this.later(30000, () => this.startGame());
       return;
     }
+    this.msg = '';
     this.songs = songs;
     this.rounds = Math.min(this.opts.rounds, songs.length);
     this.round = 0;

@@ -499,7 +499,7 @@ input[type=range]{accent-color:var(--gold);width:120px}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.0';
+const VERSION = '1.0.1';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -792,6 +792,7 @@ function roomView(st) {
 function onState(st) {
   const prev = R.st;
   R.st = st;
+  if (st.msg && st.msg !== prev?.msg && !st.pub) toast(esc(st.msg), 4000);
   const me = st.players.find(p => p.id === R.me);
   if (prev?.round !== st.round || prev?.phase !== st.phase) {
     if (st.phase === 'play' && (prev?.phase !== 'play' || prev?.round !== st.round)) {
@@ -962,7 +963,8 @@ function renderGame() {
   // écrans d'attente
   const ov = $('#gOverlay');
   let html = '';
-  if (st.phase === 'lobby' || st.phase === 'loading') html = `<div class="spin"></div><h3>Préparation de la partie…</h3><p>${humansOf(st).length} joueur${humansOf(st).length > 1 ? 's' : ''} dans le salon ${esc(c.name)}</p>`;
+  if (st.phase === 'lobby' && st.msg) html = `<div style="font-size:54px">🎧</div><h3>Petit souci de musique</h3><p>${esc(st.msg)}</p><p class="muted">${humansOf(st).length} joueur${humansOf(st).length > 1 ? 's' : ''} dans le salon ${esc(c.name)}</p>`;
+  else if (st.phase === 'lobby' || st.phase === 'loading') html = `<div class="spin"></div><h3>Préparation de la partie…</h3><p>${st.phase === 'loading' ? 'Chargement des extraits musicaux' : 'Ça commence dans un instant'}</p><p class="muted">${humansOf(st).length} joueur${humansOf(st).length > 1 ? 's' : ''} dans le salon ${esc(c.name)}</p>`;
   else if (st.phase === 'countdown') html = `<p style="font-weight:600">${esc(c.name)} • ${st.rounds} extraits</p><div class="huge" id="cdN">3</div><h3>Prépare-toi !</h3><p>Tape l’artiste ou le titre dès que tu reconnais le morceau.</p>`;
   else if (st.phase === 'end') html = `<h3>Prochaine partie</h3><div class="huge" id="cdN">…</div><p>Reste dans le salon pour enchaîner !</p>`;
   ov.innerHTML = html;
