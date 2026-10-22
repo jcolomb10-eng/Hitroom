@@ -513,6 +513,7 @@ export class Room extends DurableObject {
     this.ends = this.pub ? Date.now() + PUBLIC_NEXT : 0;
     for (const p of this.players.values()) p.rt = null;
     this.broadcastState();
+    this.hub().countGame(this.kind, this.cat, list.filter(p => !p.bot && p.rounds).length).catch(() => {});
     const rows = list.filter(p => !p.bot && p.score > 0)
       .map(p => ({ uid: p.uid, name: p.name, av: p.av, fr: p.fr, pts: p.score, win: list[0] === p && list.length > 1 }));
     if (rows.length && !this.solo) this.hub().addResults(rows).catch(() => {}); // le solo ne compte pas au classement

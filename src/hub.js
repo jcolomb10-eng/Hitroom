@@ -25,6 +25,7 @@ function shuffle(a) {
 }
 
 export const season = (d = new Date()) => d.toISOString().slice(0, 7);
+const today = () => new Date().toISOString().slice(0, 10);
 
 export class Hub extends DurableObject {
   constructor(ctx, env) {
@@ -42,6 +43,15 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS saves(code TEXT PRIMARY KEY, uid TEXT, data TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS shields(uid TEXT, day TEXT, PRIMARY KEY(uid, day))`);
+    // statistiques de fréquentation (sans cookie ni donnée personnelle affichée) : compteurs par jour, joueurs actifs
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS daily(day TEXT, k TEXT, n INTEGER, PRIMARY KEY(day, k))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS actives(day TEXT, uid TEXT, PRIMARY KEY(day, uid))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS firsts(uid TEXT PRIMARY KEY, day TEXT)`);
+    // première fois : les joueurs déjà connus ne comptent pas comme nouveaux
+    if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'stats'`).toArray().length) {
+      for (const t of ['ranks', 'scores', 'saves']) this.sql.exec(`INSERT OR IGNORE INTO firsts(uid, day) SELECT DISTINCT uid, '' FROM ${t}`);
+      this.sql.exec(`INSERT INTO meta(k, v) VALUES('stats', '1')`);
+    }
     this.sql.exec(`CREATE TABLE IF NOT EXISTS reports(target TEXT, reporter TEXT, pk TEXT, name TEXT, why TEXT, msgs TEXT, room TEXT, ts INTEGER, PRIMARY KEY(target, reporter))`);
     // version 1.5 : points de rang convertis une fois vers les paliers progressifs (chacun garde son rang)
     if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'paliers'`).toArray().length) {
@@ -234,6 +244,7 @@ export class Hub extends DurableObject {
 
   // infos de rang pour l'appli ; la récompense de fin de saison n'est donnée qu'une fois
   me(uid) {
+    this.seen(uid);
     const sc = season();
     const r = this.rankRow(uid);
     const pos = r.games ? this.sql.exec(`SELECT COUNT(*) AS n FROM ranks WHERE sc = ? AND games > 0 AND rp > ?`, sc, r.rp).one().n + 1 : null;
@@ -344,6 +355,58 @@ export class Hub extends DurableObject {
     this.sql.exec(`DELETE FROM ranks WHERE uid = ? AND sc = ?`, uid, season());
     this.sql.exec(`DELETE FROM rewards WHERE uid = ?`, uid);
     this.sql.exec(`INSERT OR REPLACE INTO ranks(uid, sc, rp, best, games, wins, name, av, fr) VALUES(?,?,?,?,5,1,'Test','🎧','def')`, uid, sc, rp, rp);
+  }
+
+  // ---------- statistiques de fréquentation ----------
+  bump(k, n = 1) {
+    this.sql.exec(`INSERT INTO daily(day, k, n) VALUES(?,?,?) ON CONFLICT(day, k) DO UPDATE SET n = n + excluded.n`, today(), k, n);
+  }
+
+  // joueur qui ouvre l'appli (/api/me) : actif aujourd'hui, nouveau s'il n'était jamais venu
+  seen(uid) {
+    const day = today();
+    this.sql.exec(`INSERT OR IGNORE INTO actives(day, uid) VALUES(?,?)`, day, uid);
+    if (!this.sql.exec(`SELECT 1 FROM firsts WHERE uid = ?`, uid).toArray().length) {
+      this.sql.exec(`INSERT INTO firsts(uid, day) VALUES(?,?)`, uid, day);
+      this.bump('new');
+    }
+    if (this.lastPurge !== day) { // les joueurs actifs ne sont gardés que 60 jours
+      this.lastPurge = day;
+      this.sql.exec(`DELETE FROM actives WHERE day < ?`, new Date(Date.now() - 60 * DAY).toISOString().slice(0, 10));
+    }
+  }
+
+  // fin d'une partie (tous les modes) : kind = ranked, open, priv, solo ; humains = joueurs qui ont joué
+  countGame(kind, cat, humans) {
+    this.bump('games');
+    this.bump('g:' + kind);
+    this.bump('h:' + kind, humans);
+    for (const c of String(cat).split('+')) this.bump('c:' + c);
+  }
+
+  // pour le propriétaire du jeu (/api/stats?key=…, page /stats.html) : 30 derniers jours
+  statsReport() {
+    const days = [];
+    for (let i = 29; i >= 0; i--) days.push(new Date(Date.now() - i * DAY).toISOString().slice(0, 10));
+    const since = days[0], week = days[23];
+    const per = Object.fromEntries(days.map(d => [d, { d, actifs: 0, nouveaux: 0, parties: 0 }]));
+    for (const r of this.sql.exec(`SELECT day, COUNT(*) AS n FROM actives WHERE day >= ? GROUP BY day`, since).toArray()) if (per[r.day]) per[r.day].actifs = r.n;
+    const modes = {}, joueurs = {}, cats = {};
+    for (const r of this.sql.exec(`SELECT day, k, n FROM daily WHERE day >= ?`, since).toArray()) {
+      if (!per[r.day]) continue;
+      if (r.k === 'new') per[r.day].nouveaux = r.n;
+      else if (r.k === 'games') per[r.day].parties = r.n;
+      else if (r.k.startsWith('g:')) modes[r.k.slice(2)] = (modes[r.k.slice(2)] || 0) + r.n;
+      else if (r.k.startsWith('h:')) joueurs[r.k.slice(2)] = (joueurs[r.k.slice(2)] || 0) + r.n;
+      else if (r.k.startsWith('c:')) cats[r.k.slice(2)] = (cats[r.k.slice(2)] || 0) + r.n;
+    }
+    const distinct = d => this.sql.exec(`SELECT COUNT(DISTINCT uid) AS n FROM actives WHERE day >= ?`, d).one().n;
+    return {
+      jours: days.map(d => per[d]), modes, joueurs, cats,
+      aujourdhui: per[days[29]].actifs, semaine: distinct(week), mois: distinct(since),
+      total: this.sql.exec(`SELECT COUNT(*) AS n FROM firsts`).one().n,
+      signalements: this.sql.exec(`SELECT COUNT(DISTINCT target) AS n FROM reports WHERE ts > ?`, Date.now() - 30 * DAY).one().n,
+    };
   }
 
   // ---------- signalements (chat) ----------

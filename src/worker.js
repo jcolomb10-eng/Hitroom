@@ -78,10 +78,11 @@ export default {
     if (path === '/api/status') return json(await hub(env).catalogStatus(url.searchParams.has('test')));
     if (path === '/api/introuvables') return json(await hub(env).failedSongs());
     if (path === '/api/versions') return json(await hub(env).chosenVersions());
-    if (path === '/api/signalements') {
+    // pour le propriétaire du jeu (page /stats.html) : protégé par la variable secrète ADMIN_KEY
+    if (path === '/api/signalements' || path === '/api/stats') {
       if (!env.ADMIN_KEY) return json({ error: 'Ajoute la variable secrète ADMIN_KEY dans Cloudflare (Worker hitroom → Paramètres → Variables et secrets).' }, 403);
-      if (url.searchParams.get('key') !== env.ADMIN_KEY) return json({ error: 'clé incorrecte' }, 403);
-      return json(await hub(env).reportList());
+      if (url.searchParams.get('key') !== env.ADMIN_KEY) return json({ error: 'Clé incorrecte.' }, 403);
+      return json(path === '/api/stats' ? await hub(env).statsReport() : await hub(env).reportList());
     }
     if (env.MOCK_MUSIC && path === '/__mock/saison') {
       await hub(env).devPrevSeason(cleanUid(url.searchParams.get('uid')), url.searchParams.get('sc'), +url.searchParams.get('rp') || 0);

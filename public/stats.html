@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#060408">
+<title>Hitroom • Statistiques</title>
+<link rel="icon" href="/icon-192.png">
+<style>
+/* page du propriétaire du jeu : fréquentation (sans cookie) et signalements, protégée par la clé ADMIN_KEY */
+:root{--bg:#060408;--card:#100b15;--line:#2a2033;--ink:#fff;--muted:#b3a6bf;--dim:#7d6f8c;--gold:#ffb52e;--gold2:#ffd85c;--pink:#ff2e93;--red:#ff4b5c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:18px 16px 40px}
+h1{margin:0;font-size:24px}
+h1 small{display:block;font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:700}
+h2{font-size:16px;margin:26px 0 10px}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1.5px solid rgba(255,181,46,.35);border-radius:16px;padding:14px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px}
+button{font:inherit;color:inherit;cursor:pointer;border:1.5px solid rgba(255,181,46,.5);background:#160f1c;border-radius:10px;padding:7px 12px}
+button.cta{background:linear-gradient(180deg,#ffe066,#ffb21e);color:#241500;border:0;font-weight:700}
+input{font:inherit;color:inherit;background:#0b070e;border:1.5px solid rgba(255,181,46,.5);border-radius:10px;padding:10px 12px;width:100%}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.tile b{display:block;font-size:30px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{font-size:12.5px;color:var(--muted)}
+.chart{position:relative;height:180px;margin-top:8px}
+.bars{position:absolute;inset:0 0 22px 34px;display:flex;align-items:flex-end;gap:2px}
+.bars div{flex:1;min-width:0;background:var(--gold);border-radius:4px 4px 0 0;min-height:1px;position:relative}
+.bars div.zero{background:var(--line)}
+.bars div:hover,.bars div:focus{background:var(--gold2);outline:none}
+.bars div em{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-style:normal;font-size:11px;color:var(--muted);padding-bottom:2px;white-space:nowrap}
+.grid{position:absolute;inset:0 0 22px 34px;pointer-events:none}
+.grid i{position:absolute;left:0;right:0;border-top:1px dashed var(--line)}
+.grid u{position:absolute;left:-34px;width:28px;text-align:right;font-size:11px;color:var(--dim);text-decoration:none;transform:translateY(-50%)}
+.xl{position:absolute;left:34px;right:0;bottom:0;height:18px;font-size:11px;color:var(--dim)}
+.xl span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+#tip{position:fixed;z-index:9;pointer-events:none;background:#1d1426;border:1.5px solid rgba(255,181,46,.6);border-radius:10px;padding:6px 10px;font-size:13px;display:none}
+.hbar{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:10px;margin:7px 0;font-size:14px}
+.hbar .t{height:12px;border-radius:0 4px 4px 0;background:var(--gold);min-width:2px}
+.hbar em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+.rep{border-top:1px solid var(--line);padding:10px 0}
+.rep:first-child{border-top:0;padding-top:0}
+.rep b{font-size:15px}
+.rep .why{font-size:12.5px;color:var(--muted)}
+.rep q{display:block;font-size:13px;color:#ddd2e8;margin-top:3px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:9px;background:rgba(255,75,92,.18);color:#ff9aa5;margin-left:6px}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:5px 8px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+.hide{display:none}
+.err{color:#ff9aa5;margin-top:10px}
+@media(max-width:480px){.hbar{grid-template-columns:86px 1fr auto}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><h1><small>HITROOM</small>Statistiques</h1><button id="reload" class="hide">Actualiser</button></div>
+
+  <section id="login" class="card hide">
+    <p style="margin-top:0">Page réservée au propriétaire du jeu. Entre la clé <b>ADMIN_KEY</b> que tu as créée dans Cloudflare.</p>
+    <input id="key" type="password" autocomplete="current-password" placeholder="Clé ADMIN_KEY">
+    <p><button class="cta" id="go">Ouvrir</button></p>
+    <p class="err" id="err"></p>
+  </section>
+
+  <section id="out" class="hide">
+    <div class="tiles">
+      <div class="card tile"><b id="tToday">–</b><span>joueurs aujourd’hui</span></div>
+      <div class="card tile"><b id="tWeek">–</b><span>joueurs sur 7 jours</span></div>
+      <div class="card tile"><b id="tMonth">–</b><span>joueurs sur 30 jours</span></div>
+      <div class="card tile"><b id="tGames">–</b><span>parties sur 30 jours</span></div>
+      <div class="card tile"><b id="tTotal">–</b><span>joueurs depuis le début</span></div>
+    </div>
+
+    <h2>Joueurs actifs par jour</h2>
+    <div class="card"><div class="chart" id="cActive"></div></div>
+    <h2>Nouveaux joueurs par jour</h2>
+    <div class="card"><div class="chart" id="cNew" style="height:130px"></div></div>
+    <h2>Parties jouées par jour</h2>
+    <div class="card"><div class="chart" id="cGames" style="height:130px"></div></div>
+
+    <h2>Parties par mode <span class="muted" style="font-weight:400;font-size:13px">(30 jours)</span></h2>
+    <div class="card" id="modes"></div>
+    <h2>Catégories les plus jouées <span class="muted" style="font-weight:400;font-size:13px">(30 jours)</span></h2>
+    <div class="card" id="cats"></div>
+
+    <h2>Joueurs signalés</h2>
+    <div class="card" id="reports"></div>
+
+    <h2>Tableau des 30 jours</h2>
+    <div class="card" style="overflow-x:auto"><table id="table"></table></div>
+    <p class="muted" style="font-size:12.5px;margin-top:18px">Aucun cookie. Un joueur compte une fois par jour, quand il ouvre l’appli. Les jours sont en heure universelle (UTC).</p>
+  </section>
+</main>
+<div id="tip"></div>
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => Number(n || 0).toLocaleString('fr-FR').replace(/ /g, ' ');
+const MODES = { ranked: 'Classé', open: 'Non classé', priv: 'Entre amis', solo: 'Solo' };
+const CATS = { mix: 'Mix', 80: 'Années 80', 90: 'Années 90', 2000: 'Années 2000', 2010: 'Années 2010', 2020: 'Années 2020', variete: 'Variété FR',
+  rapfr: 'Rap FR', rapus: 'Rap US', rock: 'Rock', electro: 'Électro', kpop: 'K-Pop', cine: 'Ciné & séries' };
+const KEY = 'hitroom.admin';
+let key = '';
+try { key = localStorage.getItem(KEY) || ''; } catch (e) { /* stockage indisponible */ }
+const day = d => new Date(d + 'T12:00:00Z').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+
+// barres verticales sur 30 jours : une seule couleur, valeur au survol, la plus haute et la dernière écrites
+function bars(el, rows, field, label) {
+  const max = Math.max(1, ...rows.map(r => r[field]));
+  const step = max <= 4 ? 1 : Math.ceil(max / 4);
+  const top = Math.ceil(max / step) * step;
+  const lines = [];
+  for (let v = 0; v <= top; v += step) lines.push(`<i style="bottom:${100 * v / top}%"></i><u style="bottom:${100 * v / top}%;transform:translateY(50%)">${fmt(v)}</u>`);
+  const iMax = rows.reduce((b, r, i) => (r[field] >= rows[b][field] ? i : b), 0);
+  el.innerHTML = `<div class="grid">${lines.join('')}</div><div class="bars">${rows.map((r, i) => {
+    const v = r[field];
+    const shown = v && (i === iMax || i === rows.length - 1) ? `<em>${fmt(v)}</em>` : '';
+    return `<div tabindex="0" class="${v ? '' : 'zero'}" style="height:${v ? 100 * v / top : 0.5}%" data-tip="${esc(day(r.d))} : ${fmt(v)} ${label}">${shown}</div>`;
+  }).join('')}</div><div class="xl">${rows.map((r, i) => (i % 7 === 1 || i === rows.length - 1 ? `<span style="left:${100 * (i + 0.5) / rows.length}%">${day(r.d)}</span>` : '')).join('')}</div>`;
+}
+// barres horizontales triées : libellé, barre, nombre
+function hbars(el, obj, names, extra) {
+  const list = Object.entries(obj).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(1, ...list.map(x => x[1]));
+  el.innerHTML = list.length ? list.map(([k, n]) => `<div class="hbar"><span>${esc(names[k] || k)}</span><div class="t" style="width:${100 * n / max}%"></div><em>${fmt(n)}${extra ? extra(k, n) : ''}</em></div>`).join('')
+    : '<p class="muted" style="margin:0">Pas encore de partie.</p>';
+}
+
+const tip = $('#tip');
+document.addEventListener('pointerover', e => { const t = e.target.closest('[data-tip]'); if (!t) return; tip.textContent = t.dataset.tip; tip.style.display = 'block'; });
+document.addEventListener('pointermove', e => { if (tip.style.display === 'block') { tip.style.left = Math.min(innerWidth - tip.offsetWidth - 8, e.clientX + 12) + 'px'; tip.style.top = (e.clientY - 40) + 'px'; } });
+document.addEventListener('pointerout', e => { if (e.target.closest('[data-tip]')) tip.style.display = 'none'; });
+
+async function load() {
+  $('#err').textContent = '';
+  let st, rep;
+  try {
+    const [a, b] = await Promise.all([fetch('/api/stats?key=' + encodeURIComponent(key)), fetch('/api/signalements?key=' + encodeURIComponent(key))]);
+    st = await a.json(); rep = await b.json();
+    if (!a.ok) throw new Error(st.error || 'Accès refusé.');
+  } catch (e) {
+    $('#out').classList.add('hide'); $('#reload').classList.add('hide'); $('#login').classList.remove('hide');
+    if (key) $('#err').textContent = e.message || 'Pas de connexion ?';
+    return;
+  }
+  try { localStorage.setItem(KEY, key); } catch (e) { /* stockage indisponible */ }
+  $('#login').classList.add('hide'); $('#out').classList.remove('hide'); $('#reload').classList.remove('hide');
+  $('#tToday').textContent = fmt(st.aujourdhui);
+  $('#tWeek').textContent = fmt(st.semaine);
+  $('#tMonth').textContent = fmt(st.mois);
+  $('#tTotal').textContent = fmt(st.total);
+  $('#tGames').textContent = fmt(st.jours.reduce((s, r) => s + r.parties, 0));
+  bars($('#cActive'), st.jours, 'actifs', 'joueurs');
+  bars($('#cNew'), st.jours, 'nouveaux', 'nouveaux joueurs');
+  bars($('#cGames'), st.jours, 'parties', 'parties');
+  const pl = (n, w) => ` ${w}${n > 1 ? 's' : ''}`;
+  hbars($('#modes'), st.modes, MODES, (k, n) => pl(n, 'partie') + (st.joueurs[k] ? ` • ${fmt(st.joueurs[k])}${pl(st.joueurs[k], 'joueur')}` : ''));
+  hbars($('#cats'), st.cats, CATS);
+  $('#reports').innerHTML = Array.isArray(rep) && rep.length ? rep.slice(0, 30).map(r => `<div class="rep"><b>${esc(r.name)}</b>${r.muted ? '<span class="badge">chat suspendu</span>' : ''}
+    <div class="why">${r.n} signalement${r.n > 1 ? 's' : ''} • ${Object.entries(r.why).map(([k, n]) => `${esc(k)} ×${n}`).join(', ')} • dernier le ${new Date(r.last).toLocaleDateString('fr-FR')}</div>
+    ${(r.msgs || []).slice(0, 4).map(m => `<q>${esc(m)}</q>`).join('')}</div>`).join('') : '<p class="muted" style="margin:0">Aucun signalement. 👍</p>';
+  $('#table').innerHTML = `<tr><th>Jour</th><th>Joueurs</th><th>Nouveaux</th><th>Parties</th></tr>` +
+    st.jours.slice().reverse().map(r => `<tr><td>${day(r.d)}</td><td>${fmt(r.actifs)}</td><td>${fmt(r.nouveaux)}</td><td>${fmt(r.parties)}</td></tr>`).join('');
+}
+$('#go').onclick = () => { key = $('#key').value.trim(); load(); };
+$('#key').onkeydown = e => { if (e.key === 'Enter') $('#go').click(); };
+$('#reload').onclick = load;
+load();
+})();
+</script>
+</body>
+</html>
