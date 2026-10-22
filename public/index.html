@@ -2367,10 +2367,10 @@ $('#lobbyGear').onclick = $('#lobbyParams').onclick = () => hostSettings();
 function copy(text, msg) {
   navigator.clipboard?.writeText(text).then(() => toast(msg), () => toast(text));
 }
-async function invite() {
+function invite() {
   const code = R.st?.code;
   if (!code) return;
-  if (!FR) await loadFriends();
+  if (!FR) loadFriends(); // déjà chargée à l'ouverture de l'appli : la fenêtre s'ouvre sans attendre
   const here = new Set(R.st.players.map(p => p.pk).filter(Boolean));
   const friends = (FR?.list || []).filter(f => !here.has(f.pk) && !isBlocked(f.pk));
   const fpk = new Set((FR?.list || []).map(f => f.pk));
@@ -3834,7 +3834,7 @@ applyTheme();
 history.replaceState({ v: 'home' }, '');
 if (S.name && !S.acct) { S.acct = 'guest'; save(); } // joueurs d'avant la version 1.8 : invités
 paintMusic();
-if (!S.acct) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); pushSync(); presence(true); }
+if (!S.acct) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); pushSync(); presence(true); loadFriends(); }
 })();
 </script>
 </body>
