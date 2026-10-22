@@ -26,7 +26,7 @@ Tout tourne sur **Cloudflare Workers** (gratuit) :
 | `src/match.js` | Reconnaissance des réponses (réponse entière, petites fautes avec Entrée, artiste + titre d'un coup) |
 | `src/ranks.js` | Rangs, points de rang, niveaux des salons, saisons et récompenses |
 | `src/itunes.js` | Choix de la bonne version sur iTunes (pas de live, remix ni karaoké) |
-| `src/catalog.js` | Les 354 morceaux, par catégorie |
+| `src/catalog.js` | Les 1 208 morceaux, par catégorie |
 | `src/filter.js` | Grossièretés masquées (chat et pseudos) |
 | `wrangler.jsonc` | Configuration Cloudflare |
 
@@ -39,7 +39,7 @@ Les extraits de 30 secondes et les pochettes viennent des API publiques de Deeze
 3. Laisser les réglages proposés (commande de déploiement `npx wrangler deploy`) → **Déployer**.
 4. Le site est en ligne sur `https://hitroom.<ton-sous-domaine>.workers.dev`. Ensuite, chaque modification envoyée sur `main` est publiée automatiquement.
 
-Au premier lancement, le catalogue se remplit petit à petit (une quarantaine de minutes pour tout vérifier). L'état est visible sur `/api/status` et les morceaux introuvables sur `/api/introuvables`.
+Au premier lancement, le catalogue se remplit petit à petit (environ 1 h 30 pour tout vérifier, 15 morceaux par minute). L'état est visible sur `/api/status` et les morceaux introuvables sur `/api/introuvables`.
 
 ## Tester en local
 

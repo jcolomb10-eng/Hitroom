@@ -5,16 +5,17 @@ import { norm, lev } from './match.js';
 const flat = s => s.replace(/ /g, '');
 const noThe = s => s.replace(/^the /, '');
 
-// titre : identique, ou titre du catalogue contenu dans un titre plus long (0,8, moins bien qu'identique) ;
-// un titre plus court que celui du catalogue n'est pas le bon (« Somebody » ≠ « Somebody That I Used to Know »)
+// titre : identique (hors parenthèses) ou presque ; un titre qui en contient un autre n'est pas le même morceau
+// (« Angel Eyes » ≠ « Angel », « La Belle et la Bête » ≠ « Belle », « Somebody » ≠ « Somebody That I Used to Know »)
 function titleSim(a, b) {
   if (!a || !b) return 0;
   if (a === b || flat(a) === flat(b)) return 1;
-  if ((' ' + a + ' ').includes(' ' + b + ' ')) return 0.8;
   return 1 - lev(flat(a), flat(b)) / Math.max(flat(a).length, flat(b).length);
 }
+// titre sans aucune parenthèse, sans celles de la fin seulement (« (Everything I Do) I Do It for You (Live) »), ou entier
 const cleanTitle = s => norm((s || '').replace(/\s*[([].*?[)\]]/g, '').replace(/\s+-\s+.*$/, ''));
-const titleScore = (it, titles) => Math.max(...titles.map(t => Math.max(titleSim(cleanTitle(it), norm(t)), titleSim(norm(it), norm(t)))));
+const trimEnd = s => norm((s || '').replace(/\s+-\s+.*$/, '').replace(/(\s*[([][^)\]]*[)\]])+\s*$/, ''));
+const titleScore = (it, titles) => Math.max(...titles.map(t => Math.max(...[cleanTitle(it), trimEnd(it), norm(it)].map(x => titleSim(x, norm(t))))));
 
 // artiste : nom identique, ou un des noms d'un duo (« Dick Dale & His Del-Tones », « Eurythmics, Annie Lennox ») ;
 // petites différences tolérées seulement sur les noms longs (« Siam » ≠ « Sia », « Hello I'm Adele » ≠ « Adele »)
@@ -33,7 +34,7 @@ function artistSim(it, a) {
 const artistScore = (it, artists) => Math.max(...artists.map(a => artistSim(it, a)));
 
 // versions à éviter : très différentes de l'original (forte pénalité) ou simplement remaniées (légère)
-const OTHER_VERSION = /\b(live|en concert|karaok\w*|instrumental|acousti\w*|unplugged|remix\w*|re-?mix|demo|rehearsal|commentary|re-?recorded|piano|pianoforte|orchestral|symphon\w*|sped up|slowed|nightcore|a ?cappella|lullaby|berceuse|version (?:espagnole|anglaise|english|spanish|italiana?)|(?:spanish|english|italian) version)\b/i;
+const OTHER_VERSION = /\b(live|en concert|karaok\w*|instrumental|acousti\w*|unplugged|remix\w*|re-?mix|demo|rehearsal|commentary|re-?recorded|piano|pianoforte|orchestral|symphon\w*|sped up|slowed|nightcore|a ?cappella|lullaby|berceuse|medley|mash-?up|version (?:espagnole|anglaise|english|spanish|italiana?)|(?:spanish|english|italian) version)\b/i;
 const EDITED = /\b(edit|mix|maxi|extended|club|dub)\b/i;
 // album de remix ou de concert ; mentions sans conséquence entre parenthèses (featuring, remaster, B.O.…)
 const OTHER_ALBUM = /\b(remix\w*|re-?mixes|mixes|megamix|live|en concert|unplugged|acousti\w*)\b/i;

@@ -46,6 +46,9 @@ test('refuse les imitateurs et les titres plus courts', () => {
   assert.equal(pickBest([r("Hello I'm Adele", 'Rolling In The Deep')], song('Rolling in the Deep', 'Adele')), null);
   assert.equal(pickBest([r('Siam', 'Chandelier Bbop and Roksteadi Radio')], song('Chandelier', 'Sia')), null);
   assert.equal(pickBest([r('Gotye', 'Somebody (2024)')], song('Somebody That I Used to Know', 'Gotye')), null);
+  assert.equal(pickBest([r('Shaggy', 'Angel Eyes')], song('Angel', 'Shaggy')), null);
+  assert.equal(pickBest([r('Garou', 'La Belle Et La Bête')], song('Belle', 'Garou')), null);
+  assert.equal(pickBest([r('Dalida', 'Jésus bambino')], song('Bambino', 'Dalida')), null);
   assert.ok(pickBest([r('Dick Dale and His Del-Tones', 'Misirlou')], song('Misirlou', 'Dick Dale')));
   assert.ok(pickBest([r('The Notorious B.I.G.', 'Juicy')], song('Juicy', 'Notorious B.I.G.')));
 });
@@ -71,6 +74,14 @@ test('Deezer : la version la plus écoutée, sans remix ni « rendu célèbre pa
     dz('Lady Gaga', 'Poker Face (Glam As You Radio Mix)', 490372, 'Poker Face (Remixes Part 1)'),
     dz('Lady Gaga', 'Poker Face', 234377, 'Poker Face (Remixes Part 1)'),
   ], song('Poker Face', 'Lady Gaga')), 'Poker Face');
+  assert.equal(pick([
+    dz('Gipsy Kings', 'Medley: Bamboleo, Volare, Djobi Djoba', 900000),
+    dz('Gipsy Kings', 'Bamboléo', 700000),
+  ], song('Bamboléo', 'Gipsy Kings')), 'Bamboléo');
+  assert.equal(pick([
+    dz('Bryan Adams', '(Everything I Do) I Do It For You (Live)', 400000, 'Bare Bones (Live)'),
+    dz('Bryan Adams', '(Everything I Do) I Do It For You', 300000),
+  ], song('(Everything I Do) I Do It for You', 'Bryan Adams')), '(Everything I Do) I Do It For You');
   // un morceau du catalogue qui contient lui-même le mot n'est pas pénalisé
   assert.equal(pick([
     dz('Queen', 'Live Forever', 10),

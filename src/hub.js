@@ -10,9 +10,10 @@ import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
 const RETRY_FAIL = 7 * DAY;  // un morceau introuvable est retenté une semaine plus tard
+const WARM_BATCH = 15;       // morceaux recherchés à chaque minute en tâche de fond
 // à changer quand la façon de choisir la version (pickBest) change : tous les morceaux sont recherchés à nouveau
 // petit à petit en tâche de fond (on garde l'ancienne version en attendant)
-const PICKER = '2';
+const PICKER = '3';
 const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; Hitroom/1.0; blind test)', Accept: 'application/json' };
 
 function shuffle(a) {
@@ -142,7 +143,7 @@ export class Hub extends DurableObject {
     return shuffle(out);
   }
 
-  // préchargement progressif du catalogue (8 morceaux par minute)
+  // préchargement progressif du catalogue (WARM_BATCH morceaux par minute)
   warm() {
     if (this.warming) return;
     this.warming = true;
@@ -163,11 +164,11 @@ export class Hub extends DurableObject {
     }
     due.sort((a, b) => a[0] - b[0]);
     let blocked = false;
-    for (const [, s] of due.slice(0, 8)) {
+    for (const [, s] of due.slice(0, WARM_BATCH)) {
       try { await this.resolveAndStore(s); } catch { blocked = true; break; }
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 1000));
     }
-    if (due.length > 8 || blocked) await this.ctx.storage.setAlarm(Date.now() + (blocked ? 5 : 1) * 60000);
+    if (due.length > WARM_BATCH || blocked) await this.ctx.storage.setAlarm(Date.now() + (blocked ? 5 : 1) * 60000);
     else this.warming = false;
   }
 
