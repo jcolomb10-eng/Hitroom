@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SPECIAL, weekKey, isWeekend, eventState, tourState, inTour, eventOfWeek, prevSeason, monthName, topCoins, EVENTS } from '../src/extras.js';
-import { CATS } from '../src/catalog.js';
+import { CATS, catOpen } from '../src/catalog.js';
 
 test('semaine : le lundi, week-end samedi et dimanche', () => {
   assert.equal(weekKey('2026-10-22'), '2026-10-19'); // jeudi
@@ -43,4 +43,11 @@ test('Halloween : le week-end du 31 octobre 2026 a son événement', () => {
   assert.equal(eventState('2026-10-29').state, 'soon');
   assert.ok(CATS.some(c => c.id === SPECIAL['2026-10-26'].cat));
   assert.ok(/^[a-z0-9-]{1,24}$/.test(`h-ev-${e.ev.id}-261026`));
+});
+test('Frissons : playlist secrète jusqu’au samedi 31 octobre, ouverte en local', () => {
+  assert.equal(catOpen('frissons', {}, '2026-10-30'), false);
+  assert.equal(catOpen('frissons', {}, '2026-10-31'), true);
+  assert.equal(catOpen('rock', {}, '2026-10-01'), true);
+  assert.equal(catOpen('frissons', { MOCK_MUSIC: '1' }, '2026-10-22'), true);
+  assert.equal(catOpen('frissons', { MOCK_MUSIC: '1', FRISSONS_LOCK: '1' }, '2026-10-22'), false);
 });

@@ -3,7 +3,7 @@
 // - compte les joueurs présents dans chaque salon public
 // - tient les rangs (points de rang par saison mensuelle) et le classement « tous les temps »
 import { DurableObject } from 'cloudflare:workers';
-import { songsOf, songByKey, rankedCats, CATS } from './catalog.js';
+import { songsOf, songByKey, rankedCats, CATS, catOpen } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
 import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 import { publicKey } from './ids.js';
@@ -331,7 +331,7 @@ export class Hub extends DurableObject {
     const rw = this.sql.exec(`SELECT sc, tier FROM rewards WHERE uid = ? AND claimed = 0 ORDER BY sc DESC LIMIT 1`, uid).toArray()[0];
     if (rw) this.sql.exec(`UPDATE rewards SET claimed = 1 WHERE uid = ? AND sc = ?`, uid, rw.sc);
     return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), bestEver: this.bestEver(uid), games: r.games, wins: r.wins, pos, reward: rw || null,
-      rcats: rankedCats(sc, this.env.RANKED_CATS), honors, ev: this.eventLite() };
+      rcats: rankedCats(sc, this.env.RANKED_CATS), honors, ev: this.eventLite(), frissons: catOpen('frissons', this.env) ? 1 : 0 };
   }
 
   // fin d'une partie classée : rows = [{ uid, name, av, fr, delta, win, shield }]

@@ -33,6 +33,7 @@ const shot = async (page, n) => page.screenshot({ path: `${OUT}/hw_${n}.png` });
 
   // 1. vendredi : événement à venir, décor déjà là
   ok(await until(() => page.$eval('#homeEvent', e => e.classList.contains('hw') && e.textContent.includes('Nuit des Frissons') && e.textContent.includes('CE WEEK-END')), 8000), 'vendredi : tuile Halloween « ce week-end »');
+  if (new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' }) < '2026-10-29') ok(await page.$eval('#homeHw', e => !e.classList.contains('hide') && e.textContent.includes('Nuit des Frissons') && /BIENTÔT/.test(e.textContent)), 'avant le 29 octobre : compte à rebours Halloween sans rien dévoiler');
   ok(await page.evaluate(() => document.documentElement.dataset.hw === '1' && !!document.querySelector('.hwfx')), 'décor d’Halloween sur l’accueil');
   ok((await text('#homeTk')).includes('Nuit des Frissons'), 'bande défilante : message d’Halloween');
   await shot(page, '01_accueil_vendredi');

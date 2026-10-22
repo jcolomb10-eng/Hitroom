@@ -1128,6 +1128,7 @@ svg.med{flex:none;overflow:visible}
     <button class="card seasonb" id="homeRoad"></button>
     <button class="card hitb" id="homeHit"></button>
     <button class="card evb hide" id="homeEvent"></button>
+    <button class="card evb hw hide" id="homeHw"></button>
     <button class="mode ranked" id="bPlay"></button>
     <div class="mode-row">
       <button class="mode small open" id="bOpen"><img src="/av/A12.webp" alt=""><span class="eb">MULTIJOUEUR</span><b>Non classé</b><span class="d">Tout le monde mélangé, sans rang</span><span class="live off" id="openLive"><i></i>Ouvert 24h/24</span></button>
@@ -1342,6 +1343,9 @@ const TICKER = ['🚧 Application en développement', '💡 Vos retours et vos i
 function paintTicker() { const a = TICKER.map(t => `<span>${esc(t)}</span><i>✦</i>`).join(''); $('#homeTk').innerHTML = a + a; }
 
 // ---------- données ----------
+const FRISSONS_FROM = '2026-10-31', HW_TEASER_END = '2026-10-29'; // playlist Frissons secrète jusqu'au début de l'événement (comme catOpen dans src/catalog.js)
+let FRIS = null; // le serveur dit si la playlist est ouverte (/api/me) ; à défaut, la date
+const frissonsOpen = () => (FRIS == null ? parisDay() >= FRISSONS_FROM : FRIS);
 const CATS = [
   { id: 'mix', name: 'Mix', sub: 'Tous styles', e: '♾️' },
   { id: '80', name: 'Années 80', sub: 'Pop • FR • Rock', e: '📻' },
@@ -2466,6 +2470,7 @@ async function loadMe(force) {
       <p>Nouvelle saison : tu repars en <b>${TIERS[d.tier].name}</b>. À toi de remonter !</p>
       <button class="cta" data-close>Super !</button></div>`);
   }
+  if (d.frissons != null) FRIS = !!d.frissons;
   if (d.ev) { EVL = d.ev; renderEventCard(); }
   if (d.honors?.length) setTimeout(() => honorsSheet(d.honors), d.reward ? 6000 : 400);
   checkUnlocks();
@@ -2634,7 +2639,7 @@ function openCats(mode) {
   if (mode === 'public' || mode === 'open') loadCounts();
 }
 function renderCats() {
-  const list = catsMode === 'public' ? CATS.filter(c => rankedCatsNow().includes(c.id)) : CATS;
+  const list = (catsMode === 'public' ? CATS.filter(c => rankedCatsNow().includes(c.id)) : CATS).filter(c => c.id !== 'frissons' || frissonsOpen());
   if (catsMode === 'public' && !list.some(c => c.id === catSel)) catSel = list[0]?.id || 'mix';
   const sel = catSel.split('+'), cnt = catsMode === 'public' ? counts.r : catsMode === 'open' ? counts.o : null;
   $('#catsGrid').innerHTML = list.map(c => `<button class="card cat ${c.id === 'mix' ? 'wide' : ''} ${sel.includes(c.id) ? 'sel' : ''}" data-c="${c.id}">
@@ -2740,6 +2745,7 @@ function renderHome() {
   renderHitCard();
   loadHit();
   renderEventCard();
+  renderHwTeaser();
   loadEvent().then(renderEventCard);
   renderSocial();
 }
@@ -2757,6 +2763,7 @@ $('#bCreate').onclick = () => openCats('create');
 $('#bJoin').onclick = () => joinSheet();
 $('#homeHit').onclick = () => hitIntro();
 $('#homeEvent').onclick = () => eventSheet();
+$('#homeHw').onclick = () => hwTeaserSheet();
 $('#bFriends').onclick = () => go('friends');
 $('#bClub').onclick = () => openClub();
 $('#profSet').onclick = () => go('settings');
@@ -3471,8 +3478,8 @@ function renderEventCard() {
   if (!el) return;
   el.classList.toggle('hide', !e);
   if (!e) return;
-  const c = catOf(e.cat).name;
-  const sub = e.state === 'live' ? `Pièces ×2 en ${esc(c)} · classement du week-end · tournoi samedi soir`
+  const c = e.cat ? catOf(e.cat).name : '';
+  const sub = !e.cat ? 'Commence samedi : une catégorie secrète, pièces ×2 et classement spécial' : e.state === 'live' ? `Pièces ×2 en ${esc(c)} · classement du week-end · tournoi samedi soir`
     : e.state === 'soon' ? `Commence samedi : ${esc(c)}, pièces ×2 et classement spécial` : 'Terminé : récompenses à retrouver dans « Mon profil »';
   el.className = `card evb ${e.state}${e.theme === 'halloween' ? ' hw' : ''}`;
   halloweenDecor(e);
@@ -3492,6 +3499,22 @@ function halloweenDecor(e) {
   const i = TICKER.indexOf(tk);
   if (on && i < 0) { TICKER.unshift(tk); paintTicker(); } else if (!on && i >= 0) { TICKER.splice(i, 1); paintTicker(); }
 }
+// avant le jeudi 29 octobre : annonce d'Halloween avec compte à rebours, sans rien dévoiler (ni playlist ni cadeaux)
+const hwDays = () => Math.round((Date.parse(FRISSONS_FROM) - Date.parse(parisDay())) / 86400000);
+const hwWhen = () => { const n = hwDays(); return n <= 0 ? 'ce week-end' : n === 1 ? 'demain' : `dans ${n} jours`; };
+function renderHwTeaser() {
+  const el = $('#homeHw');
+  if (!el) return;
+  const on = parisDay() < HW_TEASER_END;
+  el.classList.toggle('hide', !on);
+  if (on) el.innerHTML = `<span class="em">🎃</span><span class="hb"><small>⏳ BIENTÔT · ${hwWhen().toUpperCase()}</small><b>Nuit des Frissons</b><span>31 octobre – 1er novembre · une surprise t’attend…</span></span><span class="go">Voir</span>`;
+}
+function hwTeaserSheet() {
+  openSheet(`<div style="text-align:center"><div style="font-size:54px">🎃</div><h3 style="justify-content:center">Nuit des Frissons</h3>
+    <p class="muted" style="margin:0">Du samedi 31 octobre au dimanche 1er novembre · ${hwWhen()}</p></div>
+    <div class="card cx"><h4>🤫 Un week-end spécial Halloween</h4><p>Une catégorie secrète, des pièces doublées, un classement et un tournoi le samedi soir, et des récompenses exclusives à gagner. Tout sera dévoilé en jeu : reviens jeudi 29 octobre !</p></div>
+    <button class="cta" data-close>OK</button>`);
+}
 const placeTxt = n => (n === 1 ? '1er' : n + 'e');
 async function eventSheet() {
   openSheet('<div class="empty"><div class="spin"></div>Chargement…</div>');
@@ -3503,7 +3526,7 @@ async function eventSheet() {
   const canTop = rankedCatsNow().includes(e.cat);
   openSheet(`<div style="text-align:center"><div style="font-size:46px">${e.emoji}</div><h3 style="justify-content:center">${esc(e.name)}</h3>
     <p class="muted" style="margin:0">${e.state === 'live' ? 'En cours jusqu’à dimanche minuit' : e.state === 'soon' ? 'Du samedi au dimanche' : 'Terminé'} · catégorie ${esc(e.catName)}</p></div>
-    <div class="card cx"><h4>⭐ Comment ça marche <small></small></h4><p>Joue en <b>${esc(e.catName)}</b> (Classé ou Non classé) pendant le week-end : tes <b>pièces sont doublées</b> et tes points comptent pour le classement de l’événement.
+    <div class="card cx"><h4>⭐ Comment ça marche <small></small></h4><p>${e.cat ? `Joue en <b>${esc(e.catName)}</b> (Classé ou Non classé) pendant le week-end` : 'La catégorie sera dévoilée samedi'} : tes <b>pièces sont doublées</b> et tes points comptent pour le classement de l’événement.
       Récompenses : 🥇 ${e.coins[0]} · 🥈 ${e.coins[1]} · 🥉 ${e.coins[2]} pièces, un titre pour le vainqueur, et ${e.part} pièces dès ${e.min} points.${e.gifts ? ' 🎁 Cadre Citrouille et avatar Chauve-citrouille pour le podium, avatar Chauve-souris dès ' + e.min + ' points.' : ''}</p></div>
     <h4 class="psec">Classement de l’événement <span>${e.me.pts ? `toi : ${placeTxt(e.me.place)} · ${fmt(e.me.pts)} pts` : ''}</span></h4>${rows(e.top)}
     <div class="card cx" style="margin-top:14px"><h4>🏟️ Tournoi du samedi soir <small>${st} · 20 h – 22 h</small></h4>

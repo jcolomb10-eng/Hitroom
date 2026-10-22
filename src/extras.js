@@ -1,7 +1,7 @@
 // Version 1.18 : récompenses de saison (clubs et joueurs), coffre et guerre de clubs, rivalités, événements du week-end,
 // tournoi du samedi soir, mode Survie. Outils sans état en haut (testés par test/extras.test.mjs), méthodes du Hub en bas.
 import { parisDay, dayAdd } from './social.js';
-import { CATS } from './catalog.js';
+import { CATS, catOpen } from './catalog.js';
 
 const DAY = 86400000;
 const dow = day => (new Date(day + 'T12:00:00Z').getUTCDay() + 6) % 7; // lundi = 0 … dimanche = 6
@@ -262,11 +262,12 @@ export const extraMethods = {
       const r = this.sql.exec(`SELECT pts FROM ${table} WHERE ev = ? AND uid = ?`, es.wk, uid).toArray()[0];
       return r ? { pts: r.pts, place: this.sql.exec(`SELECT COUNT(*) AS n FROM ${table} WHERE ev = ? AND pts > ?`, es.wk, r.pts).one().n + 1 } : { pts: 0, place: null };
     };
-    return { wk: es.wk, state: es.state, id: ev.id, name: ev.name, emoji: ev.emoji, cat: ev.cat, theme: ev.theme || '', gifts: ev.gifts || null, catName: nameOf(ev.cat), from: es.sat, to: es.sun,
+    const secret = !catOpen(ev.cat, this.env); // playlist pas encore dévoilée : ni catégorie ni cadeaux
+    return { wk: es.wk, state: es.state, id: ev.id, name: ev.name, emoji: ev.emoji, cat: secret ? '' : ev.cat, theme: ev.theme || '', gifts: secret ? null : ev.gifts || null, catName: secret ? 'secrète' : nameOf(ev.cat), from: es.sat, to: es.sun,
       top: board('evpts'), me: mine('evpts'), min: EVENT_MIN, coins: EVENT_COINS, part: EVENT_PART,
       tour: { state: tourState(day, mins), day: es.sat, from: '20 h', to: '22 h', top: board('tpts').slice(0, 5), me: mine('tpts'), coins: TOUR_COINS } };
   },
-  eventLite() { const es = eventState(this.pDay()); return { state: es.state, cat: es.ev.cat, name: es.ev.name, emoji: es.ev.emoji, wk: es.wk, theme: es.ev.theme || '' }; },
+  eventLite() { const es = eventState(this.pDay()); return { state: es.state, cat: catOpen(es.ev.cat, this.env) ? es.ev.cat : '', name: es.ev.name, emoji: es.ev.emoji, wk: es.wk, theme: es.ev.theme || '' }; },
 
   // ----- mode Survie : nombre de manches tenues sans rater -----
   survieSave(uid, cat, n) {

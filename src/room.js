@@ -9,7 +9,7 @@
 // vérifie les réponses (jamais envoyées aux joueurs avant la fin de la manche), compte les points et relaie le chat.
 import { DurableObject } from 'cloudflare:workers';
 import { judge, norm } from './match.js';
-import { CAT_IDS } from './catalog.js';
+import { CAT_IDS, catOpen } from './catalog.js';
 import { cleanText, cleanName } from './filter.js';
 import { publicKey } from './ids.js';
 import { bracketOf, rpDelta, BOT_SKILL, TIERS_OF_BRACKET, WINDOWS, windowTiers, windowSkill, inWindow } from './ranks.js';
@@ -35,8 +35,8 @@ const REACTS = new Set(['👏', '🔥', '😂', '😮', '🎉']); // réactions 
 const REPORT_WHY = new Set(['insultes', 'pseudo', 'spam', 'triche', 'autre']); // motifs de signalement (mêmes que dans l'appli)
 
 // une catégorie, ou jusqu'à 3 mélangées (salon privé Premium)
-const cleanCat = c => {
-  const parts = [...new Set(String(c || '').split('+'))].filter(x => CAT_IDS.has(x)).slice(0, 3);
+const cleanCat = (c, env) => {
+  const parts = [...new Set(String(c || '').split('+'))].filter(x => CAT_IDS.has(x) && catOpen(x, env)).slice(0, 3);
   return parts.includes('mix') ? 'mix' : parts.join('+') || null;
 };
 // cadres de rang (r0 = Bronze … r8 = Grand Maître) : seulement si le rang a été atteint ; cadres de saison : s2026-10
@@ -260,7 +260,7 @@ export class Room extends DurableObject {
 
   setOpts(src) {
     const get = k => (src.get ? src.get(k) : src[k]);
-    const cat = cleanCat(get('cat'));
+    const cat = cleanCat(get('cat'), this.env);
     if (cat) this.cat = cat;
     const r = parseInt(get('rounds'), 10), d = parseInt(get('dur'), 10), b = parseInt(get('bots'), 10), l = parseInt(get('botlvl'), 10);
     if (ROUNDS.includes(r)) this.opts.rounds = r;

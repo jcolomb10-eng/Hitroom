@@ -1,7 +1,7 @@
 // Point d'entrée : sert le site (dossier public/) et les routes /api/.
 import { Room } from './room.js';
 import { Hub, season } from './hub.js';
-import { CAT_IDS, rankedCats } from './catalog.js';
+import { CAT_IDS, rankedCats, catOpen } from './catalog.js';
 import { publicKey } from './ids.js';
 import { parisDay, dayAdd } from './social.js';
 
@@ -52,7 +52,7 @@ export default {
       return toRoom(req, env, 'pub:' + m[1], true);
     }
     if ((m = path.match(/^\/api\/open\/([a-z0-9]+)\/ws$/))) {
-      if (!CAT_IDS.has(m[1])) return json({ error: 'catégorie inconnue' }, 404);
+      if (!CAT_IDS.has(m[1]) || !catOpen(m[1], env)) return json({ error: 'catégorie inconnue' }, 404);
       return toRoom(req, env, 'open:' + m[1], false);
     }
     if ((m = path.match(/^\/api\/solo\/([A-Za-z0-9]{6,16})\/ws$/))) return toRoom(req, env, 'solo:' + m[1], false);
