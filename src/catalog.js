@@ -252,7 +252,7 @@ On ne change pas | Céline Dion | fr
 Tandem | Vanessa Paradis | fr
 Be My Baby | Vanessa Paradis
 La corrida | Francis Cabrel | fr
-Belle | Garou ~ Daniel Lavoie ~ Patrick Fiori | fr
+Juste quelqu'un de bien | Enzo Enzo | fr
 Le temps des cathédrales | Bruno Pelletier | fr
 Qui a le droit | Patrick Bruel | fr
 Alors regarde | Patrick Bruel | fr
@@ -494,7 +494,7 @@ This Is What You Came For | Calvin Harris ~ Rihanna
 Wrecking Ball | Miley Cyrus
 Born This Way | Lady Gaga
 Blurred Lines | Robin Thicke
-Timber | Pitbull ~ Kesha
+Wild Ones | Flo Rida ~ Sia
 Give Me Everything | Pitbull
 On the Floor | Jennifer Lopez
 Danza Kuduro | Don Omar
@@ -705,7 +705,7 @@ Le lundi au soleil | Claude François ~ Cloclo | fr
 Bambino | Dalida | fr
 Gigi l'amoroso | Dalida | fr
 Il venait d'avoir 18 ans | Dalida | fr
-Laissez-moi danser ~ Laissez-moi danser (Monday, Tuesday) | Dalida | fr
+La Mamma | Charles Aznavour | fr
 Mourir sur scène | Dalida | fr
 Salma ya salama | Dalida | fr
 Les mots bleus | Christophe | fr
@@ -732,7 +732,7 @@ Le paradis blanc | Michel Berger | fr
 Et maintenant | Gilbert Bécaud | fr
 Nathalie | Gilbert Bécaud | fr
 L'important c'est la rose | Gilbert Bécaud | fr
-Mon vieux | Daniel Guichard | fr
+Le métèque | Georges Moustaki | fr
 Je suis malade | Serge Lama | fr
 SOS d'un terrien en détresse | Daniel Balavoine | fr
 La chanson des Restos | Les Enfoirés | fr
@@ -1199,7 +1199,7 @@ God Is a DJ | Faithless
 Ecuador | Sash!
 Ocean Drive | Duke Dumont
 Where Are You Now | Lost Frequencies ~ Calum Scott
-Losing It | Fisher
+Kids | MGMT
 Mr. Vain | Culture Beat
 No Limit | 2 Unlimited
 Be My Lover | La Bouche
