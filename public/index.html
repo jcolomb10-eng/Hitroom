@@ -375,7 +375,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .msg.sys{color:var(--dim);font-style:italic}
 .msg.mine b{color:var(--pink)}
 .chatin{display:flex;gap:8px;margin-top:8px}
-.chatin input{flex:1;height:42px;border-radius:12px;border:1.5px solid rgba(var(--glow),.35);background:#0b070e;padding:0 12px;font-size:15px;outline:none}
+.chatin input{flex:1;min-width:0;height:42px;border-radius:12px;border:1.5px solid rgba(var(--glow),.35);background:#0b070e;padding:0 12px;font-size:15px;outline:none}
 .chatin input:focus{border-color:var(--pink)}
 .actions{display:flex;gap:10px;padding:10px 0 max(12px,env(safe-area-inset-bottom))}
 .actions .ghost{flex:none;flex-direction:column;gap:2px;font-size:11px;min-width:76px}
@@ -566,6 +566,18 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .tg::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
 .tg.on{background:var(--blue);box-shadow:0 0 10px rgba(61,123,255,.6)}
 .tg.on::after{left:23px}
+.fsz{display:flex;gap:4px;flex:none}
+.fsz button{min-width:40px;height:32px;border-radius:9px;border:1.5px solid rgba(var(--glow),.35);background:#0f0a13;font-weight:800;line-height:1}
+.fsz button.on{background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk);border-color:transparent}
+/* confort (Paramètres) : taille du texte (zoom des zones de lecture), mode daltonien (vert → bleu, rouge → orange) */
+:root[data-fs="1"] .scroll,:root[data-fs="1"] .sheet .box,:root[data-fs="1"] .reveal{zoom:1.12}
+:root[data-fs="2"] .scroll,:root[data-fs="2"] .sheet .box,:root[data-fs="2"] .reveal{zoom:1.25}
+:root[data-cb]{--green:#4aa8ff;--red:#ff9a1f}
+:root[data-cb] .guess input.hit{box-shadow:0 0 22px rgba(74,168,255,.7)}
+:root[data-cb] .found div.ok{color:#e3f1ff;box-shadow:0 0 12px rgba(74,168,255,.35);background:#0b1422}
+:root[data-cb] .fe.artist{border-color:rgba(74,168,255,.75);background:rgba(74,168,255,.08)}
+:root[data-cb] .fe.artist b,:root[data-cb] .fe.artist em{color:#9fd0ff}
+:root[data-cb] .ptsgrid div.up{color:#7dbdff;border-color:rgba(74,168,255,.35)}
 input[type=range]{accent-color:var(--gold);width:120px}
 
 /* rangs, cadres exclusifs et animations des dessins (public/art.js) */
@@ -764,6 +776,69 @@ svg.med{flex:none;overflow:visible}
 .onb .avgrid{width:100%}
 .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
 .spin{width:38px;height:38px;border-radius:50%;border:4px solid #2a2233;border-top-color:var(--pink);animation:spin 1s linear infinite;margin:0 auto 12px}
+
+/* ---------- thème clair (Paramètres → Thème clair) : fond clair, cartes blanches, texte foncé ;
+   les couleurs d'accent restent celles du thème acheté ; avatars et pochettes gardent leur fond sombre ---------- */
+:root[data-light]{--bg:#f6f1f9;--cardA:#ffffff;--cardB:#fbf7fd;--ink:#1d1424;--muted:#665775;--dim:#9a8ca8;--gold:#b46400;--gold2:#9a5600;--green:#0d9a4f;--red:#d42a3f;--pink:#e0127a;--line:#e4d9ec}
+:root[data-light][data-cb]{--green:#1f6fd1;--red:#cf6a00}
+:root[data-light][data-theme="lumiere"],:root[data-light][data-theme="champagne"]{--glow:205,150,60}
+:root[data-light][data-theme="diamant"]{--glow:90,140,220}
+:root[data-light][data-theme="orrose"]{--glow:205,115,100}
+:root[data-light],:root[data-light] body{background:#e8e0ee}
+:root[data-light] #app{background:radial-gradient(120% 60% at 50% -10%,rgba(var(--glow),.16),transparent 60%),radial-gradient(90% 50% at 50% 110%,rgba(var(--glow2,163,77,255),.1),transparent 60%),var(--bg)}
+:root[data-light] .card{box-shadow:0 2px 14px rgba(var(--glow),.16)}
+:root[data-light] .ibtn,:root[data-light] .ghost,:root[data-light] .pill,:root[data-light] .fav,:root[data-light] .why button,:root[data-light] .seg button,:root[data-light] .fsz button,
+:root[data-light] .defi2 .act .rr2,:root[data-light] .defi .rr2,:root[data-light] .reacts button,:root[data-light] .reacts.float,:root[data-light] .md,:root[data-light] .tiers>div,
+:root[data-light] .seasons div,:root[data-light] .ptsgrid div,:root[data-light] .segs button{background:#fff;color:var(--ink)}
+:root[data-light] .md,:root[data-light] .tiers>div,:root[data-light] .seasons div,:root[data-light] .ptsgrid div,:root[data-light] .segs button{border-color:var(--line)}
+:root[data-light] .segs button{color:var(--muted)}
+:root[data-light] .segs button.on{color:var(--ink);border-color:var(--gold2)}
+:root[data-light] .seg button.on,:root[data-light] .fsz button.on{background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk)}
+:root[data-light] .tabs{background:#efe7f4}
+:root[data-light] .tag.bot{background:#eee6f3;color:#5d4f6b}
+:root[data-light] .pstats b,:root[data-light] .dhead .dring span,:root[data-light] .md b,:root[data-light] .mlv b,:root[data-light] .pc-rank b,:root[data-light] .fxstrip div.it b{color:var(--ink)}
+:root[data-light] .dhead span,:root[data-light] .seasonb .rd,:root[data-light] .mode .live,:root[data-light] .mode.ranked .cl,:root[data-light] .mode.small .d,:root[data-light] .mode.friends .d,:root[data-light] .mode.ranked .rk em{color:var(--muted)}
+:root[data-light] .defi2 .rwd em{background:#f6eef9}
+:root[data-light] .bar,:root[data-light] .tg:not(.on),:root[data-light] .spin{background-color:#e4dbea;border-color:#e4dbea}
+:root[data-light] .deal.lead{--ink:#fff;--muted:#d9cde5;--gold2:#ffd85c;color:#fff}
+:root[data-light] .fab{background:#fff;color:var(--ink)}
+:root[data-light] .spin{border-top-color:var(--pink)}
+:root[data-light] .bgvid,:root[data-light] .home-shade{display:none}
+:root[data-light] .mode{color:var(--ink)}
+:root[data-light] .mode.ranked{background:radial-gradient(120% 90% at 100% 50%,rgba(255,46,147,.14),transparent 60%),linear-gradient(180deg,#fff,#fdf3f8)}
+:root[data-light] .mode.ranked .rk{color:var(--ink)}
+:root[data-light] .mode.ranked .eb{color:#c4106b}
+:root[data-light] .mode.open{background:radial-gradient(90% 70% at 85% 15%,rgba(47,212,255,.16),transparent 60%),linear-gradient(180deg,#fff,#f1f9fd)}
+:root[data-light] .mode.open .eb{color:#0b7fa8}
+:root[data-light] .mode.solo{background:radial-gradient(90% 70% at 85% 15%,rgba(163,77,255,.14),transparent 60%),linear-gradient(180deg,#fff,#f7f1fd)}
+:root[data-light] .mode.solo .eb{color:#7a35cc}
+:root[data-light] .seasonb .hotx{color:#c4106b}
+:root[data-light] .hero{background:radial-gradient(60% 70% at 50% 100%,rgba(255,46,147,.3),transparent 70%),radial-gradient(40% 60% at 20% 0%,rgba(255,138,31,.25),transparent 70%),radial-gradient(40% 60% at 80% 0%,rgba(163,77,255,.25),transparent 70%),#2a1433}
+:root[data-light] .big.main{background:linear-gradient(90deg,rgba(255,46,147,.16),rgba(163,77,255,.08) 60%,#fff)}
+:root[data-light] .tabbar{background:rgba(255,255,255,.96);box-shadow:0 -4px 18px rgba(80,40,100,.1)}
+:root[data-light] .tabbar button{color:#8a7b98}
+:root[data-light] .cat.sel{background:linear-gradient(180deg,#ffe8f3,#fff)}
+:root[data-light] .chatin input,:root[data-light] .guess input,:root[data-light] .codein,:root[data-light] .txtin{background:#fff;color:var(--ink)}
+:root[data-light] .chip{background:#fff3ec}
+:root[data-light] .chip.bonus{background:#fff8e6}
+:root[data-light] .ring svg circle:first-child{stroke:#e8dfee}
+:root[data-light] .ring .n{text-shadow:none}
+:root[data-light] .found div{background:#fff;border-color:var(--line)}
+:root[data-light] .found div.ok{color:#0a5a2f;background:#e9f9f0;border-color:var(--green)}
+:root[data-light][data-cb] .found div.ok{color:#0d3f7a;background:#e8f2ff}
+:root[data-light] .fe.artist b,:root[data-light] .fe.artist em{color:#0b7d3f}
+:root[data-light][data-cb] .fe.artist b,:root[data-light][data-cb] .fe.artist em{color:#1b5fb4}
+:root[data-light] .fe.title b,:root[data-light] .fe.title em{color:#2453c9}
+:root[data-light] .fe.both b,:root[data-light] .fe.both em{color:#c4106b}
+:root[data-light] .ptsgrid div.up{color:#0b7d3f}
+:root[data-light] .rr.me{background:linear-gradient(90deg,rgba(255,200,60,.22),#fff)}
+:root[data-light] .node .num{background:#efe7f4}
+:root[data-light] .overlay{background:rgba(246,241,249,.9)}
+:root[data-light] .sheet{background:rgba(40,20,50,.35)}
+:root[data-light] #toast{background:#fff;box-shadow:0 6px 24px rgba(60,30,80,.2)}
+:root[data-light] .codebox .code b{text-shadow:none}
+:root[data-light] .av .rk{border-color:#fff}
+@media(min-width:520px){:root[data-light] #app{border-color:#ddd2e6}}
 </style>
 </head>
 <body>
@@ -815,7 +890,7 @@ svg.med{flex:none;overflow:visible}
     <button class="mode ranked" id="bPlay"></button>
     <div class="mode-row">
       <button class="mode small open" id="bOpen"><img src="/av/A12.webp" alt=""><span class="eb">MULTIJOUEUR</span><b>Non classé</b><span class="d">Tout le monde mélangé, sans rang</span><span class="live off" id="openLive"><i></i>Ouvert 24h/24</span></button>
-      <button class="mode small solo" id="bSolo"><img src="/av/A11.webp" alt=""><span class="eb">ENTRAÎNEMENT</span><b>Solo</b><span class="d">Contre des bots, sans attente</span><span class="d" style="color:#9c8fac">Difficulté au choix</span></button>
+      <button class="mode small solo" id="bSolo"><img src="/av/A11.webp" alt=""><span class="eb">ENTRAÎNEMENT</span><b>Solo</b><span class="d">Contre des bots, sans attente</span><span class="d" style="color:var(--dim)">Difficulté au choix</span></button>
     </div>
     <div class="card mode friends">
       <div class="fh"><img src="/av/A02.webp" alt=""><div><b>Entre amis</b><span class="d">Salon privé avec un code, sans points de rang</span></div></div>
@@ -2356,7 +2431,7 @@ function medalSheet(m) {
   const l = medalLevel(m), v = m.v(S.st);
   openSheet(`<h3>${m.name} <button data-close data-i="x"></button></h3>
     <div class="mlv">${m.steps.map((x, i) => `<div class="${l > i ? '' : 'lock'}">${HitArt.medal(m.icon, i, 62)}<b>${MEDAL_LV[i]}</b>${m.low ? `moins de ${fmtNum(x)} s` : `${fmt(x)} ${m.unit}`}<em><span class="coin">$</span> ${fmt(m.coins[i])}</em></div>`).join('')}</div>
-    <p>Ton record : <b style="color:#fff">${m.low ? (v ? fmtNum(v) + ' s pour trouver une réponse' : 'pas encore') : `${fmt(v)} ${m.unit}`}</b></p>
+    <p>Ton record : <b style="color:var(--ink)">${m.low ? (v ? fmtNum(v) + ' s pour trouver une réponse' : 'pas encore') : `${fmt(v)} ${m.unit}`}</b></p>
     <p>${l >= 3 ? '🏷️ Titre débloqué' : '🏷️ Au niveau Or, tu débloques le titre'} « <b style="color:var(--gold2)">${MEDAL_TITLE[m.id]}</b> ».</p>
     <button class="cta" data-close>OK</button>`);
 }
@@ -2818,6 +2893,15 @@ function applyTheme(id = S.theme) {
   clearInterval(auroraT);
   root.style.removeProperty('--glow');
   if (th.anim) { let i = 0; auroraT = setInterval(() => root.style.setProperty('--glow', AURORA[++i % AURORA.length]), 2500); }
+  applyComfort();
+}
+// réglages de confort : taille du texte (0, 1, 2), mode daltonien, thème clair
+function applyComfort() {
+  const root = document.documentElement;
+  if (S.set.fs) root.dataset.fs = S.set.fs; else delete root.dataset.fs;
+  if (S.set.cb) root.dataset.cb = '1'; else delete root.dataset.cb;
+  if (S.set.light) root.dataset.light = '1'; else delete root.dataset.light;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', S.set.light ? '#f7f2fa' : '#060408');
 }
 
 // ---------- réglages ----------
@@ -2832,6 +2916,9 @@ function renderSettings() {
     ${tg('others', '👥', 'Messages des autres joueurs')}
     ${tg('reacts', '👏', 'Réactions des autres joueurs')}
     ${tg('live', '👁️', 'Réponses trouvées visibles en direct')}
+    <div class="card set"><span class="e">🔠</span><span>Taille du texte</span><div class="fsz" id="fsSeg">${['A', 'A+', 'A++'].map((l, i) => `<button data-fs="${i}" class="${(S.set.fs || 0) === i ? 'on' : ''}" style="font-size:${12 + 2 * i}px" aria-label="Taille ${i + 1}">${l}</button>`).join('')}</div></div>
+    ${tg('light', '☀️', 'Thème clair')}
+    ${tg('cb', '🌈', 'Mode daltonien (bleu et orange au lieu de vert et rouge)')}
     <button class="card li" data-go2="shop" data-tab2="themes"><span class="e">🎨</span><span>Thème</span><span class="muted">${THEMES.find(t => t.id === S.theme)?.name || 'Or'}</span><span class="chev">›</span></button>
     <button class="card li" data-go2="profile"><span class="e">👤</span><span>Pseudo et avatar</span><span class="chev">›</span></button>
     <button class="card li" id="blockBtn"><span class="e">🚫</span><span>Joueurs bloqués</span><span class="muted">${(S.blocked || []).length}</span><span class="chev">›</span></button>
@@ -2839,7 +2926,8 @@ function renderSettings() {
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
     <button class="card li" id="resetBtn"><span class="e">🗑️</span><span>Effacer mes données</span><span class="chev">›</span></button>
     <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
-  $$('[data-tg]').forEach(b => b.onclick = () => { S.set[b.dataset.tg] = !S.set[b.dataset.tg]; save(); b.classList.toggle('on', S.set[b.dataset.tg]); unlock(); ambUpdate(); paintMusic(); });
+  $$('[data-tg]').forEach(b => b.onclick = () => { S.set[b.dataset.tg] = !S.set[b.dataset.tg]; save(); b.classList.toggle('on', S.set[b.dataset.tg]); unlock(); ambUpdate(); paintMusic(); applyComfort(); });
+  $$('#fsSeg [data-fs]').forEach(b => b.onclick = () => { S.set.fs = +b.dataset.fs; save(); applyComfort(); $$('#fsSeg [data-fs]').forEach(x => x.classList.toggle('on', x === b)); });
   $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); if (amb.gain) amb.gain.gain.value = AMB_VOL * S.set.vol; };
   $$('[data-go2]').forEach(b => b.onclick = () => { if (b.dataset.tab2) setShopTab(b.dataset.tab2); go(b.dataset.go2); });
   $('#rulesBtn').onclick = rules;
