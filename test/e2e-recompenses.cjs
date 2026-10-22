@@ -77,6 +77,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
 
   // boutique : cadres de rang débloqués jusqu'à Maître, affichés tout seuls en classé (version 1.8 : plus à choisir)
   await page.click('[data-go="shop"]');
+  await page.click('[data-st="frames"]');
   await sleep(400);
   await page.click('[data-it="r8"]');
   ok((await page.textContent('#toast')).includes('Grand Maître'), 'cadre Grand Maître : rang pas atteint');

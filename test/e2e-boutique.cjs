@@ -54,8 +54,31 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await page.waitForSelector('#v-home:not(.hide)');
   ok(await theme() === 'or', 'en quittant la boutique, retour au thème Or');
 
-  // 2 bis. thèmes de luxe : aperçu puis achat depuis la barre d'aperçu
+  // 1 ter. offres du jour (onglet « À la une ») : 3 objets en promo, prix réduit, le même tirage toute la journée
   await patch(S => { S.coins = 200000; });
+  await page.click('[data-go="shop"]');
+  await page.click('[data-st="deals"]');
+  await sleep(300);
+  const deals = await page.$$eval('#shopGrid [data-offer]', b => b.map(x => x.dataset.offer));
+  ok(deals.length === 3 && await page.$('#shopGrid .deal.hero .off'), `offres du jour : 3 objets en promo (${deals.join(', ')})`);
+  const c0 = (await state()).coins;
+  const promo = +(await page.textContent('#shopGrid .deal.hero .newp')).replace(/\D/g, '');
+  await page.click('#shopGrid .deal.hero');
+  await sleep(300);
+  const Sd = await state(), [dk, did] = deals[0].split(':');
+  const owned = dk === 'frame' ? Sd.owned.includes(did) : dk === 'theme' ? Sd.themes.includes(did) : dk === 'perk' ? Sd.perks.includes(did) : Sd.avs.includes(did);
+  ok(owned && c0 - Sd.coins === promo, `offre à la une achetée au prix réduit (${deals[0]}, −${c0 - Sd.coins} pièces)`);
+  ok((await page.textContent('#shopGrid .deal.hero')).includes('Déjà à toi'), 'offre achetée : « Déjà à toi »');
+  await shot(page, 'b00b_offres_du_jour');
+  await page.reload();
+  await page.waitForSelector('#v-home:not(.hide)');
+  await page.click('[data-go="shop"]');
+  await page.click('[data-st="deals"]');
+  ok((await page.$$eval('#shopGrid [data-offer]', b => b.map(x => x.dataset.offer))).join() === deals.join(), 'mêmes offres toute la journée, même après un achat');
+  await page.goBack();
+
+  // 2 bis. thèmes de luxe : aperçu puis achat depuis la barre d'aperçu
+  await patch(S => { S.coins = 200000; S.theme = 'or'; delete S.deals; });
   await page.click('[data-go="shop"]');
   await page.click('[data-st="themes"]');
   await page.click('[data-kind="theme"][data-it="lumiere"]');

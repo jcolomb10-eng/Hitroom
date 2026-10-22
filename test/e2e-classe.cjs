@@ -100,6 +100,7 @@ const ok = (cond, label) => { console.log(cond ? '✅' : '❌', label); if (!con
   await sleep(800);
   await page.screenshot({ path: OUT + '/c06_classement_saison.png' });
   ok((await page.textContent('#boardList')).includes('PR'), 'classement de la saison en points de rang');
+  ok(await page.$('#boardList .podium3 .pd.p1:not(.empty) .crown'), 'classement : podium avec la couronne du 1er');
   await page.goBack();
 
   // salon privé : partie amicale et niveau des bots

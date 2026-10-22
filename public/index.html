@@ -70,9 +70,119 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk)}
 .tag.bot{background:#2a2235;color:#c9bcd8}
 .muted{color:var(--muted)}
-.tabs{display:flex;gap:8px;margin:4px 0 12px}
-.tabs button{flex:1;height:38px;border-radius:10px;font-size:13px;font-weight:600;border:1.5px solid rgba(var(--glow),.35);background:#0f0a13;color:var(--muted)}
-.tabs button.on{background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk);border-color:transparent}
+.tabs{display:flex;gap:4px;margin:2px 0 12px;padding:4px;border-radius:14px;background:#0d0911;border:1px solid rgba(var(--glow),.25)}
+.tabs button{flex:1;min-width:0;height:34px;border-radius:10px;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.tabs button.on{background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk);box-shadow:0 0 12px rgba(var(--glow),.35)}
+/* ---------- en-tête des onglets (version 1.9) ---------- */
+.ttop{display:flex;align-items:center;gap:10px;min-height:54px;margin:2px 0 10px}
+.ttop h2{flex:1;min-width:0;margin:0;font-size:27px;font-weight:800;line-height:1.05}
+.ttop h2 small{display:block;font-size:11px;font-weight:700;letter-spacing:1.6px;color:var(--gold2);margin-bottom:3px}
+.psec{display:flex;align-items:baseline;gap:8px;margin:18px 2px 8px;font-size:11px;font-weight:700;letter-spacing:1.6px;color:var(--gold2);text-transform:uppercase}
+.psec span{margin-left:auto;color:var(--muted);letter-spacing:0;font-weight:600;text-transform:none;font-size:12px}
+/* anneau de progression (défis, XP du profil) */
+.pring circle.v{animation:ringin 1.1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes ringin{from{stroke-dashoffset:var(--c)}}
+/* ---------- profil ---------- */
+.phero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 14px 16px;overflow:hidden;border-radius:22px}
+.phero::before{content:'';position:absolute;inset:-40% -20% auto;height:80%;background:radial-gradient(closest-side,rgba(var(--glow),.25),transparent);pointer-events:none}
+.phero .pav{position:relative;width:132px;height:132px;display:grid;place-items:center}
+.phero .pav>svg{position:absolute;inset:0}
+.phero .pav .plv{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;color:var(--ctaInk);background:linear-gradient(180deg,var(--cta1),var(--cta2));box-shadow:0 0 12px rgba(var(--glow),.5);white-space:nowrap}
+.phero .pname{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:22px;font-weight:800}
+.phero .pname button{color:var(--muted)}
+.phero .ttl{font-size:13px;margin-top:2px}
+.phero .pxp{font-size:12px;color:var(--muted);margin-top:4px}
+.pchips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.pchip{display:flex;align-items:center;gap:8px;padding:10px;border-radius:16px;text-align:left;min-width:0}
+.pchip>span:last-child{display:flex;flex-direction:column;min-width:0}
+.pchip small{font-size:10.5px;color:var(--muted)}
+.pchip b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pchip em{font-style:normal;font-size:11px;color:var(--gold2);font-weight:700}
+.pchip .coin{width:26px;height:26px;font-size:13px;flex:none}
+.pchip .pbig{font-size:24px;flex:none}
+.pstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px;border-radius:16px;margin-top:8px}
+.pstats div{display:flex;flex-direction:column;font-size:11.5px;color:var(--muted)}
+.pstats b{font-size:16px;color:#fff}
+/* ---------- classement : podium ---------- */
+.bnote{margin:0 2px 10px;font-size:12px;color:var(--muted)}
+.podium3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:8px;margin:4px 0 14px;padding-top:26px}
+.pd{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;position:relative}
+.pd .pdav{position:relative;animation:pdpop .5s cubic-bezier(.2,1.4,.4,1) both}
+.pd .crown{position:absolute;top:-24px;left:50%;transform:translateX(-50%) rotate(-8deg);font-size:24px;filter:drop-shadow(0 0 8px rgba(255,200,60,.9));animation:crown 2.4s ease-in-out infinite}
+.pd b{display:block;max-width:100%;margin-top:6px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pd em{font-style:normal;font-size:12px;font-weight:800;color:var(--gold2)}
+.pd .ped{width:100%;margin-top:6px;border-radius:12px 12px 4px 4px;display:grid;place-items:start center;padding-top:8px;font-size:26px;font-weight:900;color:rgba(0,0,0,.45);transform-origin:bottom;animation:pdgrow .7s cubic-bezier(.2,.9,.3,1) both;position:relative;overflow:hidden}
+.pd .ped::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);background-size:250% 100%;animation:sheen 3.6s ease-in-out infinite}
+.pd.p1 .ped{height:96px;background:linear-gradient(180deg,#fff1a8,#ffc531 45%,#b77a00);box-shadow:0 0 22px rgba(255,197,49,.55);animation-delay:.35s}
+.pd.p2 .ped{height:70px;background:linear-gradient(180deg,#ffffff,#c3cad6 45%,#6c7586);box-shadow:0 0 16px rgba(220,230,255,.35);animation-delay:.15s}
+.pd.p3 .ped{height:54px;background:linear-gradient(180deg,#ffd9b8,#d08850 45%,#7a3f16);box-shadow:0 0 14px rgba(255,140,60,.35);animation-delay:.25s}
+.pd.p1 .pdav{animation-delay:.75s}.pd.p2 .pdav{animation-delay:.55s}.pd.p3 .pdav{animation-delay:.65s}
+.pd.me b{color:var(--gold2)}
+.pd.empty{opacity:.35}
+.pd .tw{position:absolute;font-size:12px;color:#fff6c9;text-shadow:0 0 8px #ffd85c;animation:tw 1.8s ease-in-out infinite}
+@keyframes pdgrow{from{transform:scaleY(0)}}
+@keyframes pdpop{from{opacity:0;transform:translateY(16px) scale(.6)}}
+@keyframes crown{50%{transform:translateX(-50%) rotate(6deg) translateY(-3px)}}
+.rr .sub{display:block;font-size:11px;font-weight:500;color:var(--muted)}
+.rsep{text-align:center;color:var(--muted);letter-spacing:4px;margin:2px 0}
+/* ---------- défis ---------- */
+.dhead{display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;margin-bottom:10px}
+.dhead>div:first-child{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.dhead small{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--gold2)}
+.dhead b{font-size:20px}
+.dhead span{font-size:12.5px;color:#c9bcd8}
+.dring{position:relative;flex:none;display:grid;place-items:center}
+.dring>svg{display:block;flex:none}
+.dhead .dring span{font-size:15px;color:#fff}
+.dring>span{position:absolute;inset:0;display:grid;place-items:center;font-size:20px}
+.dring.dbig>span{font-size:15px;font-weight:800}
+.defi2{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px}
+.defi2 .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.defi2 .mid b{font-size:14.5px;font-weight:700}
+.defi2 .pg{font-size:12px;color:var(--muted)}
+.defi2 .rwd{display:flex;gap:6px;flex-wrap:wrap}
+.defi2 .rwd em{display:inline-flex;align-items:center;gap:4px;font-style:normal;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:9px;background:#170f1d;border:1px solid rgba(var(--glow),.3);color:var(--gold2)}
+.defi2 .rwd .coin{width:14px;height:14px;font-size:8px}
+.defi2 .act{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.defi2 .act button[data-claim]{padding:9px 12px;border-radius:11px;font-size:13px;font-weight:800;background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk);box-shadow:0 0 16px rgba(var(--glow),.55);animation:claimp 1.6s ease-in-out infinite}
+.defi2 .act .rr2{font-size:11.5px;font-weight:700;padding:6px 9px;border-radius:10px;border:1px solid rgba(var(--glow),.45);background:#0f0a13;color:#fff}
+.defi2 .act .okk{font-size:22px}
+.defi2.ready{border-color:var(--gold2);box-shadow:0 0 20px rgba(var(--glow),.4)}
+.defi2.got{opacity:.6}
+@keyframes claimp{50%{transform:scale(1.06)}}
+/* ---------- boutique : offres du jour, raretés ---------- */
+.dealhd{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:0 0 2px}
+.dealhd b{font-size:16px}
+.dealhd span{margin-left:auto;font-size:12px;color:#ff8cc6;font-weight:700}
+.dealrow{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.deal{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px 12px;border-radius:18px;text-align:center;overflow:hidden}
+.deal.hero{grid-column:1/-1;flex-direction:row;text-align:left;gap:14px;padding:16px}
+.deal.hero .dpic{flex:none;width:120px;display:grid;place-items:center}
+.deal.hero .dtx{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.deal .dpic{display:grid;place-items:center;min-height:78px}
+.deal .dpic .sw{width:64px;height:64px}
+.deal .dpic .pi{font-size:46px;line-height:1}
+.deal b{font-size:15px}
+.deal.hero b{font-size:19px}
+.deal .dk{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase}
+.deal .old{font-size:12px;color:var(--muted);text-decoration:line-through}
+.deal .newp{display:inline-flex;align-items:center;gap:5px;font-size:17px;font-weight:900;color:var(--gold2)}
+.deal .off{position:absolute;top:10px;right:10px;padding:4px 8px;border-radius:9px;font-size:12px;font-weight:900;background:linear-gradient(180deg,#ff6ab8,#e0127a);color:#fff;box-shadow:0 0 12px rgba(255,46,147,.6)}
+.deal .owned{font-size:13px;font-weight:700;color:var(--green)}
+.deal.done{opacity:.55}
+.qlinks{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.qlink{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;text-align:left}
+.qlink .pi{font-size:26px}
+.qlink b{display:block;font-size:14px}
+.qlink small{font-size:11.5px;color:var(--muted)}
+.rar{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:8px}
+.rar.r-c{color:#b8c4d6;background:rgba(184,196,214,.12)}
+.rar.r-r{color:#7bc4ff;background:rgba(61,123,255,.16)}
+.rar.r-e{color:#d6a8ff;background:rgba(163,77,255,.2)}
+.rar.r-l{color:#ffd85c;background:rgba(255,197,49,.18)}
+.item.rar-r{border-color:rgba(61,123,255,.6)}
+.item.rar-e{border-color:rgba(163,77,255,.7);box-shadow:0 0 16px rgba(163,77,255,.25)}
+.item.rar-l{border-color:rgba(255,197,49,.8);box-shadow:0 0 18px rgba(255,197,49,.3)}
 .bar{height:7px;border-radius:9px;background:#2a2233;overflow:hidden}
 .bar>i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--amber),var(--gold2))}
 .coin{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3a8,#ffbf1f 55%,#c97a00);color:#7a4300;font-size:11px;font-weight:900;box-shadow:0 0 8px rgba(255,190,40,.6)}
@@ -546,6 +656,7 @@ svg.med{flex:none;overflow:visible}
 .prevbar .ghost{min-height:44px;padding:0 12px;font-size:14px;flex:none}
 #v-shop.previewing .scroll{padding-bottom:96px}
 .shop .hint{grid-column:1/-1;margin:0 0 2px;font-size:12.5px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){.pd .ped,.pd .pdav,.pd .crown,.pd .ped::after,.pring circle.v,.defi2 .act button[data-claim]{animation:none}}
 /* boutique : objets et prestige */
 .obj{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:12px;text-align:left;border-radius:14px;position:relative}
 .obj>.e{font-size:30px;flex:none;width:44px;text-align:center}
@@ -746,29 +857,28 @@ svg.med{flex:none;overflow:visible}
 
 <!-- ===== 6. Profil ===== -->
 <section class="view hide" id="v-profile">
-  <div class="top"><button class="ibtn back" data-i="back"></button><h2>Profil</h2><button class="ibtn" id="profSet" data-i="gear" aria-label="Paramètres"></button></div>
+  <div class="ttop"><h2><small>MA PROGRESSION</small>Profil</h2><button class="ibtn" id="profSet" data-i="gear" aria-label="Paramètres"></button></div>
   <div class="scroll" id="profBody"></div>
 </section>
 
 <!-- ===== 7. Classements ===== -->
 <section class="view hide" id="v-board">
-  <div class="top"><button class="ibtn back" data-i="back"></button><h2>Classements</h2><div style="width:40px"></div></div>
+  <div class="ttop"><h2><small>LES MEILLEURS JOUEURS</small>Classement</h2></div>
   <div class="tabs"><button class="on" data-bt="season">Saison actuelle</button><button data-bt="all">Tous les temps</button></div>
   <div class="scroll"><div class="ranklist" id="boardList"></div></div>
-  <div id="boardMe" style="padding:8px 0 max(12px,env(safe-area-inset-bottom))"></div>
 </section>
 
 <!-- ===== 8. Défis ===== -->
 <section class="view hide" id="v-defis">
-  <div class="top"><button class="ibtn back" data-i="back"></button><h2>Défis &amp; récompenses</h2><div style="width:40px"></div></div>
+  <div class="ttop"><h2><small>GAGNE DE L’XP ET DES PIÈCES</small>Défis</h2><div class="pill"><span class="coin">$</span><span id="defiCoins"></span></div></div>
   <div class="tabs"><button class="on" data-dt="day">Défis du jour</button><button data-dt="season">Défis de saison</button></div>
   <div class="scroll"><div class="list" id="defiList"></div></div>
 </section>
 
 <!-- ===== 9. Boutique ===== -->
 <section class="view hide" id="v-shop">
-  <div class="top"><button class="ibtn back" data-i="back"></button><h2>Boutique</h2><div class="pill"><span class="coin">$</span><span id="shopCoins"></span></div></div>
-  <div class="tabs"><button class="on" data-st="frames">Cadres</button><button data-st="themes">Thèmes</button><button data-st="items">Objets</button><button data-st="prestige">Prestige</button></div>
+  <div class="ttop"><h2><small>PERSONNALISE TON STYLE</small>Boutique</h2><div class="pill"><span class="coin">$</span><span id="shopCoins"></span></div></div>
+  <div class="tabs"><button class="on" data-st="deals">À la une</button><button data-st="frames">Cadres</button><button data-st="themes">Thèmes</button><button data-st="items">Objets</button><button data-st="prestige">Prestige</button></div>
   <div class="scroll"><div class="shop" id="shopGrid"></div><p class="muted" style="font-size:12.5px;text-align:center;margin-top:16px">Gagne des pièces en jouant et en réussissant tes défis.</p></div>
   <div class="card prevbar hide" id="prevBar"></div>
 </section>
@@ -786,6 +896,7 @@ svg.med{flex:none;overflow:visible}
   <div class="scroll"><div class="list" id="setList"></div></div>
 </section>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="ringg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset=".55" stop-color="#ffb21e"/><stop offset="1" stop-color="#ff2e93"/></linearGradient></defs></svg>
 <nav class="tabbar hide" id="tabbar" aria-label="Navigation principale">
   <button data-tab="home"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>Accueil</button>
   <button data-tab="defis" data-go="defis"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><i class="badge hide" id="defiDot"></i></span>Défis</button>
@@ -802,7 +913,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.8';
+const VERSION = '1.9';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -831,6 +942,18 @@ const P = {
   playf: '<polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/>',
   plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
 };
+// anneau de progression (pct de 0 à 1), animé à l'affichage
+function ring(pct, size = 54, w = 5) {
+  const r = (size - w) / 2, c = 2 * Math.PI * r, h = size / 2, off = c * (1 - Math.max(0, Math.min(1, pct)));
+  return `<svg class="pring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="${w}"/>`
+    + `<circle class="v" cx="${h}" cy="${h}" r="${r}" fill="none" stroke="url(#ringg)" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" style="--c:${c.toFixed(1)}" transform="rotate(-90 ${h} ${h})"/></svg>`;
+}
+// temps restant jusqu'à minuit (nouveaux défis, nouvelles offres)
+function untilMidnight() {
+  const d = new Date(), m = Math.max(1, Math.ceil((new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1) - d) / 60000));
+  return m >= 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}` : `${m} min`;
+}
+const daysLeft = () => Math.max(1, Math.ceil((new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) - Date.now()) / 86400000));
 // identifiant au hasard (partie solo)
 const rid = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => 'abcdefghijkmnpqrstuvwxyz23456789'[b % 32]).join('');
 const icon = (n, size) => `<svg class="i" viewBox="0 0 24 24"${size ? ` style="width:${size}px;height:${size}px"` : ''}>${P[n]}</svg>`;
@@ -2052,40 +2175,49 @@ $$('#tabbar [data-tab]').forEach(b => b.onclick = () => tabGo(b.dataset.tab));
 
 // ---------- profil ----------
 function renderProfile() {
-  const lv = level(), s = S.st;
+  const lv = level(), s = S.st, t = S.rank.tier;
   const rate = s.rounds ? Math.round(100 * (s.nT + s.nA) / (2 * s.rounds)) : 0;
   const nMed = MEDALS.filter(m => medalLevel(m) > 0).length;
-  $('#profBody').innerHTML = `<div class="card prof"><button id="profAv">${isRankFrame(S.fr) ? framedAvatar(S.av, S.fr, 300, 172, 96) : avHTML(S.av, S.fr, 92)}</button>
-    <div class="info"><b>${esc(S.name || 'Toi')} <button id="profEdit" data-i="edit" style="color:var(--muted)"></button></b>
-      <button id="profTitle" class="ttl" style="font-size:13px">🏷️ ${esc(titleName(S.title) || 'Choisir un titre')} ›</button>
-      <div class="rank">${tierBadge(S.rank.tier, 16)} ${TIERS[S.rank.tier].name} • ${S.rank.rp} PR</div><div>Niveau ${lv.l}</div>
-      <div class="bar"><i style="width:${100 * lv.cur / lv.need}%"></i></div><small>${fmt(lv.cur)} / ${fmt(lv.need)} XP</small></div></div>
+  $('#profBody').innerHTML = `<div class="card phero">
+      <button id="profAv" class="pav" aria-label="Changer d’avatar">${ring(lv.cur / lv.need, 132, 6)}${avHTML(S.av, S.fr, 98)}<span class="plv">Niveau ${lv.l}</span></button>
+      <div class="pname">${nameHTML({ name: S.name || 'Toi', nc: S.nc })}<button id="profEdit" data-i="edit" aria-label="Changer de pseudo"></button></div>
+      <button id="profTitle" class="ttl">🏷️ ${esc(titleName(S.title) || 'Choisir un titre')} ›</button>
+      <div class="pxp">${fmt(lv.cur)} / ${fmt(lv.need)} XP avant le niveau ${lv.l + 1}</div>
+    </div>
+    <div class="pchips">
+      <button class="card pchip" id="profRank">${tierBadge(t, 24)}<span><small>Rang</small><b>${TIERS[t].name}</b><em>${fmt(S.rank.rp)} PR</em></span></button>
+      <button class="card pchip" id="profCoins"><span class="coin">$</span><span><small>Pièces</small><b>${fmt(S.coins)}</b></span></button>
+      <button class="card pchip" id="profMeds"><span class="pbig">🏅</span><span><small>Médailles</small><b>${nMed} / ${MEDALS.length}</b></span></button>
+    </div>
+    <h4 class="psec">Statistiques</h4>
     <div class="nums"><div class="card"><b>${s.games}</b><small>Parties</small></div><div class="card"><b>${s.nA}</b><small>Artistes</small></div>
       <div class="card"><b>${s.nT}</b><small>Titres</small></div><div class="card"><b>${rate}%</b><small>Réussite</small></div></div>
+    <div class="card pstats"><div>🥇 Victoires<b>${s.wins}</b></div><div>🏆 Meilleur score<b>${s.top} pts</b></div>
+      <div>🔥 Meilleure série<b>x${s.streak}</b></div><div>⚡ Réponse la plus rapide<b>${s.fast ? fmtNum(s.fast / 1000) + ' s' : '—'}</b></div></div>
+    <h4 class="psec" id="profMedSec">Mes médailles <span>${nMed}/${MEDALS.length}</span></h4>
+    <div class="card" style="padding:10px;border-radius:16px"><div class="meds">${MEDALS.map(m => {
+      const l = medalLevel(m), v = m.v(s), next = m.steps[l];
+      const prog = l >= 4 ? 'Niveau max' : m.low ? (v ? `${fmtNum(v)} s → ${fmtNum(next)} s` : `moins de ${fmtNum(next)} s`) : `${fmt(Math.min(v, next))} / ${fmt(next)}`;
+      return `<button class="md ${l ? '' : 'lock'}" data-med="${m.id}">${medalSVG(m, l, 54)}<b>${m.name}</b>${l ? MEDAL_LV[l - 1] + '<br>' : ''}${prog}</button>`;
+    }).join('')}</div></div>
+    <h4 class="psec">Collection</h4>
     <div class="list">
-      <div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">🏅</span><span>Mes médailles</span><span class="muted">${nMed}/${MEDALS.length}</span></div>
-        <div class="meds">${MEDALS.map(m => {
-          const l = medalLevel(m), v = m.v(s), next = m.steps[l];
-          const prog = l >= 4 ? 'Niveau max' : m.low ? (v ? `${fmtNum(v)} s → ${fmtNum(next)} s` : `moins de ${fmtNum(next)} s`) : `${fmt(Math.min(v, next))} / ${fmt(next)}`;
-          return `<button class="md ${l ? '' : 'lock'}" data-med="${m.id}">${medalSVG(m, l, 54)}<b>${m.name}</b>${l ? MEDAL_LV[l - 1] + '<br>' : ''}${prog}</button>`;
-        }).join('')}</div></div>
       <button class="card li" id="profShow"><span class="e">🖼️</span><span>Ma vitrine</span><span class="muted">${showIds().map(id => medalSVG(MEDALS.find(m => m.id === id), S.medals[id] || 1, 26)).join('') || 'vide'}</span><span class="chev">›</span></button>
       <button class="card li" id="profCard"><span class="e">🪪</span><span>Voir ma carte de joueur</span><span class="chev">›</span></button>
-      <button class="card li" id="profRank"><span class="e">${tierBadge(S.rank.tier, 20)}</span><span>Mon rang de la saison</span><span class="muted">${TIERS[S.rank.tier].name}</span><span class="chev">›</span></button>
+      <button class="card li" id="profPerso"><span class="e">🎨</span><span>Cadres et thèmes</span><span class="chev">›</span></button>
       ${S.seasons.length ? `<div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">🏆</span><span>Mes saisons</span></div>
         <div class="seasons">${S.seasons.slice().reverse().map(x => `<div>${tierBadge(x.tier, 18)} ${seasonName(x.sc)} : ${TIERS[x.tier].name}</div>`).join('')}</div></div>` : ''}
-      <div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">📈</span><span>Mes statistiques</span></div>
-        <div class="muted" style="font-size:13px;line-height:1.9;margin-top:6px">🥇 Victoires : <b style="color:#fff">${s.wins}</b><br>🏆 Meilleur score : <b style="color:#fff">${s.top} pts</b><br>🔥 Meilleure série : <b style="color:#fff">x${s.streak}</b><br>⚡ Réponse la plus rapide : <b style="color:#fff">${s.fast ? fmtNum(s.fast / 1000) + ' s' : '—'}</b></div></div>
-      <button class="card li" id="profPerso"><span class="e">🎨</span><span>Cadres et thèmes</span><span class="chev">›</span></button>
     </div>`;
   paintIcons($('#profBody'));
   $('#profAv').onclick = () => avatarSheet();
   $('#profEdit').onclick = () => nameSheet();
   $('#profTitle').onclick = () => titleSheet();
-  $('#profPerso').onclick = () => go('shop');
+  $('#profPerso').onclick = () => { setShopTab('frames'); tabGo('shop'); };
   $('#profRank').onclick = () => rankSheet();
+  $('#profCoins').onclick = () => tabGo('shop');
+  $('#profMeds').onclick = () => $('#profMedSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('#profShow').onclick = () => showcaseSheet();
-  $('#profCard').onclick = () => playerCard({ name: S.name, av: S.av, fr: S.fr, lvl: level().l, tier: S.rank.tier, title: S.title, show: showStr().split(',').filter(Boolean) });
+  $('#profCard').onclick = () => playerCard({ name: S.name, av: S.av, fr: S.fr, lvl: level().l, tier: S.rank.tier, title: S.title, nc: S.nc, show: showStr().split(',').filter(Boolean) });
   $$('#profBody [data-med]').forEach(b => b.onclick = () => medalSheet(MEDALS.find(m => m.id === b.dataset.med)));
   loadMe();
 }
@@ -2184,14 +2316,24 @@ $$('[data-bt]').forEach(b => b.onclick = () => { boardTab = b.dataset.bt; $$('[d
 async function loadBoard() {
   const list = $('#boardList');
   list.innerHTML = '<div class="empty"><div class="spin"></div>Chargement…</div>';
-  $('#boardMe').innerHTML = '';
   let d;
   try { d = await (await fetch(`/api/board?sc=${boardTab}&uid=${S.uid}`)).json(); } catch (e) { list.innerHTML = '<div class="empty">Pas de connexion internet ?</div>'; return; }
-  if (!d.top.length) { list.innerHTML = `<div class="empty">${d.ranked ? 'Personne n’a encore joué de partie classée cette saison.' : 'Personne n’a encore marqué de points.'}<br>À toi de jouer ! 🎵</div>`; return; }
-  const row = (p, n) => `<div class="card rr ${p.me ? 'me' : ''}"><span class="n">${n}</span>${avHTML(p.av, d.ranked ? 'r' + p.tier : isRankFrame(p.fr) ? 'def' : p.fr, 32)}<b>${d.ranked ? tierBadge(p.tier, 18) + ' ' : ''}${esc(p.name)}${p.me ? ' (toi)' : ''}</b><em>${d.ranked ? `${fmt(p.rp)} PR` : `${fmt(p.pts)} pts`}</em></div>`;
-  list.innerHTML = d.top.map((p, i) => row(p, i + 1)).join('');
-  if (d.me && d.me.rank > d.top.length) $('#boardMe').innerHTML = row(d.me, d.me.rank);
-  list.insertAdjacentHTML('afterbegin', `<p class="note">${boardTab === 'season' ? `Saison de ${seasonName(d.season)} • points de rang • fin le ${seasonEnd()}` : 'Total des points marqués depuis le début'}</p>`);
+  const note = `<p class="bnote">${boardTab === 'season' ? `Saison de ${seasonName(d.season)} • points de rang • fin le ${seasonEnd()}` : 'Total des points marqués depuis le début'}</p>`;
+  if (!d.top.length) { list.innerHTML = note + `<div class="empty">${d.ranked ? 'Personne n’a encore joué de partie classée cette saison.' : 'Personne n’a encore marqué de points.'}<br>À toi de jouer ! 🎵</div>`; return; }
+  const frame = p => (d.ranked ? 'r' + p.tier : isRankFrame(p.fr) ? 'def' : p.fr);
+  const val = p => (d.ranked ? `${fmt(p.rp)} PR` : `${fmt(p.pts)} pts`);
+  const row = (p, n) => `<div class="card rr ${p.me ? 'me' : ''}"><span class="n">${n}</span>${avHTML(p.av, frame(p), 32)}<b>${esc(p.name)}${p.me ? ' (toi)' : ''}${d.ranked ? `<span class="sub">${tierBadge(p.tier, 12)} ${TIERS[p.tier].name}</span>` : ''}</b><em>${val(p)}</em></div>`;
+  // podium animé : 2e à gauche, 1er au centre (couronne, étincelles), 3e à droite
+  const pod = (p, k) => {
+    if (!p) return `<div class="pd p${k} empty"><div class="pdav">${avHTML('', 'def', k === 1 ? 70 : 56)}</div><b>—</b><em>&nbsp;</em><div class="ped">${k}</div></div>`;
+    const sparks = k === 1 ? '<i class="tw" style="left:6%;top:6px">✦</i><i class="tw" style="right:8%;top:22px;animation-delay:-.7s">✦</i><i class="tw" style="left:20%;top:52px;animation-delay:-1.2s">✦</i>' : '';
+    return `<div class="pd p${k} ${p.me ? 'me' : ''}">${sparks}<div class="pdav">${k === 1 ? '<span class="crown">👑</span>' : ''}${avHTML(p.av, frame(p), k === 1 ? 70 : 56)}</div>
+      <b>${esc(p.name)}</b><em>${val(p)}</em><div class="ped">${k}</div></div>`;
+  };
+  const t = d.top;
+  list.innerHTML = note + `<div class="podium3">${pod(t[1], 2)}${pod(t[0], 1)}${pod(t[2], 3)}</div>`
+    + t.slice(3).map((p, i) => row(p, i + 4)).join('')
+    + (d.me && d.me.rank > t.length ? `<div class="rsep">•••</div>${row(d.me, d.me.rank)}` : '');
 }
 
 // ---------- défis ----------
@@ -2226,12 +2368,22 @@ function rerollDaily(id) {
 }
 function renderDefis() {
   rollPeriods();
-  const per = defiTab === 'day' ? S.day : S.sea, list = defiTab === 'day' ? dailyList() : SEASON;
-  $('#defiList').innerHTML = list.map(d => {
-    const v = Math.min(d.goal, per[d.k] || 0), done = v >= d.goal, got = per.claimed.includes(d.id);
-    return `<div class="card defi"><div class="e">${d.e}</div><div class="mid"><b>${d.label}</b><div class="row"><div class="bar"><i style="width:${100 * v / d.goal}%"></i></div>${v} / ${d.goal}</div></div>
-      <div class="rw"><span class="e2">${got ? '✅' : '🎁'}</span>+${d.xp} XP${done && !got ? `<br><button data-claim="${d.id}">Récupérer</button>` : ''}${defiTab === 'day' && !done && !got ? `<br><button class="rr2" data-reroll="${d.id}">🔄 Changer</button>` : ''}</div></div>`;
-  }).join('') + `<p class="muted" style="font-size:12.5px;text-align:center">${defiTab === 'day' ? `Nouveaux défis chaque jour à minuit. 🔄 change un défi : ${S.inv.reroll ? `${S.inv.reroll} jeton${S.inv.reroll > 1 ? 's' : ''}` : '150 pièces'}.` : 'Les défis de saison changent chaque mois.'} Chaque défi rapporte aussi des pièces.</p>`;
+  const day = defiTab === 'day', per = day ? S.day : S.sea, list = day ? dailyList() : SEASON;
+  const st = list.map(d => {
+    const v = Math.min(d.goal, per[d.k] || 0);
+    return { d, v, done: v >= d.goal, got: per.claimed.includes(d.id) };
+  });
+  const nDone = st.filter(x => x.done).length;
+  $('#defiCoins').textContent = fmt(S.coins);
+  $('#defiList').innerHTML = `<div class="card dhead"><div><small>${day ? 'DÉFIS DU JOUR' : `DÉFIS DE LA SAISON DE ${seasonName().toUpperCase()}`}</small>
+      <b>${nDone} / ${list.length} terminés</b><span>${day ? `Nouveaux défis dans ${untilMidnight()}` : `Fin de la saison dans ${daysLeft()} jour${daysLeft() > 1 ? 's' : ''}`}</span></div>
+      <div class="dring dbig">${ring(nDone / list.length, 64, 6)}<span>${nDone}/${list.length}</span></div></div>`
+    + st.map(({ d, v, done, got }) => `<div class="card defi2 ${got ? 'got' : done ? 'ready' : ''}">
+      <div class="dring">${ring(v / d.goal)}<span>${d.e}</span></div>
+      <div class="mid"><b>${d.label}</b><span class="pg">${got ? 'Récompense récupérée' : `${fmt(v)} / ${fmt(d.goal)}`}</span>
+        <span class="rwd"><em>+${d.xp} XP</em><em><span class="coin">$</span>${d.coins}</em></span></div>
+      <div class="act">${got ? '<span class="okk">✅</span>' : done ? `<button data-claim="${d.id}">Récupérer</button>` : day ? `<button class="rr2" data-reroll="${d.id}">🔄 Changer</button>` : ''}</div></div>`).join('')
+    + `<p class="muted" style="font-size:12.5px;text-align:center">${day ? `🔄 change un défi : ${S.inv.reroll ? `${S.inv.reroll} jeton${S.inv.reroll > 1 ? 's' : ''}` : '150 pièces'}.` : 'Les défis de saison changent chaque mois.'} L’XP fait aussi avancer la route de saison.</p>`;
   $$('[data-reroll]').forEach(b => b.onclick = () => rerollDaily(b.dataset.reroll));
   $$('[data-claim]').forEach(b => b.onclick = () => {
     const d = list.find(x => x.id === b.dataset.claim);
@@ -2291,18 +2443,85 @@ function claimRoad(n) {
 }
 
 // ---------- boutique ----------
-let shopTab = 'frames';
-$$('[data-st]').forEach(b => b.onclick = () => { shopTab = b.dataset.st; $$('[data-st]').forEach(x => x.classList.toggle('on', x === b)); renderShop(); });
+let shopTab = 'deals';
+function setShopTab(t) { shopTab = t; $$('[data-st]').forEach(x => x.classList.toggle('on', x.dataset.st === t)); }
+$$('[data-st]').forEach(b => b.onclick = () => { setShopTab(b.dataset.st); renderShop(); });
+// rareté d'après le prix : Commun, Rare, Épique, Légendaire
+const rarity = price => (price >= 20000 ? ['l', 'Légendaire'] : price >= 6000 ? ['e', 'Épique'] : price >= 2000 ? ['r', 'Rare'] : ['c', 'Commun']);
+// offres du jour : 3 objets pas encore possédés, tirés pour la journée (le même tirage toute la journée, même après un achat)
+// avec 40 %, 30 % et 20 % de réduction ; l'offre à la une est la plus chère
+function dealPool() {
+  return [
+    ...FRAMES.filter(f => f.price).map(f => ({ kind: 'frame', id: f.id, name: f.name, price: f.price, label: 'Cadre' })),
+    ...PRESTIGE_FRAMES.map(f => ({ kind: 'frame', id: f.id, name: f.name, price: f.price, label: 'Cadre de prestige' })),
+    ...THEMES.filter(t => t.price).map(t => ({ kind: 'theme', id: t.id, name: t.name, price: t.price, label: 'Thème' })),
+    ...PRESTIGE.map(x => ({ kind: 'perk', id: x.id, name: x.name, price: x.price, label: 'Prestige' })),
+    ...Object.keys(LEGEND_AV).map(a => ({ kind: 'lav', id: a, name: avName(a), price: LEGEND_AV[a], label: 'Avatar légendaire' })),
+  ];
+}
+const dealOwned = o => (o.kind === 'frame' ? S.owned.includes(o.id) : o.kind === 'theme' ? S.themes.includes(o.id) : o.kind === 'perk' ? hasPerk(o.id) : S.avs.includes(o.id));
+function dailyDeals() {
+  const pool = dealPool();
+  if (S.deals?.d !== today()) {
+    let h = [...S.uid + today()].reduce((a, c) => Math.imul(a ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
+    const free = pool.filter(o => !dealOwned(o)), ids = [];
+    while (ids.length < 3 && free.length) { h = (Math.imul(h, 1103515245) + 12345) >>> 0; const o = free.splice((h >>> 8) % free.length, 1)[0]; ids.push(o.kind + ':' + o.id); }
+    S.deals = { d: today(), ids };
+    save();
+  }
+  const list = S.deals.ids.map(k => pool.find(o => o.kind + ':' + o.id === k)).filter(Boolean).sort((a, b) => b.price - a.price);
+  return list.map((o, i) => ({ ...o, off: [40, 30, 20][i], now: Math.round(o.price * (1 - [40, 30, 20][i] / 100) / 10) * 10 }));
+}
+function dealPic(o, size) {
+  if (o.kind === 'frame') return avHTML(S.av, o.id, size);
+  if (o.kind === 'theme') return `<div class="sw" style="background:${THEMES.find(t => t.id === o.id).c};width:${size}px;height:${size}px"></div>`;
+  if (o.kind === 'lav') return avHTML(o.id, 'def', size);
+  return `<span class="pi" style="font-size:${Math.round(size * 0.7)}px">${PRESTIGE.find(x => x.id === o.id).e}</span>`;
+}
+function buyDeal(key) {
+  const o = dailyDeals().find(x => x.kind + ':' + x.id === key);
+  if (!o || dealOwned(o)) return;
+  if (S.coins < o.now) return toast(`Il te manque ${fmt(o.now - S.coins)} pièces. Joue et réussis tes défis pour en gagner !`, 3200);
+  if (!confirm(`Acheter « ${o.name} » pour ${fmt(o.now)} pièces au lieu de ${fmt(o.price)} ?`)) return;
+  S.coins -= o.now;
+  if (o.kind === 'frame') { S.owned.push(o.id); S.fr = o.id; }
+  if (o.kind === 'theme') { S.themes.push(o.id); S.theme = o.id; previewTheme = null; applyTheme(); }
+  if (o.kind === 'perk') { const it = PRESTIGE.find(x => x.id === o.id); S.perks = [...(S.perks || []), o.id]; S[it.k] = it.v; if (it.k === 'vfx') winFx(it.v); }
+  if (o.kind === 'lav') { S.avs.push(o.id); S.av = o.id; }
+  save();
+  profileChanged();
+  toast(`🔥 « ${esc(o.name)} » acheté en promo et équipé !`, 3200);
+  renderShop();
+}
 function renderShop() {
   $('#shopCoins').textContent = fmt(S.coins);
-  // eq : true = équipé (coche), 'preview' = thème en aperçu (mis en avant, sans coche)
-  const card = (kind, id, pic, name, small, eq) => `<button class="card item ${eq ? 'eq' : ''}" data-kind="${kind}" data-it="${id}">${eq === true ? '<span class="ok">✓</span>' : ''}${pic}<b>${name}</b><small>${small}</small></button>`;
+  // eq : true = équipé (coche), 'preview' = thème en aperçu (mis en avant, sans coche) ; cost : prix (rareté affichée)
+  const card = (kind, id, pic, name, small, eq, cost) => {
+    const rr = cost ? rarity(cost) : null;
+    return `<button class="card item ${eq ? 'eq' : ''} ${rr ? 'rar-' + rr[0] : ''}" data-kind="${kind}" data-it="${id}">${eq === true ? '<span class="ok">✓</span>' : ''}${pic}<b>${name}</b>${rr ? `<i class="rar r-${rr[0]}">${rr[1]}</i>` : ''}<small>${small}</small></button>`;
+  };
   let html = '';
   const price = it => `<span class="coin">$</span>${fmt(it.price)}`;
-  if (shopTab === 'frames') {
-    html += FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : price(it), S.fr === it.id)).join('');
+  if (shopTab === 'deals') {
+    const deals = dailyDeals();
+    html = `<div class="dealhd"><b>🔥 Offres du jour</b><span>Nouvelles offres dans ${untilMidnight()}</span></div>`;
+    const cards = deals.map((o, i) => {
+      const own = dealOwned(o), rr = rarity(o.price);
+      const tx = `<span class="dk">${o.label}</span><b>${esc(o.name)}</b><i class="rar r-${rr[0]}">${rr[1]}</i>${own ? '<span class="owned">✓ Déjà à toi</span>' : `<span class="old">${fmt(o.price)}</span><span class="newp"><span class="coin">$</span>${fmt(o.now)}</span>`}`;
+      return `<button class="card deal ${i === 0 ? 'hero' : ''} ${own ? 'done' : ''} rar-${rr[0]}" data-offer="${o.kind}:${o.id}">${own ? '' : `<span class="off">−${o.off} %</span>`}
+        <span class="dpic">${dealPic(o, i === 0 ? 96 : 64)}</span>${i === 0 ? `<span class="dtx">${tx}</span>` : tx}</button>`;
+    });
+    html += cards.length ? cards[0] + (cards.length > 1 ? `<div class="dealrow">${cards.slice(1).join('')}</div>` : '')
+      : '<p class="note" style="grid-column:1/-1">Tu as déjà tout ce qui peut être en promo. Bravo, collectionneur !</p>';
+    html += `<h4 class="sec">Toute la boutique</h4><div class="qlinks">
+      <button class="card qlink" data-goto="frames"><span class="pi">🖼️</span><span><b>Cadres</b><small>${FRAMES.length + PRESTIGE_FRAMES.length} cadres à acheter</small></span></button>
+      <button class="card qlink" data-goto="themes"><span class="pi">🎨</span><span><b>Thèmes</b><small>${THEMES.length} couleurs, dont 7 de luxe</small></span></button>
+      <button class="card qlink" data-goto="items"><span class="pi">🛡️</span><span><b>Objets</b><small>Bouclier, XP ×2, Premium…</small></span></button>
+      <button class="card qlink" data-goto="prestige"><span class="pi">✨</span><span><b>Prestige</b><small>Pseudo doré, avatars légendaires</small></span></button></div>`;
+  } else if (shopTab === 'frames') {
+    html += FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : price(it), S.fr === it.id, it.price)).join('');
     html += '<h4 class="sec">💎 Cadres de prestige</h4>';
-    html += PRESTIGE_FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : price(it), S.fr === it.id)).join('');
+    html += PRESTIGE_FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : price(it), S.fr === it.id, it.price)).join('');
     html += '<h4 class="sec">🏅 Cadre Légendaire : impossible à acheter</h4>';
     html += card('legend', 'legend', avHTML(S.av, 'legend', 58), 'Légendaire', legendOk() ? (S.fr === 'legend' ? 'Équipé' : 'Choisir') : '🔒 Une médaille Légendaire', S.fr === 'legend');
     html += '<h4 class="sec">🏆 Cadres de rang : affichés tout seuls en partie classée</h4>';
@@ -2315,7 +2534,7 @@ function renderShop() {
       : '<p class="note" style="grid-column:1/-1;margin:4px 0 0">Récompense finale de la route de saison (palier 30), différente chaque mois.</p>';
   } else if (shopTab === 'themes') {
     html = '<p class="hint">👁️ Touche un thème pour l’essayer avant de l’acheter.</p>';
-    html += THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, previewTheme === it.id ? '👁️ Aperçu' : S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : price(it), previewTheme ? previewTheme === it.id && 'preview' : S.theme === it.id)).join('');
+    html += THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, previewTheme === it.id ? '👁️ Aperçu' : S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : price(it), previewTheme ? previewTheme === it.id && 'preview' : S.theme === it.id, it.price)).join('');
   } else {
     const list = shopTab === 'items' ? ITEMS : PRESTIGE;
     html = list.map(it => {
@@ -2325,10 +2544,12 @@ function renderShop() {
     }).join('');
     if (shopTab === 'prestige') {
       html += '<h4 class="sec">🌟 Avatars légendaires</h4>';
-      html += Object.keys(LEGEND_AV).map(a => card('lav', a, avHTML(a, 'def', 58), avName(a), S.avs.includes(a) ? (S.av === a ? 'Équipé' : 'Choisir') : price({ price: LEGEND_AV[a] }), S.av === a)).join('');
+      html += Object.keys(LEGEND_AV).map(a => card('lav', a, avHTML(a, 'def', 58), avName(a), S.avs.includes(a) ? (S.av === a ? 'Équipé' : 'Choisir') : price({ price: LEGEND_AV[a] }), S.av === a, LEGEND_AV[a])).join('');
     }
   }
   $('#shopGrid').innerHTML = html;
+  $$('#shopGrid [data-offer]').forEach(b => b.onclick = () => buyDeal(b.dataset.offer));
+  $$('#shopGrid [data-goto]').forEach(b => b.onclick = () => { setShopTab(b.dataset.goto); renderShop(); $('#v-shop .scroll').scrollTop = 0; });
   $$('#shopGrid [data-it]').forEach(b => b.onclick = () => {
     const id = b.dataset.it, kind = b.dataset.kind;
     if (kind === 'rank') {
@@ -2435,7 +2656,7 @@ function renderSettings() {
     ${tg('chat', '💬', 'Afficher le chat')}
     ${tg('others', '👥', 'Messages des autres joueurs')}
     ${tg('live', '👁️', 'Réponses trouvées visibles en direct')}
-    <button class="card li" data-go2="shop"><span class="e">🎨</span><span>Thème</span><span class="muted">${THEMES.find(t => t.id === S.theme)?.name || 'Or'}</span><span class="chev">›</span></button>
+    <button class="card li" data-go2="shop" data-tab2="themes"><span class="e">🎨</span><span>Thème</span><span class="muted">${THEMES.find(t => t.id === S.theme)?.name || 'Or'}</span><span class="chev">›</span></button>
     <button class="card li" data-go2="profile"><span class="e">👤</span><span>Pseudo et avatar</span><span class="chev">›</span></button>
     <button class="card li" id="saveBtn"><span class="e">💾</span><span>Code de sauvegarde</span><span class="muted">changer de téléphone</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
@@ -2443,7 +2664,7 @@ function renderSettings() {
     <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
   $$('[data-tg]').forEach(b => b.onclick = () => { S.set[b.dataset.tg] = !S.set[b.dataset.tg]; save(); b.classList.toggle('on', S.set[b.dataset.tg]); unlock(); ambUpdate(); paintMusic(); });
   $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); if (amb.gain) amb.gain.gain.value = AMB_VOL * S.set.vol; };
-  $$('[data-go2]').forEach(b => b.onclick = () => go(b.dataset.go2));
+  $$('[data-go2]').forEach(b => b.onclick = () => { if (b.dataset.tab2) setShopTab(b.dataset.tab2); go(b.dataset.go2); });
   $('#rulesBtn').onclick = rules;
   $('#saveBtn').onclick = saveSheet;
   $('#resetBtn').onclick = () => { if (confirm('Effacer ta progression (niveau, pièces, achats, statistiques) sur cet appareil ?')) { const name = S.name, av = S.av; S = fresh(); S.name = name; S.av = av; save(); applyTheme(); toast('Progression effacée.'); renderSettings(); } };
