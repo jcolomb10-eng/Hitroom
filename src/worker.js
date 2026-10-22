@@ -26,7 +26,8 @@ async function toRoom(req, env, name, ranked) {
   const u = new URL(req.url);
   const uid = cleanUid(u.searchParams.get('uid'));
   const cat = ranked ? name.slice(4) : null;
-  const { tier, bestEver, win, club } = uid.length >= 8 ? await hub(env).rankOf(uid, cat) : { tier: 0, bestEver: 0, win: 0, club: '' };
+  const prof = { name: u.searchParams.get('name'), av: u.searchParams.get('av'), fr: u.searchParams.get('fr'), lvl: u.searchParams.get('lvl') };
+  const { tier, bestEver, win, club } = uid.length >= 8 ? await hub(env).rankOf(uid, cat, prof) : { tier: 0, bestEver: 0, win: 0, club: '' };
   if (ranked) name += ':' + win;
   u.searchParams.set('room', name);
   u.searchParams.set('tier', tier);

@@ -303,7 +303,9 @@ export class Hub extends DurableObject {
   }
 
   // rang d'un joueur qui entre dans un salon ; avec une catégorie, le salon public de son niveau à rejoindre
-  rankOf(uid, cat) {
+  // prof : pseudo et avatar du joueur, gardés dans sa fiche publique (pour devenir ami avec qui on croise en salon)
+  rankOf(uid, cat, prof) {
+    if (prof) this.touch(uid, prof);
     const r = this.rankRow(uid), tier = tierOf(r.rp), c = this.clubOf(uid);
     return { rp: r.rp, tier, bestEver: this.bestEver(uid), win: cat ? this.pickWindow(cat, tier) : null, club: c ? `${c.e} ${c.name}` : '' };
   }
@@ -710,7 +712,7 @@ export class Hub extends DurableObject {
     const asked = (src, dst) => !!this.sql.exec(`SELECT 1 FROM freqs WHERE src = ? AND dst = ?`, src, dst).toArray().length;
     switch (b.act) {
       case 'add': {
-        if (!other) return { ok: 0, why: 'code' };
+        if (!other) return { ok: 0, why: b.fc ? 'code' : 'unknown' };
         const name = other.name;
         if (this.isFriend(me, pk)) return { ok: 1, state: 'friend', name };
         if (count(me) >= MAX_FRIENDS) return { ok: 0, why: 'full' };

@@ -100,7 +100,7 @@ th:first-child,td:first-child{text-align:left}
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = n => Number(n || 0).toLocaleString('fr-FR').replace(/ /g, ' ');
-const MODES = { ranked: 'Classé', open: 'Non classé', priv: 'Entre amis', solo: 'Solo' };
+const MODES = { ranked: 'Classé', open: 'Non classé', priv: 'Entre amis', solo: 'Solo', daily: 'Hit du jour' };
 const CATS = { mix: 'Mix', 80: 'Années 80', 90: 'Années 90', 2000: 'Années 2000', 2010: 'Années 2010', 2020: 'Années 2020', variete: 'Variété FR',
   rapfr: 'Rap FR', rapus: 'Rap US', rock: 'Rock', electro: 'Électro', kpop: 'K-Pop', cine: 'Ciné & séries' };
 const KEY = 'hitroom.admin';

@@ -1161,7 +1161,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.14';
+const VERSION = '1.15';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -2896,7 +2896,7 @@ async function refreshFriends() {
   if (curView === 'friends') renderFriends();
   renderSocial();
 }
-const FRI_ERR = { code: 'Code ami introuvable. Vérifie-le !', self: 'C’est ton propre code 🙂', full: 'Tu as déjà 100 amis : retires-en un pour en ajouter.', full2: 'Ce joueur a déjà 100 amis.',
+const FRI_ERR = { code: 'Code ami introuvable. Vérifie-le !', unknown: 'Joueur introuvable pour le moment : réessaie plus tard.', self: 'C’est ton propre code 🙂', full: 'Tu as déjà 100 amis : retires-en un pour en ajouter.', full2: 'Ce joueur a déjà 100 amis.',
   limit: 'Beaucoup de demandes en attente : attends qu’on te réponde.', gone: 'Cette demande n’existe plus.', friend: 'Vous devez être amis pour vous défier.',
   again: 'Tu l’as déjà défié : laisse-lui un peu de temps 🙂', off: 'Défi impossible pour le moment.', err: 'Impossible pour le moment.' };
 async function friendAct(act, data) {
@@ -3063,6 +3063,7 @@ async function joinClub(id, name) {
 }
 async function renderClub() {
   const el = $('#clubBody'), id = clubShown || S.club?.id;
+  if (!$('#clubQ')) $('#clubTitle').textContent = 'Clubs';
   el.innerHTML = '<div class="empty"><div class="spin"></div>Chargement…</div>';
   let d;
   try { d = await (await fetch(id ? `/api/club/${id}?uid=${S.uid}` : `/api/clubs?uid=${S.uid}&q=${encodeURIComponent($('#clubQ')?.value || '')}`)).json(); }

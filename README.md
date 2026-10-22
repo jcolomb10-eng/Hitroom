@@ -7,6 +7,9 @@ Blind test musical **multijoueur en direct**, dans l'esprit de QuiChante : tout 
 - **Créer un salon** : partie amicale (sans points de rang) avec un code de 4 caractères et un lien à partager. L'hôte choisit la catégorie, le nombre de manches, la durée des extraits, le nombre et le niveau des bots.
 - Réponses : le titre ou l'artiste **en entier** ; petites fautes acceptées en appuyant sur Entrée.
 - **Rejoindre un salon** : avec le code.
+- **Hit du jour** : chaque jour, les 5 mêmes extraits pour tout le monde, un seul essai, et un résultat à partager façon Wordle (« Hitroom #42 🎵🎤🎵⬛🎵 »), avec classement du jour et série de jours.
+- **Amis** : code ami, demandes, qui est en ligne et où il joue, rejoindre son salon, **duel en 1 contre 1** avec bilan des victoires.
+- **Clubs** : rejoindre ou créer une équipe (30 membres) ; les points des membres en parties publiques et au Hit du jour s'additionnent pour le classement des clubs de la saison.
 - Classement en direct, chat, séries, bonus de rapidité, classement mensuel, défis du jour et de saison, niveaux, pièces, boutique de cadres et de thèmes.
 - Récompenses : médailles à 4 niveaux, titres sous le pseudo, carte de joueur avec vitrine, cadres de rang réalistes et animés (un par rang), route de saison gratuite (30 paliers par mois) et code de sauvegarde pour changer de téléphone.
 
@@ -26,8 +29,9 @@ Tout tourne sur **Cloudflare Workers** (gratuit) :
 | `src/match.js` | Reconnaissance des réponses (réponse entière, petites fautes avec Entrée, artiste + titre d'un coup) |
 | `src/ranks.js` | Rangs, points de rang, niveaux des salons, saisons et récompenses |
 | `src/itunes.js` | Choix de la bonne version sur iTunes (pas de live, remix ni karaoké) |
-| `src/catalog.js` | Les 1 208 morceaux, par catégorie |
+| `src/catalog.js` | Les 1 217 morceaux, par catégorie |
 | `src/filter.js` | Grossièretés masquées (chat et pseudos) |
+| `src/social.js` | Hit du jour (jour à l'heure de Paris, numéro, tirage, séries), code ami, clubs |
 | `wrangler.jsonc` | Configuration Cloudflare |
 
 Les extraits de 30 secondes et les pochettes viennent des API publiques de Deezer et d'iTunes (lien « Écouter sur Deezer / Apple Music » affiché à chaque réponse). Depuis Cloudflare, iTunes refuse souvent (erreur 429) : Deezer prend le relais. Les réponses ne sont jamais envoyées aux joueurs avant la fin de la manche : c'est le serveur qui les vérifie.
@@ -52,4 +56,7 @@ NODE_PATH=$(npm root -g) node test/e2e-multijoueur.cjs   # partie complète à 3
 node test/e2e-cas-limites.mjs        # hôte qui part, code inconnu, double onglet, grossièretés…
 NODE_PATH=$(npm root -g) node test/e2e-classe.cjs        # partie classée, rangs, changement de saison
 NODE_PATH=$(npm root -g) node test/e2e-recompenses.cjs   # médailles, titres, route de saison, cadres, code de sauvegarde
+NODE_PATH=$(npm root -g) node test/e2e-hitdujour.cjs     # Hit du jour : grille, partage, un seul essai, série
+NODE_PATH=$(npm root -g) node test/e2e-amis.cjs          # amis, présence, duels
+NODE_PATH=$(npm root -g) node test/e2e-clubs.cjs         # clubs, points, classement des clubs
 ```
