@@ -12,13 +12,14 @@ export async function itunesFind(getJSON, song) {
 }
 
 const dzShape = x => ({
-  kind: 'song', artistName: x.artist?.name || '', trackName: x.title || '', collectionName: x.album?.title || '', previewUrl: x.preview || '', x,
+  kind: 'song', artistName: x.artist?.name || '', trackName: x.title || '', collectionName: x.album?.title || '', previewUrl: x.preview || '', rank: x.rank || 0, x,
 });
 
 export async function deezerFind(getJSON, song) {
-  const queries = [`artist:"${song.a[0]}" track:"${song.t[0]}"`, `${song.a[0]} ${song.t[0]}`];
+  // recherche simple d'abord (la recherche avancée « artist: » ne répond plus rien en octobre 2026), avancée en secours
+  const queries = [`${song.a[0]} ${song.t[0]}`, `artist:"${song.a[0]}" track:"${song.t[0]}"`];
   for (const q of queries) {
-    const d = await getJSON('dz', `https://api.deezer.com/search?q=${encodeURIComponent(q)}&limit=15`);
+    const d = await getJSON('dz', `https://api.deezer.com/search?q=${encodeURIComponent(q)}&limit=25`);
     const b = pickBest((d.data || []).map(dzShape), song);
     if (b) return { ok: 1, src: 'dz', ext: String(b.x.id), url: b.previewUrl, art: b.x.album?.cover_big || b.x.album?.cover_medium || '', link: b.x.link || '' };
   }

@@ -39,6 +39,44 @@ test('refuse un autre artiste ou un autre titre', () => {
   assert.equal(pickBest([{ ...r('Queen', 'Bohemian Rhapsody'), previewUrl: '' }], song('Bohemian Rhapsody', 'Queen')), null);
 });
 
+// résultats au format Deezer converti (avec la popularité « rank »)
+const dz = (artistName, trackName, rank, collectionName = 'Album') => ({ ...r(artistName, trackName, collectionName), rank });
+
+test('refuse les imitateurs et les titres plus courts', () => {
+  assert.equal(pickBest([r("Hello I'm Adele", 'Rolling In The Deep')], song('Rolling in the Deep', 'Adele')), null);
+  assert.equal(pickBest([r('Siam', 'Chandelier Bbop and Roksteadi Radio')], song('Chandelier', 'Sia')), null);
+  assert.equal(pickBest([r('Gotye', 'Somebody (2024)')], song('Somebody That I Used to Know', 'Gotye')), null);
+  assert.ok(pickBest([r('Dick Dale and His Del-Tones', 'Misirlou')], song('Misirlou', 'Dick Dale')));
+  assert.ok(pickBest([r('The Notorious B.I.G.', 'Juicy')], song('Juicy', 'Notorious B.I.G.')));
+});
+
+test('Deezer : la version la plus écoutée, sans remix ni « rendu célèbre par »', () => {
+  const pick = (res, s) => pickBest(res, s).trackName;
+  assert.equal(pick([
+    dz('Daft Punk', 'One More Time (12 Mix)', 365353),
+    dz('Daft Punk', 'One More Time', 896666, 'Discovery'),
+    dz('Daft Punk', 'One More Time (Short Radio Edit)', 692551),
+  ], song('One More Time', 'Daft Punk')), 'One More Time');
+  assert.equal(pick([
+    dz('Tragédie', 'Hey Oh, Pt. 2', 247185),
+    dz('Tragédie', 'Hey Oh (Radio Edit)', 857278),
+    dz('Tragédie', 'Hey Oh (feat. Willy William) (Ragga Remix)', 249283),
+  ], song('Hey Oh', 'Tragédie')), 'Hey Oh (Radio Edit)');
+  assert.equal(pick([
+    dz('Elegance', "Vacances j'oublie tout (Maxi version)", 240063),
+    dz('Karaoké Playback Français', "Vacances j'oublie tout (Rendu célèbre par Elegance)", 924977),
+    dz('Elegance', "Vacances j'oublie tout (Version originale 1982)", 592524),
+  ], song("Vacances j'oublie tout", 'Elegance')), "Vacances j'oublie tout (Version originale 1982)");
+  assert.equal(pick([
+    dz('Lady Gaga', 'Poker Face (Glam As You Radio Mix)', 490372, 'Poker Face (Remixes Part 1)'),
+    dz('Lady Gaga', 'Poker Face', 234377, 'Poker Face (Remixes Part 1)'),
+  ], song('Poker Face', 'Lady Gaga')), 'Poker Face');
+  // un morceau du catalogue qui contient lui-même le mot n'est pas pénalisé
+  assert.equal(pick([
+    dz('Queen', 'Live Forever', 10),
+  ], song('Live Forever', 'Queen')), 'Live Forever');
+});
+
 test('catalogue : chaque catégorie a assez de morceaux, sans ligne cassée', () => {
   for (const c of CATS) {
     const list = songsOf(c.id);

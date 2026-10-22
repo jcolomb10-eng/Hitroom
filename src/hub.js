@@ -10,6 +10,9 @@ import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
 const RETRY_FAIL = 7 * DAY;  // un morceau introuvable est retenté une semaine plus tard
+// à changer quand la façon de choisir la version (pickBest) change : tous les morceaux sont recherchés à nouveau
+// petit à petit en tâche de fond (on garde l'ancienne version en attendant)
+const PICKER = '2';
 const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; Hitroom/1.0; blind test)', Accept: 'application/json' };
 
 function shuffle(a) {
@@ -46,6 +49,10 @@ export class Hub extends DurableObject {
         }
         this.sql.exec(`INSERT INTO meta(k, v) VALUES('paliers', '2')`);
       });
+    }
+    if (this.sql.exec(`SELECT v FROM meta WHERE k = 'picker'`).toArray()[0]?.v !== PICKER) {
+      this.sql.exec(`UPDATE tracks SET ts = 0`);
+      this.sql.exec(`INSERT OR REPLACE INTO meta(k, v) VALUES('picker', ?)`, PICKER);
     }
     this.rooms = new Map(); // nom du salon -> { cat, win, n, ts, kind } (salons publics : ranked = classé, open = non classé)
     this.paused = { it: 0, dz: 0 }; // source qui nous limite : on attend
@@ -145,8 +152,10 @@ export class Hub extends DurableObject {
   async alarm() {
     const now = Date.now();
     const known = new Map(this.sql.exec(`SELECT k, ok, ts FROM tracks`).toArray().map(r => [r.k, r]));
-    const due = [];
-    for (const s of songsOf('mix')) {
+    const due = [], all = songsOf('mix');
+    const inCatalog = new Set(all.map(s => s.k));
+    for (const k of known.keys()) if (!inCatalog.has(k)) this.sql.exec(`DELETE FROM tracks WHERE k = ?`, k); // retiré du catalogue
+    for (const s of all) {
       const r = known.get(s.k);
       if (!r) due.push([0, s]);
       else if (r.ok && now - r.ts > FRESH) due.push([1, s]);
@@ -297,6 +306,7 @@ export class Hub extends DurableObject {
 
   // état du catalogue ; ?test=1 interroge les deux sources en direct
   async catalogStatus(test) {
+    this.warm();
     const r = this.sql.exec(`SELECT SUM(ok) AS ok, COUNT(*) AS n FROM tracks`).one();
     const bySrc = Object.fromEntries(this.sql.exec(`SELECT src, COUNT(*) AS n FROM tracks WHERE ok = 1 GROUP BY src`).toArray().map(x => [x.src || '?', x.n]));
     const out = { songs: songsOf('mix').length, checked: r.n || 0, playable: r.ok || 0, bySource: bySrc, sources: this.diag };
@@ -332,6 +342,14 @@ export class Hub extends DurableObject {
     this.sql.exec(`DELETE FROM ranks WHERE uid = ? AND sc = ?`, uid, season());
     this.sql.exec(`DELETE FROM rewards WHERE uid = ?`, uid);
     this.sql.exec(`INSERT OR REPLACE INTO ranks(uid, sc, rp, best, games, wins, name, av, fr) VALUES(?,?,?,?,5,1,'Test','🎧','def')`, uid, sc, rp, rp);
+  }
+
+  // version retenue pour chaque morceau (src : it = iTunes, dz = Deezer ; ext : son identifiant chez la source)
+  chosenVersions() {
+    return this.sql.exec(`SELECT k, ok, src, ext, ts FROM tracks ORDER BY k`).toArray().map(r => {
+      const s = songByKey(r.k);
+      return { s: s ? `${s.t[0]} — ${s.a[0]}` : r.k, ok: r.ok, src: r.src, ext: r.ext, ts: r.ts };
+    });
   }
 
   failedSongs() {

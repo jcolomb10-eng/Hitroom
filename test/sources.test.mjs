@@ -16,7 +16,8 @@ test('iTunes : extrait, pochette 600 px et lien', async () => {
 test('Deezer : format de réponse converti, deuxième recherche si la première est vide', async () => {
   const hit = { id: 3135556, title: 'One More Time', preview: 'https://cdnt-preview.dzcdn.net/x.mp3?hdnea=exp=1', link: 'https://www.deezer.com/track/3135556',
     artist: { name: 'Daft Punk' }, album: { title: 'Discovery', cover_big: 'https://cdn/cover.jpg' } };
-  const r = await deezerFind(fake([[/artist%3A/, { data: [] }], [/search/, { data: [hit] }]]), song);
+  // recherche simple vide, recherche avancée « artist: » en secours
+  const r = await deezerFind(fake([[/artist%3A/, { data: [hit] }], [/search/, { data: [] }]]), song);
   assert.equal(r.src, 'dz');
   assert.equal(r.ext, '3135556');
   assert.equal(r.art, 'https://cdn/cover.jpg');

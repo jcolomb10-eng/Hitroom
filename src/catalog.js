@@ -28,7 +28,7 @@ Money for Nothing | Dire Straits
 Jump | Van Halen
 Smalltown Boy | Bronski Beat
 Ella, elle l'a | France Gall
-Femme libérée | Cookie Dingler
+Vacances j'oublie tout | Elegance
 Les démons de minuit | Images
 Voyage, voyage | Desireless
 Joe le taxi | Vanessa Paradis
@@ -103,7 +103,7 @@ One More Time | Daft Punk
 SexyBack ~ Sexy Back | Justin Timberlake
 Le vent nous portera | Noir Désir
 Moi... Lolita ~ Moi Lolita | Alizée
-Ces soirées-là | Yannick
+Ma philosophie | Amel Bent
 Ma liberté de penser | Florent Pagny
 Qui de nous deux | M ~ Matthieu Chedid ~ -M-
 La Boulette | Diam's
@@ -237,12 +237,12 @@ DJ | Diam's
 Sapés comme jamais | Gims ~ Maître Gims
 DKR | Booba
 Pitbull | Booba
-Lettre à une femme | Ninho
+La vie qu'on mène | Ninho
 On verra | Nekfeu
 Yeux disent | Lomepal
 Avant qu'elle parte | Sexion d'Assaut
 Cosmo | Soprano
-Désaccordé | Vald
+Journal perso II ~ Journal perso 2 | Vald
 Tchikita | Jul
 Tonton du bled | 113
 Chocolat | Lartiste
