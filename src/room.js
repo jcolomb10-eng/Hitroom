@@ -595,7 +595,7 @@ export class Room extends DurableObject {
     if (this.solo || p.bot || !target || target.bot || target === p) return;
     const why = REPORT_WHY.has(m.why) ? m.why : 'autre';
     const msgs = this.chat.filter(c => c.id === target.id).slice(-5).map(c => c.text);
-    this.hub().report({ reporter: p.uid, target: target.uid, pk: target.pk, name: target.name, why, msgs, room: this.name })
+    this.hub().addReport({ reporter: p.uid, target: target.uid, pk: target.pk, name: target.name, why, msgs, room: this.name })
       .then(r => {
         this.send(p.ws, { t: 'reported', ok: r.ok ? 1 : 0 });
         if (r.muted && !target.muted) {

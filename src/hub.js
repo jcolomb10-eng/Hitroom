@@ -412,7 +412,7 @@ export class Hub extends DurableObject {
   // ---------- signalements (chat) ----------
   // un joueur ne signale qu'une fois la même personne, 10 signalements par jour au plus ;
   // 3 personnes différentes en 24 h : chat suspendu 24 h (isMuted)
-  report({ reporter, target, pk, name, why, msgs, room }) {
+  addReport({ reporter, target, pk, name, why, msgs, room }) {
     const since = Date.now() - DAY;
     if (this.sql.exec(`SELECT COUNT(*) AS n FROM reports WHERE reporter = ? AND ts > ?`, reporter, since).one().n >= 10) return { ok: 0 };
     this.sql.exec(`INSERT OR REPLACE INTO reports(target, reporter, pk, name, why, msgs, room, ts) VALUES(?,?,?,?,?,?,?,?)`,
