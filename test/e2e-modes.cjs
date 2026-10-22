@@ -80,7 +80,7 @@ function client(path, q) {
   await sleep(500);
   ok(refused.ws.readyState !== 1 && !refused.last, 'serveur : catégorie pas classée cette saison refusée');
   await page.click('#bOpen');
-  ok((await page.$$('#catsGrid .cat')).length === 13, 'Non classé : toutes les catégories');
+  ok((await page.$$('#catsGrid .cat')).length === 14, 'Non classé : toutes les catégories (13 + Frissons, ouverte en local)');
   await page.goBack();
 
   // 5. contours : rang actuel en classé, contour choisi ailleurs, rang et titre de rang cachés hors classé
