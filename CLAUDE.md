@@ -90,7 +90,10 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 
 0. **Version 2.0** : vrais comptes (invité → compte sans perte, code à 6 chiffres par e-mail, puis Google ; page Confidentialité RGPD et suppression de compte), progression sur le serveur (fin de la triche).
 
-1. En ligne depuis la 1.8. Après la publication de la 1.12 (22/10/2026) : attendre environ 1 h 30 que les 1 208 morceaux soient recherchés, puis vérifier `/api/introuvables` et `/api/versions` (titres et albums des versions retenues via `https://api.deezer.com/track/<ext>`) et corriger le catalogue si besoin.
+1. **À faire en premier dans la prochaine conversation** : la 1.14 est en ligne depuis le 22/10/2026 vers 16 h 12 UTC (`PICKER` 4 : tout le catalogue recherché à nouveau, environ 1 h 30). Vérifier `/api/status` (`checked` = 1217), `/api/introuvables` (remplacer ces morceaux dans `src/catalog.js`, avec ` | fr` si chanté en français, en vérifiant la disponibilité en France via `https://api.deezer.com/track/<id>`) et `/api/versions` (titres et albums via `https://api.deezer.com/track/<ext>` : versions live restantes), puis proposer la publication.
+   - Question laissée à l'utilisateur : dans les catégories surtout anglaises (2000, 2010, 2020, Rock), une partie de 10 manches a en général 3 morceaux français (le minimum de la règle) ; passer à moitié-moitié s'il le demande (`langMins` dans `src/mixlang.js`).
+   - À confirmer par l'utilisateur sur son téléphone : notification de bienvenue reçue en activant les notifications (1.13.1), puis le rappel des défis vers 18 h.
+   - L'utilisateur doit encore créer la variable secrète `ADMIN_KEY` dans Cloudflare pour ouvrir `/stats` et voir les signalements.
 2. Comptes (pour garder sa progression d'un appareil à l'autre) ; aujourd'hui tout est sur l'appareil.
 3. Idée : notification « tes amis jouent en ce moment » (les notifications existent depuis la 1.13).
 4. Nom de domaine, vérification des conditions d'Apple pour les extraits avant un lancement public, Play Store (TWA).
