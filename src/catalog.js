@@ -204,7 +204,7 @@ Coco Jamboo | Mr. President
 Be My Lover | La Bouche
 Mr. Vain | Culture Beat
 No Limit | 2 Unlimited
-Get Ready for This | 2 Unlimited
+Return of the Mack | Mark Morrison
 Saturday Night | Whigfield
 Cotton Eye Joe | Rednex
 Boom, Boom, Boom, Boom!! ~ Boom Boom Boom Boom | Vengaboys
@@ -333,7 +333,7 @@ How You Remind Me | Nickelback
 American Idiot | Green Day
 Sk8er Boi ~ Skater Boy | Avril Lavigne
 Girlfriend | Avril Lavigne
-Hollaback Girl | Gwen Stefani
+Fighter | Christina Aguilera
 Bleeding Love | Leona Lewis
 Halo | Beyoncé
 Irreplaceable | Beyoncé
@@ -341,7 +341,7 @@ Survivor | Destiny's Child
 Promiscuous | Nelly Furtado
 Maneater | Nelly Furtado
 Don't Cha | The Pussycat Dolls ~ Pussycat Dolls
-Just Dance | Lady Gaga
+Smack That | Akon
 Bad Romance | Lady Gaga
 Hot n Cold | Katy Perry
 I Kissed a Girl | Katy Perry
@@ -497,7 +497,7 @@ Blurred Lines | Robin Thicke
 Wild Ones | Flo Rida ~ Sia
 Give Me Everything | Pitbull
 On the Floor | Jennifer Lopez
-Danza Kuduro | Don Omar
+Treat You Better | Shawn Mendes
 Mi Gente | J Balvin
 Taki Taki | DJ Snake
 Bailando | Enrique Iglesias
@@ -515,7 +515,7 @@ Sugar | Maroon 5
 Payphone | Maroon 5
 Prayer in C | Lilly Wood and the Prick ~ Robin Schulz
 Waves | Mr Probz
-Lush Life | Zara Larsson
+Never Forget You | Zara Larsson
 All of Me | John Legend
 7 rings | Ariana Grande
 thank u, next ~ Thank U Next | Ariana Grande
@@ -531,7 +531,7 @@ Color Gitano | Kendji Girac | fr
 Les yeux de la mama | Kendji Girac | fr
 Je m'en vais | Vianney | fr
 Il est où le bonheur | Christophe Maé | fr
-Elle me dit | Mika | fr
+Le Lac | Julien Doré | fr
 Tout oublier | Angèle ~ Roméo Elvis | fr
 Désolé | Sexion d'Assaut | fr
 J'ai cherché | Amir | fr
@@ -913,7 +913,7 @@ Party Up ~ Party Up (Up in Here) | DMX
 Get Ur Freak On | Missy Elliott
 Work It | Missy Elliott
 Dilemma | Nelly ~ Kelly Rowland
-A Milli | Lil Wayne
+Look at Me! | XXXTENTACION
 Crank That ~ Crank That (Soulja Boy) | Soulja Boy ~ Soulja Boy Tell'em
 Heartless | Kanye West
 Power | Kanye West
@@ -1170,7 +1170,7 @@ Strobe | deadmau5
 Ghosts 'n' Stuff | deadmau5
 Scary Monsters and Nice Sprites | Skrillex
 Bangarang | Skrillex
-Get Low | Dillon Francis ~ DJ Snake
+Language | Porter Robinson
 Let Me Love You | DJ Snake ~ Justin Bieber
 Tsunami | DVBBS ~ Borgeous
 Born Slippy ~ Born Slippy .NUXX | Underworld
@@ -1299,7 +1299,7 @@ Like Crazy | Jimin
 Daechwita | Agust D
 Gentleman | PSY
 Kick It | NCT 127
-BBoom BBoom ~ Bboom Bboom | MOMOLAND ~ Momoland
+Oh! | Girls' Generation ~ SNSD
 Gashina | SUNMI ~ Sunmi
 Bling-Bang-Bang-Born | Creepy Nuts
 Night Dancer | imase
