@@ -451,6 +451,20 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .reveal .t a{display:inline-block;margin-top:4px;font-size:11px;color:var(--muted)}
 .fab{position:absolute;right:14px;bottom:max(14px,env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;display:grid;place-items:center;z-index:12;
   background:#120c16;border:1.5px solid rgba(var(--glow),.6);box-shadow:0 0 14px rgba(var(--glow),.35)}
+/* réactions rapides (version 1.10) : boutons et emojis qui montent à l'écran avec le pseudo */
+.reacts{display:flex;justify-content:center;gap:6px;margin:12px 0 2px}
+.reacts button{width:46px;height:42px;border-radius:13px;font-size:22px;line-height:1;display:grid;place-items:center;background:#120c16;border:1.5px solid rgba(var(--glow),.35);transition:transform .12s}
+.reacts button:active{transform:scale(.86)}
+.reacts.float{position:absolute;left:14px;bottom:max(14px,env(safe-area-inset-bottom));z-index:12;margin:0;padding:5px;gap:3px;border-radius:26px;background:rgba(18,12,22,.94);border:1.5px solid rgba(var(--glow),.45);box-shadow:0 0 14px rgba(var(--glow),.25)}
+.reacts.float button{width:38px;height:38px;border-radius:50%;border:none;background:transparent;font-size:21px}
+#reactLayer{position:absolute;inset:0;z-index:45;pointer-events:none;overflow:hidden}
+.rb{position:absolute;bottom:92px;display:flex;flex-direction:column;align-items:center;gap:3px;animation:rbup 2.6s cubic-bezier(.2,.7,.3,1) forwards}
+.rb span{font-size:40px;line-height:1;filter:drop-shadow(0 0 10px rgba(var(--glow),.55))}
+.rb b{max-width:120px;padding:1px 8px;border-radius:9px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(10,6,14,.8);border:1px solid rgba(var(--glow),.45)}
+.rb.me b{color:var(--gold2)}
+@keyframes rbup{0%{opacity:0;transform:translateY(24px) scale(.4)}12%{opacity:1;transform:translateY(0) scale(1.18)}22%{transform:translateY(-10px) scale(1)}78%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-40vh) scale(.9)}}
+@keyframes rbfade{0%,100%{opacity:0}15%,80%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.rb{animation:rbfade 2.2s forwards}}
 .fab .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;border-radius:10px;background:var(--pink);font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 5px}
 .floatpts{position:absolute;left:50%;top:40%;z-index:30;font-size:28px;font-weight:900;color:var(--green);text-shadow:0 0 14px var(--green);pointer-events:none;animation:up 1.2s ease-out forwards}
 @keyframes up{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}20%{opacity:1;transform:translate(-50%,0) scale(1.1)}100%{opacity:0;transform:translate(-50%,-70px)}}
@@ -805,6 +819,7 @@ svg.med{flex:none;overflow:visible}
     </div>
     <p class="note" id="lobbyNote"></p>
     <div class="plist" id="lobbyPlayers"></div>
+    <div class="reacts" id="lobbyReacts"></div>
     <div class="card chatbox" id="lobbyChat"><div class="msgs" id="lobbyMsgs"></div>
       <div class="chatin"><input id="lobbyChatIn" maxlength="120" placeholder="Écris un message…" enterkeyhint="send"><button class="ibtn" id="lobbyChatSend" data-i="send"></button></div></div>
   </div>
@@ -841,6 +856,7 @@ svg.med{flex:none;overflow:visible}
   <div class="reveal card hide" id="reveal"></div>
   <div class="overlay hide" id="gOverlay"></div>
   <button class="fab" id="chatFab" data-i="chat"><span class="badge hide" id="chatBadge"></span></button>
+  <div class="reacts float" id="gameReacts"></div>
 </section>
 
 <!-- ===== 5. Fin de partie ===== -->
@@ -848,6 +864,7 @@ svg.med{flex:none;overflow:visible}
   <div class="top"><div style="width:40px"></div><h2 style="color:var(--gold2)">Partie terminée !<small id="endSub" style="color:var(--muted)"></small></h2><div style="width:40px"></div></div>
   <div class="scroll">
     <div class="podium" id="podium"></div>
+    <div class="reacts" id="endReacts"></div>
     <div class="card myrow" id="myrow"></div>
     <div id="rankBox"></div>
     <div class="tabs"><button class="on" data-et="recap">Mon récapitulatif</button><button data-et="full">Classement complet</button></div>
@@ -899,6 +916,7 @@ svg.med{flex:none;overflow:visible}
 </section>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="ringg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset=".55" stop-color="#ffb21e"/><stop offset="1" stop-color="#ff2e93"/></linearGradient></defs></svg>
+<div id="reactLayer" aria-hidden="true"></div>
 <nav class="tabbar hide" id="tabbar" aria-label="Navigation principale">
   <button data-tab="home"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>Accueil</button>
   <button data-tab="defis" data-go="defis"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><i class="badge hide" id="defiDot"></i></span>Défis</button>
@@ -915,7 +933,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.9';
+const VERSION = '1.10';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1226,7 +1244,7 @@ function fresh() {
     st: { games: 0, wins: 0, nT: 0, nA: 0, rounds: 0, top: 0, streak: 0, fast: 0, perfect: 0, cats: [], byCat: {} },
     day: { d: today(), games: 0, nA: 0, nT: 0, streak: 0, top5: 0, wins: 0, claimed: [] },
     sea: { m: month(), games: 0, nA: 0, nT: 0, wins: 0, claimed: [] },
-    set: { sfx: true, music: true, vol: 0.9, chat: true, others: true, live: true }, games: [], cat: 'mix', acct: '', soloLvl: 1,
+    set: { sfx: true, music: true, vol: 0.9, chat: true, others: true, reacts: true, live: true }, games: [], cat: 'mix', acct: '', soloLvl: 1,
     rank: { sc: '', rp: 0, tier: 0, best: 0, bestEver: 0, games: 0, pos: null }, seasons: [], promos: {},
     road: { sc: month(), xp: 0, claimed: [] }, avs: [], titles: [], sframes: [], title: 'recrue', show: [], medals: {}, knownTitles: [], code: '',
     inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '',
@@ -1497,6 +1515,7 @@ function leaveRoom(silent) {
   R.st = null;
   $('#netbar')?.remove();
   $('#tapSound')?.remove();
+  $('#reactLayer').innerHTML = '';
   if (new URLSearchParams(location.search).has('salon')) history.replaceState(history.state, '', location.pathname);
   if (ROOM_VIEWS.includes(curView)) { go('home', true); }
 }
@@ -1517,6 +1536,7 @@ function onMsg(m) {
     case 'rank': return onRank(m);
     case 'move': toast(`Nouveau rang : tu passes dans un salon ${rangeName(m.tier)}`, 3500); connect(R.path); return;
     case 'chat': case 'sys': return onChat(m);
+    case 'react': return onReact(m);
     case 'preload': if (m.url) { pre.src = m.url; } return;
     case 'ends': if (R.st?.cur) { R.st.cur.end = m.end; R.st.ends = m.end; } return;
   }
@@ -1604,6 +1624,25 @@ function onChat(m) {
   else if (curView === 'game' && m.t === 'chat' && m.id !== R.me && S.set.chat && S.set.others) { R.unread++; renderBadge(); }
   if (curView === 'lobby') renderChatInto($('#lobbyMsgs'));
 }
+// réactions rapides : mêmes emojis que REACTS dans src/room.js (le serveur refuse les autres et limite à 5 toutes les 3 s)
+const REACTS = ['👏', '🔥', '😂', '😮', '🎉'];
+$$('.reacts').forEach(el => {
+  el.innerHTML = REACTS.map(e => `<button data-react="${e}" aria-label="Réaction ${e}">${e}</button>`).join('');
+  el.onclick = ev => { const b = ev.target.closest('[data-react]'); if (b) send({ t: 'react', e: b.dataset.react }); };
+});
+// l'emoji monte à l'écran avec le pseudo ; ses propres réactions toujours, celles des autres si le réglage est activé
+function onReact(m) {
+  if (!ROOM_VIEWS.includes(curView) || !REACTS.includes(m.e) || (m.id !== R.me && !S.set.reacts)) return;
+  const layer = $('#reactLayer');
+  while (layer.children.length >= 14) layer.firstChild.remove();
+  const b = document.createElement('div');
+  b.className = 'rb' + (m.id === R.me ? ' me' : '');
+  b.style.left = (6 + Math.random() * 68).toFixed(1) + '%';
+  b.style.setProperty('--dx', Math.round(Math.random() * 60 - 30) + 'px');
+  b.innerHTML = `<span>${m.e}</span><b>${m.id === R.me ? 'Toi' : esc(m.name)}</b>`;
+  b.addEventListener('animationend', () => b.remove());
+  layer.appendChild(b);
+}
 function renderBadge() { const b = $('#chatBadge'); b.textContent = R.unread; b.classList.toggle('hide', !R.unread); }
 function renderChatInto(el) {
   const list = R.chat.filter(m => m.t === 'sys' || m.id === R.me || S.set.others);
@@ -1621,6 +1660,7 @@ function sendChat(inp) {
 // ---------- rendu du salon ----------
 function renderRoom() {
   if (!R.st) return;
+  $$('.reacts').forEach(el => el.classList.toggle('hide', !!R.st.solo)); // pas de réactions en solo (que des bots)
   if (curView === 'lobby') renderLobby();
   else if (curView === 'game') renderGame();
   else if (curView === 'end') renderEnd();
@@ -2658,6 +2698,7 @@ function renderSettings() {
     <div class="card set"><span class="e">🔊</span><span>Volume des extraits</span><input type="range" id="volIn" min="0" max="1" step="0.05" value="${S.set.vol}"></div>
     ${tg('chat', '💬', 'Afficher le chat')}
     ${tg('others', '👥', 'Messages des autres joueurs')}
+    ${tg('reacts', '👏', 'Réactions des autres joueurs')}
     ${tg('live', '👁️', 'Réponses trouvées visibles en direct')}
     <button class="card li" data-go2="shop" data-tab2="themes"><span class="e">🎨</span><span>Thème</span><span class="muted">${THEMES.find(t => t.id === S.theme)?.name || 'Or'}</span><span class="chev">›</span></button>
     <button class="card li" data-go2="profile"><span class="e">👤</span><span>Pseudo et avatar</span><span class="chev">›</span></button>

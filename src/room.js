@@ -26,6 +26,7 @@ const DURS = [15, 20, 30];
 const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie', 'arc', 'aurore', 'royal', 'icone', 'legend']);
 const NAME_STYLES = new Set(['', 'gold', 'rainbow']);   // pseudo doré, arc-en-ciel (boutique, Prestige)
 const WIN_FX = new Set(['', 'confetti', 'fireworks']);  // effet de victoire vu par tout le salon
+const REACTS = new Set(['👏', '🔥', '😂', '😮', '🎉']); // réactions rapides (mêmes que REACTS dans l'appli)
 // une catégorie, ou jusqu'à 3 mélangées (salon privé Premium)
 const cleanCat = c => {
   const parts = [...new Set(String(c || '').split('+'))].filter(x => CAT_IDS.has(x)).slice(0, 3);
@@ -241,6 +242,7 @@ export class Room extends DurableObject {
       case 'ping': return this.send(ws, { t: 'pong', c: m.c, s: Date.now() });
       case 'guess': return this.guess(p, String(m.text || '').slice(0, 80), !!m.enter);
       case 'chat': return this.onChat(p, m.text);
+      case 'react': return this.onReact(p, m.e);
       case 'start': if (isHost && idle) this.startGame(); return;
       case 'opts': if (isHost && idle) { this.setOpts(m); this.broadcastState(); } return;
       case 'profile': this.profile(p, m); this.broadcastState(); return;
@@ -561,4 +563,16 @@ export class Room extends DurableObject {
   }
 
   sys(text) { this.pushChat({ t: 'sys', text, at: Date.now() }); }
+
+  // ---------- réactions rapides ----------
+  // relayées tout de suite à tout le salon, jamais gardées (pas dans l'historique du chat) ;
+  // pas en solo, jamais de la part d'un bot, au plus 5 toutes les 3 secondes par joueur
+  onReact(p, e) {
+    if (this.solo || p.bot || !REACTS.has(e)) return;
+    const now = Date.now();
+    p.rq = (p.rq || []).filter(t => now - t < 3000);
+    if (p.rq.length >= 5) return;
+    p.rq.push(now);
+    this.broadcast({ t: 'react', id: p.id, name: p.name, e });
+  }
 }
