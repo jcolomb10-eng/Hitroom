@@ -448,6 +448,14 @@ svg.med{flex:none;overflow:visible}
 .tiers>div>.fxbox{flex:none}
 .tiers>div>b{flex:1;font-size:14px}
 .tiers .pr{color:var(--muted);font-size:12px;width:66px}
+/* boutique : aperçu d'un thème avant l'achat */
+.prevbar{position:absolute;left:14px;right:14px;bottom:max(12px,env(safe-area-inset-bottom));z-index:12;padding:10px 12px;display:flex;align-items:center;gap:10px;animation:pop .3s}
+.prevbar>div{flex:1;min-width:0;font-size:13px;line-height:1.3}
+.prevbar b{display:block;font-size:15px}
+.prevbar .cta{width:auto;min-height:44px;padding:0 14px;font-size:14px;gap:5px;flex:none}
+.prevbar .ghost{min-height:44px;padding:0 12px;font-size:14px;flex:none}
+#v-shop.previewing .scroll{padding-bottom:96px}
+.shop .hint{grid-column:1/-1;margin:0 0 2px;font-size:12.5px;color:var(--muted);text-align:center}
 /* boutique : objets et prestige */
 .obj{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:12px;text-align:left;border-radius:14px;position:relative}
 .obj>.e{font-size:30px;flex:none;width:44px;text-align:center}
@@ -660,6 +668,7 @@ svg.med{flex:none;overflow:visible}
   <div class="top"><button class="ibtn back" data-i="back"></button><h2>Boutique</h2><div class="pill"><span class="coin">$</span><span id="shopCoins"></span></div></div>
   <div class="tabs"><button class="on" data-st="frames">Cadres</button><button data-st="themes">Thèmes</button><button data-st="items">Objets</button><button data-st="prestige">Prestige</button></div>
   <div class="scroll"><div class="shop" id="shopGrid"></div><p class="muted" style="font-size:12.5px;text-align:center;margin-top:16px">Gagne des pièces en jouant et en réussissant tes défis.</p></div>
+  <div class="card prevbar hide" id="prevBar"></div>
 </section>
 
 <!-- ===== Route de saison ===== -->
@@ -684,7 +693,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.7';
+const VERSION = '1.7.1';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1008,8 +1017,10 @@ function avHTML(av, fr, size, extra = '') {
 
 // ---------- interface : vues, toasts, feuilles ----------
 let curView = null;
+let previewTheme = null; // thème essayé dans la boutique (voir startPreview)
 const ROOM_VIEWS = ['lobby', 'game', 'end'];
 function show(v) {
+  if (v !== 'shop' && previewTheme) endPreview();
   $$('.view').forEach(el => el.classList.toggle('hide', el.id !== 'v-' + v));
   curView = v;
   if (v === 'home') renderHome();
@@ -2055,7 +2066,8 @@ let shopTab = 'frames';
 $$('[data-st]').forEach(b => b.onclick = () => { shopTab = b.dataset.st; $$('[data-st]').forEach(x => x.classList.toggle('on', x === b)); renderShop(); });
 function renderShop() {
   $('#shopCoins').textContent = fmt(S.coins);
-  const card = (kind, id, pic, name, small, eq) => `<button class="card item ${eq ? 'eq' : ''}" data-kind="${kind}" data-it="${id}">${eq ? '<span class="ok">✓</span>' : ''}${pic}<b>${name}</b><small>${small}</small></button>`;
+  // eq : true = équipé (coche), 'preview' = thème en aperçu (mis en avant, sans coche)
+  const card = (kind, id, pic, name, small, eq) => `<button class="card item ${eq ? 'eq' : ''}" data-kind="${kind}" data-it="${id}">${eq === true ? '<span class="ok">✓</span>' : ''}${pic}<b>${name}</b><small>${small}</small></button>`;
   let html = '';
   const price = it => `<span class="coin">$</span>${fmt(it.price)}`;
   if (shopTab === 'frames') {
@@ -2073,7 +2085,8 @@ function renderShop() {
     html += S.sframes.length ? S.sframes.map(id => card('season', id, avHTML(S.av, id, 58), seasonName(id.slice(1)), S.fr === id ? 'Équipé' : 'Choisir', S.fr === id)).join('')
       : '<p class="note" style="grid-column:1/-1;margin:4px 0 0">Récompense finale de la route de saison (palier 30), différente chaque mois.</p>';
   } else if (shopTab === 'themes') {
-    html = THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : price(it), S.theme === it.id)).join('');
+    html = '<p class="hint">👁️ Touche un thème pour l’essayer avant de l’acheter.</p>';
+    html += THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, previewTheme === it.id ? '👁️ Aperçu' : S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : price(it), previewTheme ? previewTheme === it.id && 'preview' : S.theme === it.id)).join('');
   } else {
     const list = shopTab === 'items' ? ITEMS : PRESTIGE;
     html = list.map(it => {
@@ -2099,6 +2112,7 @@ function renderShop() {
       S.fr = id; profileChanged();
     } else if (kind === 'items' || kind === 'prestige') { if (!buyThing(kind, id)) return; }
     else if (kind === 'lav') { if (!buyAvatar(id)) return; profileChanged(); }
+    else if (kind === 'theme' && !S.themes.includes(id)) return startPreview(id);
     else {
       const items = kind === 'buy' ? [...FRAMES, ...PRESTIGE_FRAMES] : THEMES, owned = kind === 'buy' ? S.owned : S.themes, it = items.find(x => x.id === id);
       if (!owned.includes(id)) {
@@ -2106,10 +2120,44 @@ function renderShop() {
         if (!confirm(`Acheter « ${it.name} » pour ${fmt(it.price)} pièces ?`)) return;
         S.coins -= it.price; owned.push(id);
       }
-      if (kind === 'buy') { S.fr = id; profileChanged(); } else { S.theme = id; applyTheme(); }
+      if (kind === 'buy') { S.fr = id; profileChanged(); } else { previewTheme = null; S.theme = id; applyTheme(); }
     }
     save(); renderShop();
   });
+  renderPreviewBar();
+}
+// aperçu d'un thème pas encore acheté : appliqué tant qu'on reste dans la boutique, puis on revient au thème équipé
+function startPreview(id) {
+  previewTheme = id;
+  applyTheme(id);
+  renderShop();
+}
+function endPreview() {
+  previewTheme = null;
+  applyTheme();
+  renderPreviewBar();
+}
+function renderPreviewBar() {
+  const bar = $('#prevBar'), it = THEMES.find(t => t.id === previewTheme);
+  bar.classList.toggle('hide', !it);
+  $('#v-shop').classList.toggle('previewing', !!it);
+  if (!it) return;
+  const short = S.coins < it.price;
+  bar.innerHTML = `<div><b>Aperçu : ${esc(it.name)}</b><span class="muted">${short ? `Il te manque ${fmt(it.price - S.coins)} pièces` : 'Il te plaît ? Tu peux l’acheter.'}</span></div>
+    <button class="ghost" id="prevNo">Annuler</button><button class="cta" id="prevBuy"><span class="coin">$</span>${fmt(it.price)}</button>`;
+  $('#prevNo').onclick = () => { endPreview(); renderShop(); };
+  $('#prevBuy').onclick = () => {
+    if (S.coins < it.price) return toast(`Il te manque ${fmt(it.price - S.coins)} pièces. Joue et réussis tes défis pour en gagner !`, 3200);
+    if (!confirm(`Acheter le thème « ${it.name} » pour ${fmt(it.price)} pièces ?`)) return;
+    S.coins -= it.price;
+    S.themes.push(it.id);
+    S.theme = it.id;
+    previewTheme = null;
+    applyTheme();
+    save();
+    toast(`🎨 Thème « ${esc(it.name)} » acheté !`);
+    renderShop();
+  };
 }
 // objets et prestige : renvoie true si quelque chose a changé
 function buyThing(kind, id) {
@@ -2138,8 +2186,8 @@ function buyThing(kind, id) {
 // thème : couleurs (data-theme), reflets des thèmes de luxe (data-lux), couleurs qui changent pour Aurore
 const AURORA = ['61,255,176', '47,212,255', '123,107,255', '255,79,216'];
 let auroraT = null;
-function applyTheme() {
-  const th = THEMES.find(t => t.id === S.theme) || THEMES[0], root = document.documentElement;
+function applyTheme(id = S.theme) {
+  const th = THEMES.find(t => t.id === id) || THEMES[0], root = document.documentElement;
   root.dataset.theme = th.id;
   if (th.lux) root.dataset.lux = '1'; else delete root.dataset.lux;
   clearInterval(auroraT);

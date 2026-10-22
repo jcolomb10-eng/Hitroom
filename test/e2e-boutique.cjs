@@ -38,19 +38,38 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   ok(S.av === 'A01' && S.avs.join() === 'R07', `avatars emoji convertis : 🎤 → ${S.av}, 🦋 → ${S.avs}`);
   ok(await page.$eval('#homeAv img', i => i.complete && i.naturalWidth > 0 && i.src.endsWith('/av/A01.webp')), 'accueil : image du Micro d’or chargée');
 
-  // 2. boutique : thèmes de luxe
+  // 2. boutique : aperçu d'un thème même sans assez de pièces, puis retour au thème équipé
+  const theme = () => page.evaluate(() => document.documentElement.dataset.theme);
+  await patch(S => { S.coins = 1000; });
+  await page.click('[data-go="shop"]');
+  await page.click('[data-st="themes"]');
+  await page.click('[data-kind="theme"][data-it="champagne"]');
+  await sleep(400);
+  ok(await theme() === 'champagne' && /Il te manque 2\s000/.test(await page.textContent('#prevBar')), 'aperçu du thème Champagne sans assez de pièces');
+  await shot(page, 'b00_apercu_theme');
+  await page.click('#prevBuy');
+  ok((await page.textContent('#toast')).includes('Il te manque') && (await state()).theme === 'or', 'achat refusé, thème équipé inchangé');
+  await page.goBack();
+  await page.waitForSelector('#v-home:not(.hide)');
+  ok(await theme() === 'or', 'en quittant la boutique, retour au thème Or');
+
+  // 2 bis. thèmes de luxe : aperçu puis achat depuis la barre d'aperçu
   await patch(S => { S.coins = 200000; });
   await page.click('[data-go="shop"]');
   await page.click('[data-st="themes"]');
   await page.click('[data-kind="theme"][data-it="lumiere"]');
+  await page.click('#prevBuy');
   await sleep(400);
-  ok(await page.evaluate(() => document.documentElement.dataset.theme === 'lumiere' && document.documentElement.dataset.lux === '1'), 'thème Lumière acheté et appliqué (reflets de luxe)');
+  ok(await page.evaluate(() => document.documentElement.dataset.theme === 'lumiere' && document.documentElement.dataset.lux === '1') && (await state()).theme === 'lumiere', 'thème Lumière acheté depuis l’aperçu et appliqué (reflets de luxe)');
   await shot(page, 'b01_theme_lumiere');
   await page.click('[data-kind="theme"][data-it="aurore"]');
   const g1 = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--glow'));
   await sleep(2800);
   const g2 = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--glow'));
-  ok(g1.trim() !== g2.trim(), `thème Aurore : les couleurs changent (${g1.trim()} → ${g2.trim()})`);
+  ok(g1.trim() !== g2.trim(), `aperçu du thème Aurore : les couleurs changent (${g1.trim()} → ${g2.trim()})`);
+  await page.click('#prevBuy');
+  await sleep(300);
+  ok((await state()).theme === 'aurore' && await page.$eval('#prevBar', e => e.classList.contains('hide')), 'thème Aurore acheté, barre d’aperçu fermée');
   await shot(page, 'b02_theme_aurore');
 
   // 3. objets utiles
