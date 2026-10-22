@@ -1382,7 +1382,7 @@ Bloody Mary | Lady Gaga
 Dancing Queen | ABBA
 Gimme! Gimme! Gimme! ~ Gimme Gimme Gimme ~ Gimme! Gimme! Gimme! (A Man After Midnight) | ABBA
 Reality | Richard Sanderson
-Vois sur ton chemin | Les Choristes ~ Bruno Coulais ~ Les Petits Chanteurs de Saint-Marc | fr
+Sous l'océan | Henri Salvador | fr
 La valse d'Amélie | Yann Tiersen
 The Pink Panther Theme ~ La Panthère rose ~ The Pink Panther | Henry Mancini
 Hedwig's Theme ~ Harry Potter | John Williams
