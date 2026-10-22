@@ -877,6 +877,49 @@ svg.med{flex:none;overflow:visible}
 .duelres span{font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.hitres .tiles span,.mode.small .sav>img{animation:none}}
 
+/* ---------- bande défilante de l'accueil, vitrine dynamique, mentions légales (version 1.16) ---------- */
+.ticker{position:relative;margin:0 -14px 8px;height:32px;overflow:hidden;display:flex;align-items:center;background:linear-gradient(90deg,#ff2e93,#a34dff 35%,#ff8a1f 70%,#ffd85c);box-shadow:0 0 18px rgba(255,46,147,.5);border-top:1px solid rgba(255,255,255,.35);border-bottom:1px solid rgba(0,0,0,.25)}
+.ticker .tk{display:flex;flex:none;white-space:nowrap;animation:tick 34s linear infinite;will-change:transform}
+.ticker span{font-size:13.5px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6);padding:0 14px}
+.ticker i{font-style:normal;color:#fff6c9;text-shadow:0 0 8px #fff}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker .tk{animation:none}.ticker .tk>*:nth-child(n+3){display:none}}
+.legal-link{align-self:center;font-size:12px;color:#9c8fac;text-decoration:underline;padding:2px 8px}
+.legal p,.legal ul{margin:0 0 10px}.legal h4{margin:14px 0 4px;font-size:13px;color:var(--gold2)}
+.vit{--mc:255,200,60;--gold2:#ffd85c;--ink:#fff;--muted:#d9cde5;position:relative;overflow:hidden;border-radius:22px;padding:12px 10px;color:#fff;background:radial-gradient(90% 70% at 50% 0%,rgba(var(--glow),.3),transparent 70%),radial-gradient(60% 50% at 50% 100%,rgba(163,77,255,.22),transparent 70%),linear-gradient(180deg,#160d20,#09050d);border:1.5px solid rgba(var(--glow),.6);box-shadow:0 0 28px rgba(var(--glow),.25),inset 0 0 30px rgba(var(--glow),.08)}
+.vit .vbeam{position:absolute;top:-30px;width:44%;height:260px;transform-origin:top center;background:linear-gradient(180deg,rgba(var(--glow),.55),transparent 78%);filter:blur(12px);opacity:.5;mix-blend-mode:screen;animation:sweep 7s ease-in-out infinite alternate;pointer-events:none}
+.vit .vbeam.b1{left:-6%;--a:-22deg}.vit .vbeam.b2{right:-6%;--a:22deg;animation-delay:-3.5s}
+.vhd{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.vhd small{font-size:10.5px;font-weight:800;letter-spacing:2px;color:var(--gold2)}
+.vhd button{font-size:12px;font-weight:700;padding:5px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff}
+.vrow{position:relative;display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:end;gap:4px;margin-top:4px}
+.vslot{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center;color:#fff}
+.vslot::before{content:'';position:absolute;left:50%;top:4%;width:120%;aspect-ratio:1;transform:translate(-50%,0);border-radius:50%;background:radial-gradient(closest-side,rgba(var(--mc),.38),transparent);animation:vpulse 3s ease-in-out infinite;animation-delay:var(--d,0s);pointer-events:none}
+@keyframes vpulse{50%{opacity:.45;transform:translate(-50%,0) scale(.86)}}
+.vslot .fl{position:relative;display:block;animation:vfloat 3.6s ease-in-out infinite;animation-delay:var(--d,0s);perspective:420px}
+@keyframes vfloat{50%{transform:translateY(-8px)}}
+.vslot .vm{display:block;transform:rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg));transition:transform .15s;filter:drop-shadow(0 8px 12px rgba(var(--mc),.6))}
+.vsp{position:absolute;font-style:normal;font-size:13px;color:#fff6c9;text-shadow:0 0 8px rgb(var(--mc));animation:tw 1.8s ease-in-out infinite;pointer-events:none}
+.vslot b{position:relative;font-size:11.5px;line-height:1.15;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.3em}
+.vslot small{position:relative;font-size:11px;font-weight:700;color:rgb(var(--mc))}
+.vped{position:relative;overflow:hidden;width:100%;display:grid;place-items:start center;padding-top:6px;border-radius:10px 10px 3px 3px;font-weight:900;font-size:20px;color:rgba(0,0,0,.45);margin-top:4px}
+.vped::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.5) 50%,transparent 65%);background-size:250% 100%;animation:sheen 3.4s ease-in-out infinite;animation-delay:var(--d,0s)}
+.vslot.k1 .vped{height:60px;background:linear-gradient(180deg,#fff1a8,#ffc531 45%,#b77a00);box-shadow:0 0 20px rgba(255,197,49,.5)}
+.vslot.k2 .vped{height:42px;background:linear-gradient(180deg,#fff,#c3cad6 45%,#6c7586)}
+.vslot.k3 .vped{height:32px;background:linear-gradient(180deg,#ffd9b8,#d08850 45%,#7a3f16)}
+.vslot.empty{opacity:.6}
+.vslot.empty::before{display:none}
+.vslot.empty .vm{width:var(--s,56px);height:var(--s,56px);display:grid;place-items:center;border-radius:50%;border:2px dashed rgba(255,255,255,.4);font-size:24px;color:rgba(255,255,255,.7);transform:none;filter:none}
+.vadd{width:100%;height:100%;font-size:26px;color:inherit}
+.vtick{position:relative;margin-top:10px;min-height:52px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.vt{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;justify-content:center;padding:8px 12px 14px;animation:vin .5s cubic-bezier(.2,.9,.3,1) both}
+@keyframes vin{from{opacity:0;transform:translateY(12px)}}
+.vt .ve{font-size:20px}.vt .vl{font-size:12.5px;color:#d9cde5}.vt b{font-size:22px;font-weight:900;color:#ffd85c}.vt small{font-size:12px;color:#d9cde5}
+.vdots{position:absolute;bottom:4px;left:0;right:0;display:flex;gap:4px;justify-content:center}
+.vdots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.25)}.vdots i.on{background:#ffd85c;box-shadow:0 0 6px #ffd85c}
+.vhint{position:relative;margin:8px 0 0;text-align:center;font-size:12.5px;color:#d9cde5}
+@media (prefers-reduced-motion:reduce){.vit *,.vit *::before,.vit *::after{animation:none!important}}
+
 /* ---------- thème clair (Paramètres → Thème clair) : fond clair, cartes blanches, texte foncé ;
    les couleurs d'accent restent celles du thème acheté ; avatars et pochettes gardent leur fond sombre ---------- */
 :root[data-light]{--bg:#f6f1f9;--cardA:#ffffff;--cardB:#fbf7fd;--ink:#1d1424;--muted:#665775;--dim:#9a8ca8;--gold:#b46400;--gold2:#9a5600;--green:#0d9a4f;--red:#d42a3f;--pink:#e0127a;--line:#e4d9ec}
@@ -949,6 +992,15 @@ svg.med{flex:none;overflow:visible}
 :root[data-light] .hitres .tiles span.s0,:root[data-light] .hg i.s0{background:#e6dcec;border-color:#d4c6de}
 :root[data-light] .fri .fpic .dot{border-color:#fff}
 :root[data-light] .mode .sav .fon{border-color:var(--green)}
+:root[data-light][data-theme="neon"]{--bg:#fff0f8}
+:root[data-light][data-theme="cyan"]{--bg:#ecf9ff}
+:root[data-light][data-theme="lumiere"]{--bg:#fff8e6}
+:root[data-light][data-theme="champagne"]{--bg:#fbf4e4}
+:root[data-light][data-theme="orrose"]{--bg:#fff0ec}
+:root[data-light][data-theme="saphir"]{--bg:#e9efff;--glow:60,100,220}
+:root[data-light][data-theme="rubis"]{--bg:#ffedf1;--glow:210,40,80}
+:root[data-light][data-theme="diamant"]{--bg:#eef5ff}
+:root[data-light][data-theme="aurore"]{--bg:#e8fff5;--glow:20,180,130}
 @media(min-width:520px){:root[data-light] #app{border-color:#ddd2e6}}
 </style>
 </head>
@@ -983,14 +1035,16 @@ svg.med{flex:none;overflow:visible}
     <button class="lbtn google" id="loginGoogle"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuer avec Google<span class="soon">Bientôt</span></button>
     <button class="lbtn mail" id="loginMail"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffd85c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Continuer avec un e-mail<span class="soon">Bientôt</span></button>
     <div class="or"><span></span>ou<span></span></div>
-    <button class="cta lux" id="loginGuest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Jouer en invité</button>
+    <button class="cta lux" id="loginGuest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span id="loginGuestTxt">Jouer en invité</span></button>
     <p class="note2">En invité, ta progression reste sur ce téléphone (et avec ton code de sauvegarde). Les comptes arrivent bientôt.</p>
+    <button class="legal-link" id="loginLegal">Mentions légales</button>
   </div>
 </section>
 
 <section class="view hide" id="v-home">
   <video class="bgvid dim" id="homeVid" data-src="/fonds/accueil" poster="/fonds/accueil.webp" muted loop playsinline preload="none"></video>
   <div class="home-shade"></div>
+  <div class="ticker" id="homeTicker" role="note"><div class="tk" id="homeTk"></div></div>
   <div class="me-bar">
     <button class="mechip" id="homeAv" aria-label="Mon profil"><span id="homeAvPic"></span><span class="who"><b id="homeName"></b><span id="homeLvl"></span><span class="bar"><i id="homeXp"></i></span></span></button>
     <button class="pill" id="homeCoins"><span class="coin">$</span><span id="coinVal">0</span></button>
@@ -1161,7 +1215,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.15';
+const VERSION = '1.16';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1207,6 +1261,10 @@ const daysLeft = () => Math.max(1, Math.ceil((new Date(new Date().getFullYear(),
 const rid = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => 'abcdefghijkmnpqrstuvwxyz23456789'[b % 32]).join('');
 const icon = (n, size) => `<svg class="i" viewBox="0 0 24 24"${size ? ` style="width:${size}px;height:${size}px"` : ''}>${P[n]}</svg>`;
 function paintIcons(root = document) { root.querySelectorAll('[data-i]').forEach(el => { if (!el.dataset.done) { el.insertAdjacentHTML('afterbegin', icon(el.dataset.i)); el.dataset.done = 1; } }); }
+
+// bande défilante de l'accueil (boucle sans fin : le texte est répété deux fois, l'animation fait la moitié du chemin)
+const TICKER = ['🚧 Application en développement', '💡 Vos retours et vos idées nous seront très utiles', '🎉 Amusez-vous bien !', '🎵 Bon blind test à tous'];
+function paintTicker() { const a = TICKER.map(t => `<span>${esc(t)}</span><i>✦</i>`).join(''); $('#homeTk').innerHTML = a + a; }
 
 // ---------- données ----------
 const CATS = [
@@ -2140,9 +2198,9 @@ function checkUnlocks() {
   if (legend) queueToast(`${avHTML(S.av, 'legend', 30)} Cadre <b>Légendaire</b> débloqué ! (Boutique → Cadres)`);
 }
 // ---------- Mes découvertes : morceaux entendus (sur l'appareil) et favoris ❤️ (dans la sauvegarde) ----------
-const DISC_KEY = 'hitroom.disc';
+const DISC_KEY = 'hitroom.disc', DISC_MAX = 30; // seuls les 30 derniers morceaux entendus sont gardés et affichés
 let DISC = [];
-try { DISC = JSON.parse(localStorage.getItem(DISC_KEY) || '[]'); } catch (e) { /* stockage indisponible */ }
+try { DISC = JSON.parse(localStorage.getItem(DISC_KEY) || '[]').slice(0, DISC_MAX); } catch (e) { /* stockage indisponible */ }
 const songKey = x => `${x.a}|${x.t}`.toLowerCase();
 const isFav = x => (S.favs || []).some(f => songKey(f) === songKey(x));
 // à chaque réponse révélée : le morceau rejoint l'historique (g = partie:manche, f = ce que j'ai trouvé)
@@ -2150,7 +2208,7 @@ function noteSong(st, me) {
   const r = st.reveal, g = `${st.gameId}:${st.round}`;
   if (!r || !st.gameId || DISC.some(d => d.g === g)) return;
   DISC.unshift({ g, t: r.t, a: r.a, art: r.art || '', link: r.link || '', ts: Date.now(), f: me?.ft || 0 });
-  DISC = DISC.slice(0, 150);
+  DISC = DISC.slice(0, DISC_MAX);
   try { localStorage.setItem(DISC_KEY, JSON.stringify(DISC)); } catch (e) { /* stockage indisponible */ }
 }
 function toggleFav(x) {
@@ -2181,6 +2239,7 @@ function discSheet() {
     const favs = discTab === 'favs';
     openSheet(`<h3>Mes découvertes <button data-close data-i="x"></button></h3>
       <div class="segs"><button class="${favs ? '' : 'on'}" data-dc="recent">🎵 Récents (${DISC.length})</button><button class="${favs ? 'on' : ''}" data-dc="favs">❤️ Favoris (${(S.favs || []).length})</button></div>
+      ${favs ? '' : `<p class="note" style="margin:-4px 0 10px">Les ${DISC_MAX} derniers morceaux entendus.</p>`}
       <div class="songs" id="discList"></div>`);
     fillSongs($('#discList'), favs ? S.favs || [] : DISC,
       favs ? 'Touche 🤍 sur un morceau (à la réponse ou ici) pour le garder dans tes favoris.' : 'Joue une partie : chaque morceau entendu s’affichera ici, avec un lien pour l’écouter en entier.',
@@ -2576,6 +2635,8 @@ function renderProfile() {
       <button class="card pchip" id="profCoins"><span class="coin">$</span><span><small>Pièces</small><b>${fmt(S.coins)}</b></span></button>
       <button class="card pchip" id="profMeds"><span class="pbig">🏅</span><span><small>Médailles</small><b>${nMed} / ${MEDALS.length}</b></span></button>
     </div>
+    <h4 class="psec">Ma vitrine <span>${nMed}/${MEDALS.length} médailles</span></h4>
+    ${vitHTML(showIds().map(id => { const m = MEDALS.find(x => x.id === id); return { m, l: medalLevel(m) }; }), { edit: 1, click: 1, tick: 1, size: 62 })}
     <h4 class="psec">Statistiques</h4>
     <div class="nums"><div class="card"><b>${s.games}</b><small>Parties</small></div><div class="card"><b>${s.nA}</b><small>Artistes</small></div>
       <div class="card"><b>${s.nT}</b><small>Titres</small></div><div class="card"><b>${rate}%</b><small>Réussite</small></div></div>
@@ -2592,13 +2653,13 @@ function renderProfile() {
       <button class="card li" id="profFriends"><span class="e">👥</span><span>Mes amis</span><span class="muted">${PRES.nf ? `${PRES.nf} • ${PRES.on || 0} en ligne` : ''}</span><span class="chev">›</span></button>
       <button class="card li" id="profClub"><span class="e">🛡️</span><span>Mon club</span><span class="muted">${esc(S.club?.name || 'aucun')}</span><span class="chev">›</span></button>
       <button class="card li" id="profDisc"><span class="e">🎵</span><span>Mes découvertes</span><span class="muted">${DISC.length} morceau${DISC.length > 1 ? 'x' : ''} • ${(S.favs || []).length} ❤️</span><span class="chev">›</span></button>
-      <button class="card li" id="profShow"><span class="e">🖼️</span><span>Ma vitrine</span><span class="muted">${showIds().map(id => medalSVG(MEDALS.find(m => m.id === id), S.medals[id] || 1, 26)).join('') || 'vide'}</span><span class="chev">›</span></button>
       <button class="card li" id="profCard"><span class="e">🪪</span><span>Voir ma carte de joueur</span><span class="chev">›</span></button>
       <button class="card li" id="profPerso"><span class="e">🎨</span><span>Cadres et thèmes</span><span class="chev">›</span></button>
       ${S.seasons.length ? `<div class="card li" style="flex-direction:column;align-items:stretch"><div style="display:flex;gap:12px;align-items:center"><span class="e">🏆</span><span>Mes saisons</span></div>
         <div class="seasons">${S.seasons.slice().reverse().map(x => `<div>${tierBadge(x.tier, 18)} ${seasonName(x.sc)} : ${TIERS[x.tier].name}</div>`).join('')}</div></div>` : ''}
     </div>`;
   paintIcons($('#profBody'));
+  vitInit($('#profBody .vit'), vitItems());
   $('#profAv').onclick = () => avatarSheet();
   $('#profEdit').onclick = () => nameSheet();
   $('#profTitle').onclick = () => titleSheet();
@@ -2613,6 +2674,64 @@ function renderProfile() {
   $('#profCard').onclick = () => playerCard({ name: S.name, av: S.av, fr: S.fr, lvl: level().l, tier: S.rank.tier, title: S.title, nc: S.nc, show: showStr().split(',').filter(Boolean) });
   $$('#profBody [data-med]').forEach(b => b.onclick = () => medalSheet(MEDALS.find(m => m.id === b.dataset.med)));
   loadMe();
+}
+// ---------- vitrine dynamique (version 1.16) : podium de médailles qui flottent, étincelles, faisceaux, inclinaison au toucher,
+// et faits marquants qui défilent (profil) ; la même version sans faits marquants sur la carte des autres joueurs ----------
+const LV_RGB = ['205,127,50', '200,212,230', '255,200,60', '255,46,147']; // Bronze, Argent, Or, Légendaire
+// entries : [{ m: médaille, l: niveau 1 à 4 }] ; la meilleure au centre, 2e à gauche, 3e à droite
+function vitHTML(entries, o = {}) {
+  const size = o.size || 58, tag = o.click ? 'button' : 'div', ord = [...entries].sort((a, b) => b.l - a.l), ks = [2, 1, 3];
+  const slot = (e, i) => {
+    const k = ks[i], sz = Math.round(size * (k === 1 ? 1.2 : 1));
+    if (!e) return `<div class="vslot k${k} empty" style="--s:${sz}px"><span class="vm">${o.edit ? '<button class="vadd" data-vadd aria-label="Choisir une médaille">+</button>' : '?'}</span><b>${o.edit ? 'Place libre' : '—'}</b><small>&nbsp;</small><span class="vped">${k}</span></div>`;
+    return `<${tag} class="vslot k${k}"${o.click ? ` data-med="${e.m.id}"` : ''} style="--mc:${LV_RGB[e.l - 1]};--d:${(-i * 1.1).toFixed(1)}s"><span class="fl"><span class="vm">${medalSVG(e.m, e.l, sz)}</span>`
+      + `<i class="vsp" style="left:2%;top:8%">✦</i><i class="vsp" style="right:0;top:34%;animation-delay:-.7s">✦</i><i class="vsp" style="left:14%;bottom:6%;animation-delay:-1.3s">✦</i></span>`
+      + `<b>${e.m.name}</b><small>${MEDAL_LV[e.l - 1]}</small><span class="vped">${k}</span></${tag}>`;
+  };
+  return `<div class="vit"><i class="vbeam b1"></i><i class="vbeam b2"></i>
+    <div class="vhd"><small>✦ ${o.label || 'MA VITRINE'} ✦</small>${o.edit ? '<button id="profShow">✏️ Modifier</button>' : ''}</div>
+    <div class="vrow">${[ord[1], ord[0], ord[2]].map(slot).join('')}</div>
+    ${entries.length ? '' : `<p class="vhint">${o.edit ? 'Gagne ta première médaille pour remplir ta vitrine !' : 'Pas encore de médaille.'}</p>`}
+    ${o.tick ? '<div class="vtick" id="vitTick"></div>' : ''}</div>`;
+}
+// faits marquants du joueur : [émoji, libellé, nombre ou texte, unité]
+function vitItems() {
+  const s = S.st, out = [['🏆', 'Meilleur score', s.top, 'pts'], ['🔥', 'Meilleure série', s.streak, 'manches d’affilée'], ['🥇', 'Victoires', s.wins, '']];
+  if (s.fast) out.push(['⚡', 'Réponse la plus rapide', s.fast / 1000, 's']);
+  out.push(['🎤', 'Artistes trouvés', s.nA, ''], ['🎵', 'Titres trouvés', s.nT, ''], ['🏅', 'Rang', `${TIERS[S.rank.tier].name} · ${fmt(S.rank.rp)} PR`, '']);
+  if (S.hit?.streak) out.push(['🎯', 'Hit du jour', S.hit.streak, `jour${S.hit.streak > 1 ? 's' : ''} de suite`]);
+  if (S.club) out.push(['🛡️', 'Club', S.club.name, '']);
+  return out;
+}
+let vitT = null;
+function vitInit(root, items = []) {
+  clearInterval(vitT);
+  if (!root) return;
+  const rest = () => { root.style.setProperty('--ry', '0deg'); root.style.setProperty('--rx', '0deg'); };
+  root.addEventListener('pointermove', e => {
+    const r = root.getBoundingClientRect();
+    root.style.setProperty('--ry', (((e.clientX - r.left) / r.width - 0.5) * 44).toFixed(1) + 'deg');
+    root.style.setProperty('--rx', ((0.5 - (e.clientY - r.top) / r.height) * 26).toFixed(1) + 'deg');
+  });
+  ['pointerleave', 'pointercancel', 'pointerup'].forEach(ev => root.addEventListener(ev, rest));
+  root.querySelectorAll('[data-vadd]').forEach(b => b.onclick = () => showcaseSheet());
+  const el = root.querySelector('#vitTick');
+  if (!el || !items.length) return;
+  let i = 0;
+  const show = () => {
+    if (!document.body.contains(el)) { clearInterval(vitT); return; }
+    if (el.offsetParent === null) return; // vue masquée : on attend
+    const n = items.length, [e, label, v, unit] = items[i % n];
+    const dots = `<span class="vdots">${items.map((_, j) => `<i class="${j === i % n ? 'on' : ''}"></i>`).join('')}</span>`;
+    i++;
+    el.innerHTML = `<div class="vt"><span class="ve">${e}</span><span class="vl">${label}</span><b>${typeof v === 'number' ? 0 : esc(v)}</b><small>${unit}</small></div>${dots}`;
+    if (typeof v !== 'number') return;
+    const b = el.querySelector('b'), t0 = performance.now();
+    const step = t => { const k = Math.min(1, (t - t0) / 800), x = v * (1 - (1 - k) ** 3); b.textContent = Number.isInteger(v) ? fmt(Math.round(x)) : fmtNum(x); if (k < 1 && document.body.contains(b)) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  };
+  show();
+  vitT = setInterval(show, 3000);
 }
 function medalSheet(m) {
   const l = medalLevel(m), v = m.v(S.st);
@@ -2650,18 +2769,16 @@ function showcaseSheet() {
 }
 // carte d'un joueur : avatar, titre, rang, vitrine
 function playerCard(p) {
-  const show = (p.show || []).map(x => {
-    const [id, l] = x.split(':'), m = MEDALS.find(y => y.id === id);
-    return m && +l ? `<div class="md">${medalSVG(m, +l, 60)}<b>${m.name}</b>${MEDAL_LV[+l - 1]}</div>` : '';
-  }).join('');
+  const ent = (p.show || []).map(x => { const [id, l] = x.split(':'); return { m: MEDALS.find(y => y.id === id), l: +l }; }).filter(e => e.m && e.l > 0);
   openSheet(`<div class="pcard">${isRankFrame(p.fr) ? framedAvatar(p.av, p.fr, 320, 196, 104) : avHTML(p.av, p.fr, 96)}<h3>${nameHTML(p)}${p.bot ? ' 🤖' : ''}</h3>${p.title && titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}
     <div class="pc-rank">${p.tier != null ? `${tierBadge(p.tier, 30)} <b>${TIERS[p.tier].name}</b> • ` : ''}Niveau ${p.lvl || 1}</div>
     ${p.club ? `<p class="pclub">${esc(p.club)}</p>` : ''}
-    <div class="pc-show">${show || '<p class="muted" style="grid-column:1/-1">Pas encore de médaille en vitrine.</p>'}</div>
+    ${ent.length ? vitHTML(ent, { size: 50, label: 'VITRINE' }) : '<p class="muted" style="margin:0 0 12px">Pas encore de médaille en vitrine.</p>'}
     ${p.bot ? '<p class="note">Joueur virtuel qui complète les salons quand il manque du monde.</p>' : ''}
     ${friendBtn(p)}
     ${!p.bot && p.pk && p.id !== R.me ? `<div class="pc-acts"><button class="ghost" id="pcBlock">${isBlocked(p.pk) ? '✅ Débloquer' : '🚫 Bloquer'}</button>${R.ws && !R.st?.solo ? '<button class="ghost" id="pcReport">⚠️ Signaler</button>' : ''}</div>` : ''}
     <button class="cta" data-close>Fermer</button></div>`);
+  vitInit($('#sheetBox .vit'));
   if ($('#pcBlock')) $('#pcBlock').onclick = () => { setBlocked(p, !isBlocked(p.pk)); playerCard(p); };
   if ($('#pcReport')) $('#pcReport').onclick = () => reportSheet(p);
   if ($('#pcFriend')) $('#pcFriend').onclick = async () => { $('#pcFriend').disabled = true; await addFriend({ pk: p.pk }); playerCard(p); };
@@ -3562,8 +3679,8 @@ function renderShop() {
     html += S.sframes.length ? S.sframes.map(id => card('season', id, avHTML(S.av, id, 58), seasonName(id.slice(1)), S.fr === id ? 'Équipé' : 'Choisir', S.fr === id)).join('')
       : '<p class="note" style="grid-column:1/-1;margin:4px 0 0">Récompense finale de la route de saison (palier 30), différente chaque mois.</p>';
   } else if (shopTab === 'themes') {
-    html = '<p class="hint">👁️ Touche un thème pour l’essayer avant de l’acheter.</p>';
-    html += THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, previewTheme === it.id ? '👁️ Aperçu' : S.theme === it.id ? 'Équipé' : S.themes.includes(it.id) ? 'Choisir' : price(it), previewTheme ? previewTheme === it.id && 'preview' : S.theme === it.id, it.price)).join('');
+    html = `<p class="hint">🎨 Thème appliqué : <b>${esc(THEMES.find(t => t.id === S.theme)?.name || 'Or')}</b> · touche un thème pour l’appliquer, ou pour l’essayer avant de l’acheter.${S.set.light ? ' ☀️ Thème clair actif : les fonds restent clairs, seules les couleurs changent.' : ''}</p>`;
+    html += THEMES.map(it => card('theme', it.id, `<div class="sw" style="background:${it.c}"></div>`, it.name, previewTheme === it.id ? '👁️ Aperçu' : S.theme === it.id ? '✓ Appliqué' : S.themes.includes(it.id) ? 'Appliquer' : price(it), previewTheme ? previewTheme === it.id && 'preview' : S.theme === it.id, it.price)).join('');
   } else {
     const list = shopTab === 'items' ? ITEMS : PRESTIGE;
     html = list.map(it => {
@@ -3599,7 +3716,7 @@ function renderShop() {
         if (!confirm(`Acheter « ${it.name} » pour ${fmt(it.price)} pièces ?`)) return;
         S.coins -= it.price; owned.push(id);
       }
-      if (kind === 'buy') { S.fr = id; profileChanged(); } else { previewTheme = null; S.theme = id; applyTheme(); }
+      if (kind === 'buy') { S.fr = id; profileChanged(); } else { previewTheme = null; S.theme = id; applyTheme(); toast(`🎨 Thème « ${esc(it.name)} » appliqué !`, 2200); }
     }
     save(); renderShop();
   });
@@ -3634,7 +3751,7 @@ function renderPreviewBar() {
     previewTheme = null;
     applyTheme();
     save();
-    toast(`🎨 Thème « ${esc(it.name)} » acheté !`);
+    toast(`🎨 Thème « ${esc(it.name)} » acheté et appliqué !`, 3000);
     renderShop();
   };
 }
@@ -3667,6 +3784,7 @@ const AURORA = ['61,255,176', '47,212,255', '123,107,255', '255,79,216'];
 let auroraT = null;
 function applyTheme(id = S.theme) {
   const th = THEMES.find(t => t.id === id) || THEMES[0], root = document.documentElement;
+  if (id === S.theme && th.id !== S.theme) S.theme = th.id; // thème inconnu : retour au thème Or
   root.dataset.theme = th.id;
   if (th.lux) root.dataset.lux = '1'; else delete root.dataset.lux;
   clearInterval(auroraT);
@@ -3703,6 +3821,7 @@ function renderSettings() {
     <button class="card li" id="notifBtn"><span class="e">🔔</span><span>Notifications</span><span class="muted">${S.push?.on ? 'activées' : 'désactivées'}</span><span class="chev">›</span></button>
     <button class="card li" id="blockBtn"><span class="e">🚫</span><span>Joueurs bloqués</span><span class="muted">${(S.blocked || []).length}</span><span class="chev">›</span></button>
     <button class="card li" id="saveBtn"><span class="e">💾</span><span>Code de sauvegarde</span><span class="muted">changer de téléphone</span><span class="chev">›</span></button>
+    <button class="card li" id="legalBtn"><span class="e">⚖️</span><span>Mentions légales</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
     <button class="card li" id="resetBtn"><span class="e">🗑️</span><span>Effacer mes données</span><span class="chev">›</span></button>
     <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
@@ -3711,6 +3830,7 @@ function renderSettings() {
   $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); if (amb.gain) amb.gain.gain.value = AMB_VOL * S.set.vol; };
   $$('[data-go2]').forEach(b => b.onclick = () => { if (b.dataset.tab2) setShopTab(b.dataset.tab2); go(b.dataset.go2); });
   $('#rulesBtn').onclick = rules;
+  $('#legalBtn').onclick = legalSheet;
   $('#saveBtn').onclick = saveSheet;
   $('#blockBtn').onclick = blockedSheet;
   $('#notifBtn').onclick = notifSheet;
@@ -3764,6 +3884,21 @@ function saveSheet() {
     setTimeout(() => location.reload(), 900);
   };
 }
+// adresse de contact affichée dans les mentions légales (à renseigner : rien n'est affiché tant qu'elle est vide)
+const LEGAL_CONTACT = '';
+function legalSheet() {
+  openSheet(`<h3>Mentions légales <button data-close data-i="x"></button></h3><div class="legal">
+    <h4>Éditeur</h4><p>Hitroom est édité à titre non professionnel par un particulier (pseudonyme : jcolomb10-eng), qui en est le directeur de la publication. Conformément à l’article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), son identité est communiquée à l’hébergeur.${LEGAL_CONTACT ? `<br>Contact : ${esc(LEGAL_CONTACT)}` : ''}</p>
+    <h4>Hébergement</h4><p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis — cloudflare.com.</p>
+    <h4>Propriété intellectuelle</h4><p>Le nom Hitroom, le logo, les graphismes (avatars, cadres, fonds), la musique d’ambiance et le code de l’application appartiennent à l’éditeur : toute reproduction sans autorisation est interdite.</p>
+    <p>Les extraits musicaux de 30 secondes et les pochettes sont fournis par les interfaces publiques de Deezer et d’Apple Music. Les titres, artistes et pochettes appartiennent à leurs ayants droit. Hitroom n’est affilié ni à Deezer ni à Apple ; un lien permet d’écouter chaque morceau en entier sur la plateforme.</p>
+    <h4>Données personnelles</h4><p>Hitroom enregistre ton pseudo, ton avatar, un identifiant aléatoire, ton niveau, tes scores, ton rang, tes amis, ton club et tes résultats du Hit du jour, sur ton appareil (stockage local du navigateur) et sur les serveurs de l’hébergeur pour faire fonctionner les salons, les classements, les amis, les clubs et le code de sauvegarde. Aucun cookie publicitaire, aucun suivi publicitaire : seules des statistiques de fréquentation anonymes sont comptées. Les notifications ne sont envoyées que si tu les actives. Ne mets aucune information personnelle dans ton pseudo ou dans le chat.</p>
+    <p>Tu peux effacer tes données sur ton appareil dans Paramètres → Effacer mes données. Une politique de confidentialité complète et la suppression de compte arriveront avec les comptes.</p>
+    <h4>Responsabilité</h4><p>Application en développement, fournie en l’état : des interruptions ou des erreurs sont possibles. Les pseudos et messages sont publiés par les joueurs sous leur responsabilité ; les grossièretés sont masquées et tu peux bloquer ou signaler un joueur depuis sa carte de joueur.</p>
+    <h4>Droit applicable</h4><p>Droit français.</p></div>
+    <button class="cta" data-close>Fermer</button>`);
+}
+$('#loginLegal').onclick = legalSheet;
 function rules() {
   openSheet(`<h3>Comment jouer ? <button data-close data-i="x"></button></h3>
     <p>🎧 Un extrait de musique démarre en même temps pour tous les joueurs du salon.</p>
@@ -3778,8 +3913,12 @@ function rules() {
 }
 
 // ---------- connexion ----------
+// quitter l'appli puis la rouvrir = page de connexion ; une coupure réseau ou un rechargement garde la session (sessionStorage)
+const sessionLive = () => { try { return sessionStorage.getItem('hitroom.live') === '1'; } catch (e) { return false; } };
+const markLive = () => { try { sessionStorage.setItem('hitroom.live', '1'); } catch (e) { /* stockage indisponible */ } };
 $('#loginGuest').onclick = () => {
   unlock();
+  markLive();
   S.acct = 'guest';
   save();
   if (!S.name) onboarding(); else { go('home', true); startDeepLink(); }
@@ -3829,12 +3968,14 @@ if ('serviceWorker' in navigator) addEventListener('load', () => navigator.servi
 // ---------- démarrage ----------
 offline();
 paintIcons();
+paintTicker();
 crowd();
 applyTheme();
 history.replaceState({ v: 'home' }, '');
 if (S.name && !S.acct) { S.acct = 'guest'; save(); } // joueurs d'avant la version 1.8 : invités
 paintMusic();
-if (!S.acct) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); pushSync(); presence(true); loadFriends(); }
+if (S.name) $('#loginGuestTxt').textContent = `Continuer en invité · ${S.name}`;
+if (!S.acct || !sessionLive()) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); pushSync(); presence(true); loadFriends(); }
 })();
 </script>
 </body>
