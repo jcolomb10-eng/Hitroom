@@ -61,7 +61,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await sleep(300);
   const deals = await page.$$eval('#shopGrid [data-offer]', b => b.map(x => x.dataset.offer));
   ok(deals.length === 3 && await page.$('#shopGrid .deal.lead .off'), `offres du jour : 3 objets en promo (${deals.join(', ')})`);
-  const c0 = (await state()).coins;
+  const S0 = await state(), c0 = S0.coins;
   const promo = +(await page.textContent('#shopGrid .deal.lead .newp')).replace(/\D/g, '');
   await page.click('#shopGrid .deal.lead');
   await sleep(300);
@@ -78,7 +78,9 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await page.goBack();
 
   // 2 bis. thèmes de luxe : aperçu puis achat depuis la barre d'aperçu
-  await patch(S => { S.coins = 200000; S.theme = 'or'; delete S.deals; });
+  // (l'offre du jour est tirée au hasard : on annule son achat pour que la suite du test parte toujours du même état)
+  const undo = { owned: S0.owned, themes: S0.themes, perks: S0.perks, avs: S0.avs, fr: S0.fr, av: S0.av, nc: S0.nc, vfx: S0.vfx };
+  await patch(`S => { Object.assign(S, ${JSON.stringify(undo)}); S.coins = 200000; S.theme = 'or'; delete S.deals; }`);
   await page.click('[data-go="shop"]');
   await page.click('[data-st="themes"]');
   await page.click('[data-kind="theme"][data-it="lumiere"]');
@@ -198,7 +200,10 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await sleep(1200);
   const grid = await page.$$eval('#sheetBox .avgrid button', bs => bs.map(b => ({ av: b.dataset.av, lock: b.classList.contains('lock'), ok: b.querySelector('img').naturalWidth > 0 })));
   ok(grid.length === 42 && grid.every(g => g.ok), `choix de l’avatar : ${grid.length} avatars, images chargées`);
-  ok(grid.filter(g => g.lock).length === 11 + 5, `rares et légendaires non obtenus verrouillés : 11 rares (Lyre céleste déjà obtenue) + 5 légendaires (${grid.filter(g => g.lock).length})`);
+  // l'offre du jour peut avoir été un avatar légendaire : on compare avec ce que le joueur possède vraiment
+  const avs = (await state()).avs, locked = grid.filter(g => g.lock).map(g => g.av);
+  const expected = grid.filter(g => /^[RL]/.test(g.av) && !avs.includes(g.av)).map(g => g.av);
+  ok(avs.includes('R07') && locked.length >= 11 + 4 && locked.join() === expected.join(), `rares et légendaires non obtenus verrouillés : ${locked.length} (déjà obtenus : ${avs.join(', ')})`);
   await shot(page, 'b10_choix_avatar');
   await page.click('#sheetBox [data-av="R03"]');
   ok((await page.textContent('#toast')).includes('route de saison'), 'avatar rare verrouillé : explique comment l’obtenir');
