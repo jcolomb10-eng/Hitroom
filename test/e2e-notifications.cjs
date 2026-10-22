@@ -53,6 +53,9 @@ async function player(browser, name, url = BASE + '/') {
   ok(await until(async () => (await A.textContent('#toast')).includes('activées'), 5000), 'notifications activées');
   let m = await mock();
   ok(m.subs.length >= 1, `abonnement enregistré sur le serveur (${m.subs.length})`);
+  ok(m.log.some(l => l.endpoint.includes('Alice-' + run) && l.title.includes('activées')), 'notification de bienvenue envoyée à l’activation');
+  const welcome = await post('/api/push/inbox', { endpoint: `https://push.example.test/Alice-${run}` });
+  ok(welcome.length === 1 && welcome[0].title.includes('activées'), 'boîte d’Alice : le message de bienvenue');
   await A.click('#sheetBox [data-np="season"]');
   await sleep(600);
   m = await mock();
@@ -63,6 +66,7 @@ async function player(browser, name, url = BASE + '/') {
 
   // 2. rappel du jour : pas pour Alice (elle a déjà ouvert l'appli aujourd'hui), oui pour un joueur absent
   await post('/api/push/sub', { uid: 'absentjoueur' + run, endpoint: `https://push.example.test/absent-${run}`, prefs: {} });
+  await post('/api/push/inbox', { endpoint: `https://push.example.test/absent-${run}` }); // message de bienvenue lu
   const n0 = (await mock()).log.length;
   await fetch(BASE + '/__mock/cron');
   m = await mock();
@@ -134,7 +138,7 @@ async function player(browser, name, url = BASE + '/') {
   await A.screenshot({ path: `${OUT}/n02_inviter.png` });
   await A.click('#sheetBox [data-inv]');
   ok(await until(async () => (await A.textContent('#toast')).includes('Invitation envoyée'), 4000), 'invitation envoyée à Bruno');
-  const inv = await post('/api/push/inbox', { endpoint: `https://push.example.test/Bruno-${run}` });
+  const inv = (await post('/api/push/inbox', { endpoint: `https://push.example.test/Bruno-${run}` })).filter(x => !x.title.includes('activées'));
   ok(inv.length === 1 && inv[0].title.includes('Alice') && inv[0].url === `/?salon=${code2}`, `Bruno reçoit « ${inv[0]?.title} » avec le lien du salon`);
   // 3e invitation dans l'heure : refusée
   await A.evaluate(() => { document.querySelector('#sheetBox [data-inv]').disabled = false; });

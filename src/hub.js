@@ -30,6 +30,7 @@ export const season = (d = new Date()) => d.toISOString().slice(0, 7);
 const today = () => new Date().toISOString().slice(0, 10);
 const PUSH_SUBJECT = 'https://hitroom.jcolomb10.workers.dev'; // contact demandé par les services de notification
 const DAILY_MSG = { title: '🎯 Tes défis du jour t’attendent', body: 'Des pièces et de l’XP à gagner : une petite partie ?', url: '/?go=defis' };
+const WELCOME_MSG = { title: '🔔 Notifications activées !', body: 'Tu seras prévenu ici de tes défis, des nouvelles saisons et des invitations de tes amis.', url: '/' };
 const SEASON_MSG = { title: '🏆 Nouvelle saison !', body: 'Ta récompense de la saison passée t’attend. Viens grimper les rangs !', url: '/' };
 
 export class Hub extends DurableObject {
@@ -386,7 +387,10 @@ export class Hub extends DurableObject {
       blocked: (Array.isArray(prefs.blocked) ? prefs.blocked : []).filter(x => /^[0-9a-f]{12}$/.test(x)).slice(0, 200),
     };
     const ep = await epHash(endpoint);
+    const isNew = !this.sql.exec(`SELECT 1 FROM subs WHERE ep = ?`, ep).toArray().length;
     this.sql.exec(`INSERT OR REPLACE INTO subs(ep, uid, pk, endpoint, prefs, ts) VALUES(?,?,?,?,?,?)`, ep, uid, publicKey(uid), endpoint, JSON.stringify(p), Date.now());
+    // 1re fois sur cet appareil : notification de bienvenue, pour voir tout de suite que tout marche
+    if (isNew) await this.notify({ ep, endpoint }, WELCOME_MSG);
     // 5 téléphones ou navigateurs au plus par joueur
     for (const r of this.sql.exec(`SELECT ep FROM subs WHERE uid = ? ORDER BY ts DESC LIMIT -1 OFFSET 5`, uid).toArray()) this.dropSub(r.ep);
     return { ok: 1 };
