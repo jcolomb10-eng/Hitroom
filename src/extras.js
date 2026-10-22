@@ -48,9 +48,9 @@ export const EVENT_COINS = [600, 400, 250], EVENT_PART = 100;
 export const TOUR_FROM = 20 * 60, TOUR_TO = 22 * 60; // tournoi du samedi soir, heure de Paris
 export const TOUR_COINS = [500, 300, 150];
 // événements spéciaux (jour de la semaine = lundi) : Halloween le week-end du 31 octobre 2026 ; theme = décor de l'appli,
-// gifts = cadeaux : frame au podium, av à partir de EVENT_MIN points (cadre Citrouille, avatar Chauve-souris)
+// gifts = cadeaux : frame au podium, av à partir de EVENT_MIN points (cadre Citrouille et avatar Chauve-citrouille au podium, avatar Chauve-souris dès 300 points)
 export const SPECIAL = {
-  '2026-10-26': { id: 'ehallo', name: 'Nuit des Frissons', emoji: '🎃', cat: 'frissons', theme: 'halloween', gifts: { frame: 'citrouille', av: 'H01' } },
+  '2026-10-26': { id: 'ehallo', name: 'Nuit des Frissons', emoji: '🎃', cat: 'frissons', theme: 'halloween', gifts: { frame: 'citrouille', av: 'H01', avTop: 'H02' } },
 };
 export const eventOfWeek = wk => SPECIAL[wk] || EVENTS[Math.floor(Date.parse(wk + 'T12:00:00Z') / (7 * DAY)) % EVENTS.length];
 // événement à afficher un jour donné : lun-mer = celui du week-end passé (terminé), jeu-ven = à venir, sam-dim = en cours
@@ -135,7 +135,7 @@ export const extraMethods = {
       this.sql.exec(`INSERT OR IGNORE INTO honors(uid, key, kind, v, coins, label, title, gift) VALUES(?,?,?,?,?,?,?,?)`, uid, wk, kind, v, coins, lab, title, gift);
     const g = ev.gifts || {};
     this.sql.exec(`SELECT uid, pts FROM evpts WHERE ev = ? ORDER BY pts DESC`, wk).toArray().forEach((r, i) => {
-      const gift = [i < 3 && g.frame ? 'frame:' + g.frame : '', r.pts >= EVENT_MIN && g.av ? 'av:' + g.av : ''].filter(Boolean).join(',');
+      const gift = [i < 3 && g.frame ? 'frame:' + g.frame : '', i < 3 && g.avTop ? 'av:' + g.avTop : '', r.pts >= EVENT_MIN && g.av ? 'av:' + g.av : ''].filter(Boolean).join(',');
       if (i < 3) put(r.uid, 'event', i + 1, EVENT_COINS[i], `${ev.emoji} ${ev.name} : ${i === 0 ? '1er' : i + 1 + 'e'} avec ${r.pts} points`, i === 0 ? `h-ev-${ev.id}-${ymd(wk)}` : '', gift);
       else if (r.pts >= EVENT_MIN) put(r.uid, 'event', 0, EVENT_PART, `${ev.emoji} ${ev.name} : merci d’avoir joué (${r.pts} points)`, '', gift);
     });

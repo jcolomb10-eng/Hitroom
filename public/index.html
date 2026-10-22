@@ -1375,7 +1375,7 @@ const AV_LIST = [
   ['A19', 'Tambourin'], ['A20', 'Clé de sol'], ['A21', 'Métronome'], ['A22', 'Enceinte'], ['A23', 'Keytar'], ['A24', 'Xylophone'],
   ['R01', 'Micro phénix'], ['R02', 'Casque galaxie'], ['R03', 'Vinyle planète'], ['R04', 'Couronne de notes'], ['R05', 'Guitare de glace'], ['R06', 'Saxophone dragon'],
   ['R07', 'Lyre céleste'], ['R08', 'Boule de cristal'], ['R09', 'Cassette hologramme'], ['R10', 'Disque de platine'], ['R11', 'Tambour volcan'], ['R12', 'Rossignol mécanique'],
-  ['H01', 'Chauve-souris'], ['H02', 'Citrouille'], ['L01', 'Phénix chanteur'], ['L02', 'Micro diamant'], ['L03', 'Dragon des platines'], ['L04', 'Sceptre du maestro'], ['L05', 'Piano céleste'], ['L06', 'Casque cyber-DJ'],
+  ['H01', 'Chauve-souris'], ['H02', 'Chauve-citrouille'], ['L01', 'Phénix chanteur'], ['L02', 'Micro diamant'], ['L03', 'Dragon des platines'], ['L04', 'Sceptre du maestro'], ['L05', 'Piano céleste'], ['L06', 'Casque cyber-DJ'],
 ];
 const AV_NAME = Object.fromEntries(AV_LIST);
 const AVATARS = AV_LIST.filter(a => a[0][0] === 'A').map(a => a[0]);
@@ -1526,7 +1526,7 @@ function roadRewards(sc) {
 }
 // cadres de rang en image (public/frames/r0 … r8.webp) : taille, centre et diamètre de l'ouverture (fractions de l'image)
 const FRAME_META = { r0: { w: 304, h: 280, cx: 0.505, cy: 0.4982, d: 0.5789 }, r1: { w: 319, h: 312, cx: 0.4955, cy: 0.4974, d: 0.5517 }, r2: { w: 634, h: 384, cx: 0.494, cy: 0.501, d: 0.2776 }, r3: { w: 379, h: 366, cx: 0.4983, cy: 0.4991, d: 0.4644 }, r4: { w: 582, h: 365, cx: 0.4997, cy: 0.5031, d: 0.3024 }, r5: { w: 508, h: 396, cx: 0.5081, cy: 0.4977, d: 0.3465 }, r6: { w: 346, h: 326, cx: 0.5071, cy: 0.5126, d: 0.5087 }, r7: { w: 571, h: 344, cx: 0.4998, cy: 0.5248, d: 0.3082 }, r8: { w: 731, h: 411, cx: 0.499, cy: 0.5519, d: 0.2408 },
-  citrouille: { w: 319, h: 318, cx: 0.4995, cy: 0.5069, d: 0.5517 } }; // cadre d'événement (Halloween), même traitement que les cadres de rang
+  citrouille: { w: 348, h: 333, cx: 0.4961, cy: 0.5064, d: 0.5057 } }; // cadre d'événement (Halloween), même traitement que les cadres de rang
 // effets par rang : couleur du halo, étincelles, force du reflet, particules (braises, lucioles, flammes), éclairs
 const FX = [
   { c: '255,140,60', tw: 2, sh: 0.35 },
@@ -3504,7 +3504,7 @@ async function eventSheet() {
   openSheet(`<div style="text-align:center"><div style="font-size:46px">${e.emoji}</div><h3 style="justify-content:center">${esc(e.name)}</h3>
     <p class="muted" style="margin:0">${e.state === 'live' ? 'En cours jusqu’à dimanche minuit' : e.state === 'soon' ? 'Du samedi au dimanche' : 'Terminé'} · catégorie ${esc(e.catName)}</p></div>
     <div class="card cx"><h4>⭐ Comment ça marche <small></small></h4><p>Joue en <b>${esc(e.catName)}</b> (Classé ou Non classé) pendant le week-end : tes <b>pièces sont doublées</b> et tes points comptent pour le classement de l’événement.
-      Récompenses : 🥇 ${e.coins[0]} · 🥈 ${e.coins[1]} · 🥉 ${e.coins[2]} pièces, un titre pour le vainqueur, et ${e.part} pièces dès ${e.min} points.${e.gifts ? ' 🎁 Cadre Citrouille pour le podium, avatar Chauve-souris dès ' + e.min + ' points.' : ''}</p></div>
+      Récompenses : 🥇 ${e.coins[0]} · 🥈 ${e.coins[1]} · 🥉 ${e.coins[2]} pièces, un titre pour le vainqueur, et ${e.part} pièces dès ${e.min} points.${e.gifts ? ' 🎁 Cadre Citrouille et avatar Chauve-citrouille pour le podium, avatar Chauve-souris dès ' + e.min + ' points.' : ''}</p></div>
     <h4 class="psec">Classement de l’événement <span>${e.me.pts ? `toi : ${placeTxt(e.me.place)} · ${fmt(e.me.pts)} pts` : ''}</span></h4>${rows(e.top)}
     <div class="card cx" style="margin-top:14px"><h4>🏟️ Tournoi du samedi soir <small>${st} · 20 h – 22 h</small></h4>
       <p>Tous les points marqués en partie publique (Classé ou Non classé, n’importe quelle catégorie) entre 20 h et 22 h comptent. Les 3 premiers gagnent ${e.tour.coins.join(' · ')} pièces et le vainqueur un titre.</p>

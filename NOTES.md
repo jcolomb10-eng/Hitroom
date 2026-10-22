@@ -1,10 +1,9 @@
 # Notes (fait / reste à faire)
 
-**Fait (1.18, en test sur la branche `ccr-34033fc3-flg6oc`, PAS publiée)** : récompenses de fin de saison (3 meilleurs clubs, 100 meilleurs joueurs), coffre de club, guerre de clubs, rivalités, événement du week-end (pièces ×2, classement, récompenses), tournoi du samedi soir (version simplifiée), mode Survie, mode Intro 1 s, pari de pièces en duel, notifications « clubs ». Tous les tests passent (nouveaux : `extras.test.mjs`, `e2e-v118.mjs`, `e2e-v118.cjs`).
+**Fait** : 1.18 en ligne (22/10/2026). 1.19 Halloween (catégorie Frissons, Nuit des Frissons 31/10-1/11, cadre Citrouille + avatars Chauve-souris et Chauve-citrouille en images de l'utilisateur, décor, récompenses) : prête sur la branche `ccr-34033fc3-flg6oc`, tests OK, PAS publiée.
 
 **Reste à faire**
-- L'utilisateur regarde les captures (`/tmp/hitroom-shots/v118_*.png`) puis dit s'il faut publier (fusion dans `main`).
-- Pas testé en navigateur : l'écran du pari de duel (seulement le serveur et `applyBet`) ; à vérifier à la main.
-- Halloween : maquette seulement (https://claude.ai/artifact/5ZvtDTgii5ZoibcPnz4fkT) ; il faudrait catégorie « Frissons », cadre Citrouille, avatar Chauve-souris.
-- Tournoi : tableau à élimination et spectateurs pas faits. Premium (abonnement), partage social : plus tard.
+- L'utilisateur dit « publie » : fusionner la branche dans `main`, puis contrôler `/api/introuvables` (38 morceaux Frissons non vérifiés en France).
+- Tests : repartir d'un état vide (`rm -rf .wrangler/state`) avant `e2e-v118.*` et `e2e-halloween.cjs`.
+- Pari de duel : écran pas testé dans le navigateur. Tournoi : pas de tableau ni de spectateurs.
 - Catalogue 1.14 : 9 morceaux introuvables à remplacer ; `ADMIN_KEY` à créer dans Cloudflare.

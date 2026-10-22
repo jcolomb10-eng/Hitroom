@@ -1,7 +1,7 @@
 // Halloween 2026 (version 1.19) dans l'appli (wrangler dev en local avec MOCK_MUSIC=1, état vide : rm -rf .wrangler/state)
 // NODE_PATH=$(npm root -g) node test/e2e-halloween.cjs   (captures dans SHOTS, /tmp/hitroom-shots par défaut ; ≈ 1 min)
 // tuile et décor dès le jeudi soir, catégorie Frissons (jouable, pas classée), feuille de l'événement,
-// récompenses du lundi (cadre Citrouille, avatar Chauve-souris), équiper le cadre et l'avatar
+// récompenses du lundi (cadre Citrouille, avatar Chauve-citrouille), équiper le cadre et l'avatar
 const { chromium, devices } = require('playwright');
 const BASE = process.env.BASE || 'http://127.0.0.1:8787';
 const OUT = process.env.SHOTS || require('os').tmpdir() + '/hitroom-shots';
@@ -61,14 +61,14 @@ const shot = async (page, n) => page.screenshot({ path: `${OUT}/hw_${n}.png` });
   const ev = await api(`/api/event?uid=${uid}`);
   ok(ev.me.place === 1 && ev.cat === 'frissons' && ev.theme === 'halloween' && ev.gifts.frame === 'citrouille', 'classement de l’événement : 1re place, thème Halloween');
 
-  // 4. lundi : récompenses (pièces, titre, cadre Citrouille, avatar Chauve-souris)
+  // 4. lundi : récompenses (pièces, titre, cadre Citrouille, avatar Chauve-citrouille)
   await api('/__mock/horloge?t=2026-11-02T09:00:00Z');
   await page.goto(BASE + '/');
   ok(await until(async () => (await text('#sheetBox')).includes('Bravo, tu es récompensé'), 10000), 'lundi : feuille de récompenses');
-  ok((await text('#sheetBox')).includes('Citrouille') && (await text('#sheetBox')).includes('Chauve-souris'), 'cadeaux : cadre Citrouille et avatar Chauve-souris');
+  ok((await text('#sheetBox')).includes('Citrouille') && (await text('#sheetBox')).includes('Chauve-souris') && (await text('#sheetBox')).includes('Chauve-citrouille'), 'cadeaux : cadre Citrouille et les deux avatars');
   await shot(page, '04_recompenses');
   const st = await state();
-  ok(st.owned.includes('citrouille') && st.avs.includes('H01') && st.titles.includes('h-ev-ehallo-261026'), 'cadre, avatar et titre enregistrés');
+  ok(st.owned.includes('citrouille') && st.avs.includes('H01') && st.avs.includes('H02') && st.titles.includes('h-ev-ehallo-261026'), 'cadre, avatar et titre enregistrés');
   await page.click('#sheetBox [data-close]');
   ok(await until(() => page.evaluate(() => document.documentElement.dataset.hw === ''), 4000), 'lundi : le décor disparaît');
 
@@ -83,10 +83,10 @@ const shot = async (page, n) => page.screenshot({ path: `${OUT}/hw_${n}.png` });
   await page.click('[data-tab="profile"]');
   await sleep(800);
   await page.click('#profAv');
-  ok(await until(async () => !!(await page.$('#sheetBox [data-av="H01"]')), 3000), 'choix de l’avatar : Chauve-souris proposée');
+  ok(await until(async () => !!(await page.$('#sheetBox [data-av="H02"]')), 3000), 'choix de l’avatar : Chauve-citrouille proposée');
   await shot(page, '06_avatars');
-  await page.click('#sheetBox [data-av="H01"]');
-  ok(await until(async () => (await state()).av === 'H01', 3000), 'avatar Chauve-souris équipé');
+  await page.click('#sheetBox [data-av="H02"]');
+  ok(await until(async () => (await state()).av === 'H02', 3000), 'avatar Chauve-citrouille équipé');
   await sleep(800);
   await shot(page, '07_profil_halloween');
   ok(errors.length === 0, errors.length ? 'erreurs : ' + errors.join(' | ') : 'aucune erreur dans la page');
