@@ -89,18 +89,21 @@ const keyOf = url => decodeURIComponent(url.match(/__mock\/a\/(.+)\.wav/)[1]).sp
   await api('/__mock/horloge?t=2026-10-26T09:00:00Z'); // lundi : guerre terminée
   await page.goto(BASE + '/?club=' + ca.id);
   ok(await until(() => page.$eval('#clubBody', e => !!e.querySelector('#warGo')), 8000), 'lundi : bouton de récompense de guerre');
-  await shot(page, '05_guerre');
+  // les honneurs du week-end passé arrivent par-dessus, à l'ouverture de l'appli
+  ok(await until(async () => (await bodyText('#sheetBox')).includes('Bravo, tu es récompensé'), 10000), 'honneurs : feuille de récompenses à l’ouverture');
+  await shot(page, '05_honneurs');
+  const titles = (await state()).titles.filter(t => t.startsWith('h-'));
+  ok(titles.length === 2 && titles.some(t => t.startsWith('h-ev-')) && titles.includes('h-tour-261019'), `titres gagnés : ${titles.join(', ')}`);
+  await page.click('#sheetBox [data-close]');
+  await sleep(500);
+  await shot(page, '06_guerre');
   const c2 = (await state()).coins;
   await page.click('#warGo');
   ok(await until(async () => (await state()).coins >= c2 + 75, 4000), 'guerre : pièces récupérées');
 
-  // 4. honneurs (événement + tournoi du week-end passé) reçus à l'ouverture de l'accueil
+  // 4. le titre gagné est proposé dans le profil
   await page.goto(BASE + '/');
-  ok(await until(async () => (await bodyText('#sheetBox')).includes('Bravo, tu es récompensé'), 10000), 'honneurs : feuille de récompenses à l’accueil');
-  await shot(page, '06_honneurs');
-  const titles = (await state()).titles.filter(t => t.startsWith('h-'));
-  ok(titles.length === 2 && titles.some(t => t.startsWith('h-ev-')) && titles.includes('h-tour-261019'), `titres gagnés : ${titles.join(', ')}`);
-  await page.click('#sheetBox [data-close]');
+  await sleep(1500);
   await page.click('[data-tab="profile"]');
   await page.click('#profTitle');
   ok((await bodyText('#sheetBox')).includes('Vainqueur du tournoi'), 'le titre gagné est proposé dans le profil');
