@@ -80,12 +80,13 @@ test('salons publics : jamais plus d’un rang d’écart', () => {
 });
 
 test('mode Classé : 4 catégories par saison, les mêmes toute la saison, qui changent d’un mois à l’autre', async () => {
-  const { rankedCats, CAT_IDS } = await import('../src/catalog.js');
-  const a = rankedCats('2026-11'), b = rankedCats('2026-11');
+  const { rankedCats, seasonRotation, RANKED_ROTATION, CAT_IDS } = await import('../src/catalog.js');
+  if (!RANKED_ROTATION) assert.equal(rankedCats('2026-11').length, CAT_IDS.size, 'rotation pas activée : toutes les catégories');
+  const a = seasonRotation('2026-11'), b = seasonRotation('2026-11');
   assert.deepEqual(a, b);
   assert.equal(new Set(a).size, 4);
   assert.ok(a.every(x => CAT_IDS.has(x) && x !== 'mix'));
-  const months = Array.from({ length: 12 }, (_, i) => rankedCats(`2027-${String(i + 1).padStart(2, '0')}`).join());
+  const months = Array.from({ length: 12 }, (_, i) => seasonRotation(`2027-${String(i + 1).padStart(2, '0')}`).join());
   assert.ok(new Set(months).size >= 10, 'le tirage varie selon le mois');
   assert.deepEqual(rankedCats('2026-11', 'rock, rapfr ,inconnue'), ['rock', 'rapfr'], 'liste fixée pour les tests');
 });

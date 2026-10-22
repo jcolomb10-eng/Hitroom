@@ -1058,7 +1058,9 @@ const TIERS = [
 ];
 const BOT_LVLS = ['Facile', 'Moyen', 'Difficile', 'Expert'];
 const SEASON_COINS = [50, 100, 150, 250, 350, 500, 700, 1000, 1500];
-// mode Classé : 4 catégories tirées au sort chaque saison (copie de rankedCats dans src/catalog.js ; /api/me donne la liste officielle)
+// mode Classé : catégories classées (copie de rankedCats dans src/catalog.js ; /api/me donne la liste officielle).
+// Rotation de 4 catégories par saison prête mais pas encore activée (RANKED_ROTATION, comme dans src/catalog.js)
+const RANKED_ROTATION = false;
 const RANKED_POOL = ['80', '90', '2000', '2010', '2020', 'variete', 'rapfr', 'rapus', 'rock', 'electro', 'kpop', 'cine'];
 function seasonCats(sc) {
   let h = 2166136261;
@@ -1067,7 +1069,8 @@ function seasonCats(sc) {
   while (out.length < 4) { h = (Math.imul(h, 1103515245) + 12345) >>> 0; out.push(pool.splice((h >>> 8) % pool.length, 1)[0]); }
   return out;
 }
-const rankedCatsNow = () => (S.rcats?.sc === month() && S.rcats.cats?.length ? S.rcats.cats : seasonCats(month()));
+const rankedCatsNow = () => (S.rcats?.sc === month() && S.rcats.cats?.length ? S.rcats.cats : RANKED_ROTATION ? seasonCats(month()) : CATS.map(c => c.id));
+const allRanked = () => rankedCatsNow().length >= CATS.length;
 // salons publics : son rang, un rang en dessous ou un rang au-dessus (ex. « Argent – Platine » pour un Or)
 const rangeName = t => `${TIERS[Math.max(0, t - 1)].name} – ${TIERS[Math.min(TIERS.length - 1, t + 1)].name}`;
 // points de rang par place pour une partie à 10 joueurs (copie de RP_TABLE dans src/ranks.js)
@@ -1823,7 +1826,7 @@ function rankSheet() {
   openSheet(`<h3>Rangs et saison <button data-close data-i="x"></button></h3>
     <div class="card rankcard">${tierBadge(r.tier, 64)}<div><small>Saison de ${seasonName(r.sc)}</small><b>${TIERS[r.tier].name}</b><span>${r.rp} PR${r.pos ? ` • ${r.pos}${r.pos === 1 ? 'er' : 'e'} du classement` : ''}</span>
       <div class="bar"><i style="width:${pr.pct}%"></i></div><small>${pr.next ? `Encore ${pr.next.min - r.rp} PR pour ${pr.next.name}` : 'Rang maximum atteint !'}</small></div></div>
-    <p>🎮 Les parties du mode <b>Classé</b> (4 catégories tirées au sort chaque mois) comptent pour ton rang : le podium gagne beaucoup de points de rang (PR), les suivants un peu moins, le milieu rien et les deux derniers en perdent un peu. Une mauvaise partie rapporte quand même de l’XP. Plus ton rang est haut, plus c’est exigeant.</p>
+    <p>🎮 Les parties du mode <b>Classé</b> comptent pour ton rang : le podium gagne beaucoup de points de rang (PR), les suivants un peu moins, le milieu rien et les deux derniers en perdent un peu. Une mauvaise partie rapporte quand même de l’XP. Plus ton rang est haut, plus c’est exigeant.</p>
     <p class="ptsh">Points par place en ${TIERS[r.tier].name} <small>(partie à 10 joueurs)</small></p>
     <div class="ptsgrid">${RP_TABLE[r.tier].map((v, i) => `<div class="${v > 0 ? 'up' : v < 0 ? 'down' : ''}"><small>${i + 1}${i ? 'e' : 'er'}</small>${v > 0 ? '+' : ''}${v}</div>`).join('')}</div>
     <p class="muted" style="font-size:12.5px;margin-top:6px">Partie parfaite : +5. Avec moins de joueurs, même logique : le 1er et le dernier gardent leurs points.</p>
@@ -1907,7 +1910,7 @@ function openCats(mode) {
   catSel = mode === 'change' ? R.st.cat : (S.cat || 'mix');
   if (!multiCats()) catSel = catSel.split('+')[0];
   $('#catsTitle').textContent = { public: 'Classé', open: 'Non classé', solo: 'Solo' }[mode] || (multiCats() ? 'Choisir jusqu’à 3 catégories' : 'Choisir une catégorie');
-  $('#catsSub').innerHTML = mode === 'public' ? `${tierBadge(S.rank.tier, 16)} Avec ton rang, un en dessous ou un au-dessus (${rangeName(S.rank.tier)}). 4 catégories classées ce mois-ci.`
+  $('#catsSub').innerHTML = mode === 'public' ? `${tierBadge(S.rank.tier, 16)} Avec ton rang, un en dessous ou un au-dessus (${rangeName(S.rank.tier)}).${allRanked() ? '' : ` ${rankedCatsNow().length} catégories classées ce mois-ci.`}`
     : mode === 'open' ? 'Tout le monde mélangé, sans points de rang. On ne voit pas le rang des autres.'
     : mode === 'solo' ? `Contre 3 bots, à ton rythme. Pièces réduites, pas de points de rang.<div class="segs" id="soloLvl" style="margin-top:10px">${BOT_LVLS.map((l, i) => `<button data-l="${i}" class="${(S.soloLvl ?? 1) === i ? 'on' : ''}">${l}</button>`).join('')}</div>`
     : multiCats() ? '🎛️ Salon Premium : touche plusieurs catégories pour les mélanger.' : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
@@ -2017,7 +2020,7 @@ function renderHome() {
     ${ready ? `<span class="hotx">🎁 ${ready} récompense${ready > 1 ? 's' : ''} à récupérer !</span>` : ''}</span><img src="/av/R04.webp" alt="">`;
   $('#bPlay').innerHTML = `<span class="mt"><span class="eb">MULTIJOUEUR <span class="live off" id="rankLive"><i></i>Ouvert 24h/24</span></span>
     <b>Classé</b><span class="rk">${TIERS[t].name} · ${fmt(S.rank.rp)} PR ${pr.next ? `<em>· encore ${fmt(pr.next.min - S.rank.rp)} pour ${pr.next.name}</em>` : '<em>· rang maximum</em>'}</span>
-    <span class="cl">Catégories classées ce mois-ci :</span><span class="chips">${rankedCatsNow().map(c => `<span>${esc(catOf(c).name)}</span>`).join('')}</span></span>
+    ${allRanked() ? '<span class="cl">Toutes les catégories</span>' : `<span class="cl">Catégories classées ce mois-ci :</span><span class="chips">${rankedCatsNow().map(c => `<span>${esc(catOf(c).name)}</span>`).join('')}</span>`}</span>
     <span class="mf">${framedAvatar(S.av, 'r' + t, 120, 112, 56)}</span>`;
   renderOnline();
   loadCounts();
@@ -2498,7 +2501,7 @@ function rules() {
     <p>🎧 Un extrait de musique démarre en même temps pour tous les joueurs du salon.</p>
     <p>⌨️ Tape <b>l’artiste</b> ou <b>le titre en entier</b> (ou les deux d’un coup). La bonne réponse est reconnue pendant que tu tapes ; les accents, majuscules et la ponctuation ne comptent pas. Si tu as fait une petite faute, appuie sur <b>Entrée</b> : quelques fautes sont tolérées.</p>
     <p>🏆 <b>Titre : +15 pts</b>, <b>artiste : +10 pts</b>, plus un <b>bonus de rapidité</b> (jusqu’à +5) et un <b>bonus de série</b> si tu trouves plusieurs manches d’affilée.</p>
-    <p>👥 <b>Classé</b> : contre des joueurs de ton niveau, sur 4 catégories tirées au sort chaque mois ; ton rang monte ou descend (de Bronze à Grand Maître). <b>Non classé</b> : tout le monde mélangé, sans rang. <b>Solo</b> : contre des bots, pièces réduites. <b>Entre amis</b> : salon privé avec un code.</p>
+    <p>👥 <b>Classé</b> : contre des joueurs de ton niveau ; ton rang monte ou descend (de Bronze à Grand Maître). <b>Non classé</b> : tout le monde mélangé, sans rang. <b>Solo</b> : contre des bots, pièces réduites. <b>Entre amis</b> : salon privé avec un code.</p>
     <p>🏅 Gagne des <b>médailles</b> (4 niveaux), des <b>titres</b> à afficher sous ton pseudo, des <b>cadres exclusifs</b> en montant de rang et des cadeaux sur la <b>route de saison</b>. Touche un joueur pour voir sa carte.</p>
     <p>🤖 Les joueurs marqués « BOT » sont des joueurs virtuels qui complètent les salons quand il y a peu de monde.</p>
     <button class="cta" data-close>J’ai compris</button>`);
