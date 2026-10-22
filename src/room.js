@@ -28,7 +28,7 @@ const SURVIE_MAX = 40; // manches tirées d'avance en mode Survie
 const BETS = [0, 50, 100, 250]; // paris de pièces en duel
 // cadres achetés (boutique, cadres de prestige compris) et cadre « Légendaire » (médaille au niveau Légendaire) :
 // pièces et médailles sont sur l'appareil, le serveur ne peut que vérifier que le cadre existe
-const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie', 'arc', 'aurore', 'royal', 'icone', 'legend']);
+const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie', 'arc', 'aurore', 'royal', 'icone', 'legend', 'citrouille']);
 const NAME_STYLES = new Set(['', 'gold', 'rainbow']);   // pseudo doré, arc-en-ciel (boutique, Prestige)
 const WIN_FX = new Set(['', 'confetti', 'fireworks']);  // effet de victoire vu par tout le salon
 const REACTS = new Set(['👏', '🔥', '😂', '😮', '🎉']); // réactions rapides (mêmes que REACTS dans l'appli)

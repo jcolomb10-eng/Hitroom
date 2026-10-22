@@ -1388,6 +1388,45 @@ The Pink Panther Theme ~ La Panthère rose ~ The Pink Panther | Henry Mancini
 Hedwig's Theme ~ Harry Potter | John Williams
 He's a Pirate ~ Pirates des Caraïbes | Klaus Badelt ~ Hans Zimmer
 `,
+  'frissons': `
+Thriller | Michael Jackson
+Ghostbusters | Ray Parker Jr.
+Monster Mash | Bobby "Boris" Pickett ~ Bobby Pickett
+This Is Halloween | Danny Elfman
+bad guy | Billie Eilish
+Somebody's Watching Me | Rockwell
+I Put a Spell on You | Screamin' Jay Hawkins ~ Creedence Clearwater Revival
+Dragula | Rob Zombie
+Zombie | The Cranberries
+Black Magic Woman | Santana
+Heads Will Roll | Yeah Yeah Yeahs
+Season of the Witch | Donovan
+Paint It Black | The Rolling Stones
+Sympathy for the Devil | The Rolling Stones
+Disturbia | Rihanna
+Mad World | Gary Jules
+Highway to Hell | AC/DC
+Hells Bells | AC/DC
+Enter Sandman | Metallica
+Welcome to My Nightmare | Alice Cooper
+Halloween Theme | John Carpenter
+Tubular Bells | Mike Oldfield
+Don't Fear the Reaper | Blue Öyster Cult
+Werewolves of London | Warren Zevon
+Pet Sematary | Ramones
+Bela Lugosi's Dead | Bauhaus
+Love Potion No. 9 | The Searchers
+Witchy Woman | Eagles
+Hocus Pocus | Focus
+Spooky | Classics IV
+Hotel California | Eagles
+Creep | Radiohead
+A Nightmare on My Street | DJ Jazzy Jeff & The Fresh Prince
+Désenchantée | Mylène Farmer | fr
+Les démons de minuit | Images | fr
+Pourvu qu'elles soient douces | Mylène Farmer | fr
+Maman a tort | Mylène Farmer | fr
+`,
 };
 
 export const CATS = [
@@ -1404,6 +1443,7 @@ export const CATS = [
   { id: 'electro', name: 'Électro', sub: 'Dance • EDM' },
   { id: 'kpop', name: 'K-Pop', sub: 'K-Pop • Asie' },
   { id: 'cine', name: 'Ciné & séries', sub: 'B.O. cultes' },
+  { id: 'frissons', name: 'Frissons', sub: 'Halloween • Horreur' }, // version 1.19 : jamais classée, ni dans Mix ni au Hit du jour
 ];
 
 export const CAT_IDS = new Set(CATS.map(c => c.id));
@@ -1416,10 +1456,10 @@ export const RANKED_ROTATION = false;
 const RANKED_POOL = ['80', '90', '2000', '2010', '2020', 'variete', 'rapfr', 'rapus', 'rock', 'electro', 'kpop', 'cine'];
 export function rankedCats(sc, override) {
   if (override) {
-    const list = String(override).split(',').map(c => c.trim()).filter(c => CAT_IDS.has(c));
+    const list = String(override).split(',').map(c => c.trim()).filter(c => CAT_IDS.has(c) && c !== 'frissons');
     if (list.length) return list;
   }
-  return RANKED_ROTATION ? seasonRotation(sc) : [...CAT_IDS];
+  return RANKED_ROTATION ? seasonRotation(sc) : [...CAT_IDS].filter(c => c !== 'frissons');
 }
 export function seasonRotation(sc) {
   let h = 2166136261;
@@ -1448,7 +1488,7 @@ for (const [id, block] of Object.entries(RAW)) {
   BY_CAT[id] = parse(block).filter(s => !seen.has(s.k) && seen.add(s.k));
   for (const s of BY_CAT[id]) if (!ALL.has(s.k)) ALL.set(s.k, s);
 }
-BY_CAT.mix = [...ALL.values()];
+BY_CAT.mix = [...ALL.values()].filter(s => !BY_CAT.frissons.some(f => f.k === s.k) || Object.entries(BY_CAT).some(([id, l]) => id !== 'frissons' && l.some(x => x.k === s.k)));
 
 // cat : une catégorie, ou jusqu'à 3 mélangées (« rock+80+90 », salons privés Premium)
 export function songsOf(cat) {

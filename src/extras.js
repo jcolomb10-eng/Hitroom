@@ -47,7 +47,12 @@ export const EVENT_MIN = 300;            // points pour une récompense de parti
 export const EVENT_COINS = [600, 400, 250], EVENT_PART = 100;
 export const TOUR_FROM = 20 * 60, TOUR_TO = 22 * 60; // tournoi du samedi soir, heure de Paris
 export const TOUR_COINS = [500, 300, 150];
-export const eventOfWeek = wk => EVENTS[Math.floor(Date.parse(wk + 'T12:00:00Z') / (7 * DAY)) % EVENTS.length];
+// événements spéciaux (jour de la semaine = lundi) : Halloween le week-end du 31 octobre 2026 ; theme = décor de l'appli,
+// gifts = cadeaux : frame au podium, av à partir de EVENT_MIN points (cadre Citrouille, avatar Chauve-souris)
+export const SPECIAL = {
+  '2026-10-26': { id: 'ehallo', name: 'Nuit des Frissons', emoji: '🎃', cat: 'frissons', theme: 'halloween', gifts: { frame: 'citrouille', av: 'H01' } },
+};
+export const eventOfWeek = wk => SPECIAL[wk] || EVENTS[Math.floor(Date.parse(wk + 'T12:00:00Z') / (7 * DAY)) % EVENTS.length];
 // événement à afficher un jour donné : lun-mer = celui du week-end passé (terminé), jeu-ven = à venir, sam-dim = en cours
 export function eventState(day) {
   const d = dow(day), thisWk = weekKey(day);
@@ -81,6 +86,7 @@ export const extraMethods = {
     x(`CREATE TABLE IF NOT EXISTS tpts(ev TEXT, uid TEXT, pts INTEGER, PRIMARY KEY(ev, uid))`);
     x(`CREATE TABLE IF NOT EXISTS survie(uid TEXT, cat TEXT, best INTEGER, ts INTEGER, PRIMARY KEY(uid, cat))`);
     x(`CREATE INDEX IF NOT EXISTS survie_best ON survie(cat, best DESC)`);
+    try { x(`ALTER TABLE honors ADD COLUMN gift TEXT`); } catch { /* colonne déjà là */ }
   },
 
   // horloge : en local (MOCK_MUSIC) elle peut être réglée par /__mock/horloge ; gardée dans la base car le Hub peut être relancé
@@ -125,11 +131,13 @@ export const extraMethods = {
     if (!force && this.sql.exec(`SELECT 1 FROM meta WHERE k = ?`, flag).toArray().length) return;
     this.sql.exec(`INSERT OR REPLACE INTO meta(k, v) VALUES(?, '1')`, flag);
     const ev = eventOfWeek(wk);
-    const put = (uid, kind, v, coins, lab, title) =>
-      this.sql.exec(`INSERT OR IGNORE INTO honors(uid, key, kind, v, coins, label, title) VALUES(?,?,?,?,?,?,?)`, uid, wk, kind, v, coins, lab, title);
+    const put = (uid, kind, v, coins, lab, title, gift = '') =>
+      this.sql.exec(`INSERT OR IGNORE INTO honors(uid, key, kind, v, coins, label, title, gift) VALUES(?,?,?,?,?,?,?,?)`, uid, wk, kind, v, coins, lab, title, gift);
+    const g = ev.gifts || {};
     this.sql.exec(`SELECT uid, pts FROM evpts WHERE ev = ? ORDER BY pts DESC`, wk).toArray().forEach((r, i) => {
-      if (i < 3) put(r.uid, 'event', i + 1, EVENT_COINS[i], `${ev.emoji} ${ev.name} : ${i === 0 ? '1er' : i + 1 + 'e'} avec ${r.pts} points`, i === 0 ? `h-ev-${ev.id}-${ymd(wk)}` : '');
-      else if (r.pts >= EVENT_MIN) put(r.uid, 'event', 0, EVENT_PART, `${ev.emoji} ${ev.name} : merci d’avoir joué (${r.pts} points)`, '');
+      const gift = [i < 3 && g.frame ? 'frame:' + g.frame : '', r.pts >= EVENT_MIN && g.av ? 'av:' + g.av : ''].filter(Boolean).join(',');
+      if (i < 3) put(r.uid, 'event', i + 1, EVENT_COINS[i], `${ev.emoji} ${ev.name} : ${i === 0 ? '1er' : i + 1 + 'e'} avec ${r.pts} points`, i === 0 ? `h-ev-${ev.id}-${ymd(wk)}` : '', gift);
+      else if (r.pts >= EVENT_MIN) put(r.uid, 'event', 0, EVENT_PART, `${ev.emoji} ${ev.name} : merci d’avoir joué (${r.pts} points)`, '', gift);
     });
     this.sql.exec(`SELECT uid, pts FROM tpts WHERE ev = ? ORDER BY pts DESC LIMIT 3`, wk).toArray().forEach((r, i) =>
       put(r.uid, 'tour', i + 1, TOUR_COINS[i], `🏟️ Tournoi du samedi soir : ${i === 0 ? '1er' : i + 1 + 'e'} avec ${r.pts} points`, i === 0 ? `h-tour-${ymd(wk)}` : ''));
@@ -140,7 +148,7 @@ export const extraMethods = {
     const now = this.clock();
     this.closeSeason(prevSeason(now.toISOString().slice(0, 7)));
     this.closeEvent(dayAdd(weekKey(this.pDay()), -7));
-    const rows = this.sql.exec(`SELECT key, kind, v, coins, label, title FROM honors WHERE uid = ? AND claimed = 0`, uid).toArray();
+    const rows = this.sql.exec(`SELECT key, kind, v, coins, label, title, gift FROM honors WHERE uid = ? AND claimed = 0`, uid).toArray();
     if (rows.length) this.sql.exec(`UPDATE honors SET claimed = 1 WHERE uid = ? AND claimed = 0`, uid);
     return rows;
   },
@@ -254,11 +262,11 @@ export const extraMethods = {
       const r = this.sql.exec(`SELECT pts FROM ${table} WHERE ev = ? AND uid = ?`, es.wk, uid).toArray()[0];
       return r ? { pts: r.pts, place: this.sql.exec(`SELECT COUNT(*) AS n FROM ${table} WHERE ev = ? AND pts > ?`, es.wk, r.pts).one().n + 1 } : { pts: 0, place: null };
     };
-    return { wk: es.wk, state: es.state, id: ev.id, name: ev.name, emoji: ev.emoji, cat: ev.cat, catName: nameOf(ev.cat), from: es.sat, to: es.sun,
+    return { wk: es.wk, state: es.state, id: ev.id, name: ev.name, emoji: ev.emoji, cat: ev.cat, theme: ev.theme || '', gifts: ev.gifts || null, catName: nameOf(ev.cat), from: es.sat, to: es.sun,
       top: board('evpts'), me: mine('evpts'), min: EVENT_MIN, coins: EVENT_COINS, part: EVENT_PART,
       tour: { state: tourState(day, mins), day: es.sat, from: '20 h', to: '22 h', top: board('tpts').slice(0, 5), me: mine('tpts'), coins: TOUR_COINS } };
   },
-  eventLite() { const es = eventState(this.pDay()); return { state: es.state, cat: es.ev.cat, name: es.ev.name, emoji: es.ev.emoji, wk: es.wk }; },
+  eventLite() { const es = eventState(this.pDay()); return { state: es.state, cat: es.ev.cat, name: es.ev.name, emoji: es.ev.emoji, wk: es.wk, theme: es.ev.theme || '' }; },
 
   // ----- mode Survie : nombre de manches tenues sans rater -----
   survieSave(uid, cat, n) {

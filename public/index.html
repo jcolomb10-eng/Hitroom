@@ -1059,6 +1059,23 @@ svg.med{flex:none;overflow:visible}
 :root[data-light] .evb small{color:#b35a00}
 :root[data-light] .ctiers span{background:rgba(0,0,0,.06)}
 :root[data-light] .cbar{background:rgba(0,0,0,.1)}
+/* ---- 1.19 : Halloween (cadre Citrouille, tuile, décor de l'accueil pendant l'événement) ---- */
+.av.f-citrouille{border:3px solid transparent;background:radial-gradient(circle at 35% 30%,#3a1950,#12081a) padding-box,conic-gradient(from var(--ga,0deg),#ff9a2e,#7a2cff,#ff5a1f,#ffd36b,#7a2cff,#ff9a2e) border-box;animation:gal 4s linear infinite,rpulse 2s ease-in-out infinite;--g:255,130,40}
+.av.f-citrouille::before{content:'🎃';position:absolute;top:calc(var(--s)*-.30);left:50%;transform:translateX(-50%);font-size:calc(var(--s)*.38);filter:drop-shadow(0 0 6px rgba(255,140,30,.9))}
+.evb.hw{border-color:#ff7a1f;background:radial-gradient(90% 130% at 100% 0%,rgba(122,44,255,.38),transparent 60%),radial-gradient(80% 130% at 0% 100%,rgba(255,122,31,.38),transparent 60%),linear-gradient(180deg,#1b0e24,#0c0712);box-shadow:0 0 22px rgba(255,122,31,.45)}
+.evb.hw .em{font-size:40px;filter:drop-shadow(0 0 8px rgba(255,122,31,.8));animation:hwfloat 3s ease-in-out infinite}
+@keyframes hwfloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-4px) rotate(4deg)}}
+.hwfx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.hwfx span{position:absolute;font-size:22px;opacity:.6;animation:hwfly 9s ease-in-out infinite}
+.hwfx span:nth-child(1){left:6%;top:8%}.hwfx span:nth-child(2){left:78%;top:14%;animation-delay:-3s;font-size:28px}
+.hwfx span:nth-child(3){left:40%;top:30%;animation-delay:-6s;font-size:18px}.hwfx span:nth-child(4){left:88%;top:52%;animation-delay:-2s}
+.hwfx span:nth-child(5){left:10%;top:66%;animation-delay:-5s;font-size:26px}.hwfx span:nth-child(6){left:60%;top:80%;animation-delay:-7s;font-size:20px}
+@keyframes hwfly{0%,100%{transform:translate(0,0) rotate(-6deg)}50%{transform:translate(14px,-18px) rotate(8deg)}}
+:root[data-hw="1"] .home{position:relative}
+:root[data-hw="1"] .home>*{position:relative;z-index:1}
+:root[data-hw="1"] #v-home{background:radial-gradient(70% 40% at 50% 0%,rgba(122,44,255,.28),transparent 70%),radial-gradient(60% 30% at 50% 100%,rgba(255,122,31,.2),transparent 70%)}
+:root[data-hw="1"] #homeTk{filter:hue-rotate(-60deg) saturate(1.3)}
+@media (prefers-reduced-motion:reduce){.hwfx span,.evb.hw .em,.av.f-citrouille{animation:none}}
 </style>
 </head>
 <body>
@@ -1273,7 +1290,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.18';
+const VERSION = '1.19';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1339,6 +1356,7 @@ const CATS = [
   { id: 'electro', name: 'Électro', sub: 'Dance • EDM', e: '🎧' },
   { id: 'kpop', name: 'K-Pop', sub: 'K-Pop • Asie', e: '💗' },
   { id: 'cine', name: 'Ciné & séries', sub: 'B.O. cultes', e: '🎬' },
+  { id: 'frissons', name: 'Frissons', sub: 'Halloween • Horreur', e: '🎃' }, // jamais classée ni dans Mix
 ];
 // une catégorie, ou jusqu'à 3 mélangées (« rock+80 », salon privé Premium)
 const catOf = id => {
@@ -1357,10 +1375,11 @@ const AV_LIST = [
   ['A19', 'Tambourin'], ['A20', 'Clé de sol'], ['A21', 'Métronome'], ['A22', 'Enceinte'], ['A23', 'Keytar'], ['A24', 'Xylophone'],
   ['R01', 'Micro phénix'], ['R02', 'Casque galaxie'], ['R03', 'Vinyle planète'], ['R04', 'Couronne de notes'], ['R05', 'Guitare de glace'], ['R06', 'Saxophone dragon'],
   ['R07', 'Lyre céleste'], ['R08', 'Boule de cristal'], ['R09', 'Cassette hologramme'], ['R10', 'Disque de platine'], ['R11', 'Tambour volcan'], ['R12', 'Rossignol mécanique'],
-  ['L01', 'Phénix chanteur'], ['L02', 'Micro diamant'], ['L03', 'Dragon des platines'], ['L04', 'Sceptre du maestro'], ['L05', 'Piano céleste'], ['L06', 'Casque cyber-DJ'],
+  ['H01', 'Chauve-souris'], ['H02', 'Citrouille'], ['L01', 'Phénix chanteur'], ['L02', 'Micro diamant'], ['L03', 'Dragon des platines'], ['L04', 'Sceptre du maestro'], ['L05', 'Piano céleste'], ['L06', 'Casque cyber-DJ'],
 ];
 const AV_NAME = Object.fromEntries(AV_LIST);
 const AVATARS = AV_LIST.filter(a => a[0][0] === 'A').map(a => a[0]);
+const EVENT_AV = ['H01', 'H02'];
 const LEGEND_AV = { L01: 30000, L02: 25000, L03: 25000, L04: 20000, L05: 20000, L06: 15000 }; // prix en pièces
 const isAvCode = a => !!AV_NAME[a];
 const avName = a => AV_NAME[a] || '';
@@ -1475,7 +1494,7 @@ const TITLES = [
 ];
 const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 const EV_NAMES = { e80: 'Week-end années 80', erapfr: 'Rap FR Night', erock: 'Rock Party', ekpop: 'K-Pop Fever', ecine: 'Soirée Cinéma', eelectro: 'Electro Weekend',
-  evariete: 'Chanson française', e2000: 'Années 2000', e90: 'Week-end années 90', erapus: 'Rap US Night' }; // comme EVENTS dans src/extras.js
+  evariete: 'Chanson française', ehallo: 'Nuit des Frissons', e2000: 'Années 2000', e90: 'Week-end années 90', erapus: 'Rap US Night' }; // comme EVENTS dans src/extras.js
 // titres gagnés (honneurs) : l'identifiant dit tout (h-top10-2610 = Top 10 d'octobre 2026), donc lisible par tous les joueurs
 function honorTitle(id) {
   let m;
@@ -1576,8 +1595,8 @@ function seasonCats(sc) {
   while (out.length < 4) { h = (Math.imul(h, 1103515245) + 12345) >>> 0; out.push(pool.splice((h >>> 8) % pool.length, 1)[0]); }
   return out;
 }
-const rankedCatsNow = () => (S.rcats?.sc === month() && S.rcats.cats?.length ? S.rcats.cats : RANKED_ROTATION ? seasonCats(month()) : CATS.map(c => c.id));
-const allRanked = () => rankedCatsNow().length >= CATS.length;
+const rankedCatsNow = () => (S.rcats?.sc === month() && S.rcats.cats?.length ? S.rcats.cats : RANKED_ROTATION ? seasonCats(month()) : CATS.filter(c => c.id !== 'frissons').map(c => c.id));
+const allRanked = () => rankedCatsNow().length >= CATS.length - 1;
 // salons publics : son rang, un rang en dessous ou un rang au-dessus (ex. « Argent – Platine » pour un Or)
 const rangeName = t => `${TIERS[Math.max(0, t - 1)].name} – ${TIERS[Math.min(TIERS.length - 1, t + 1)].name}`;
 // points de rang par place pour une partie à 10 joueurs (copie de RP_TABLE dans src/ranks.js)
@@ -3453,9 +3472,23 @@ function renderEventCard() {
   const c = catOf(e.cat).name;
   const sub = e.state === 'live' ? `Pièces ×2 en ${esc(c)} · classement du week-end · tournoi samedi soir`
     : e.state === 'soon' ? `Commence samedi : ${esc(c)}, pièces ×2 et classement spécial` : 'Terminé : récompenses à retrouver dans « Mon profil »';
-  el.className = `card evb ${e.state}`;
+  el.className = `card evb ${e.state}${e.theme === 'halloween' ? ' hw' : ''}`;
+  halloweenDecor(e);
   el.innerHTML = `<span class="em">${e.emoji}</span><span class="hb"><small>${e.state === 'live' ? '🔥 ÉVÉNEMENT EN COURS' : e.state === 'soon' ? '⏳ CE WEEK-END' : '🏁 ÉVÉNEMENT TERMINÉ'}</small><b>${esc(e.name)}</b><span>${sub}</span></span>
     <span class="go">${e.state === 'live' ? 'Jouer' : 'Voir'}</span>`;
+}
+// décor d'Halloween sur l'accueil pendant l'événement (jeudi soir au dimanche) : fond violet et orange, chauves-souris qui volent
+function halloweenDecor(e) {
+  const on = e?.theme === 'halloween' && e.state !== 'done';
+  document.documentElement.dataset.hw = on ? '1' : '';
+  const home = $('#v-home .home');
+  if (!home) return;
+  const fx = home.querySelector('.hwfx');
+  if (on && !fx) home.insertAdjacentHTML('afterbegin', '<div class="hwfx" aria-hidden="true"><span>🦇</span><span>🎃</span><span>🦇</span><span>🕸️</span><span>🦇</span><span>👻</span></div>');
+  if (!on && fx) fx.remove();
+  const tk = '🎃 Nuit des Frissons : l’événement Halloween du week-end !';
+  const i = TICKER.indexOf(tk);
+  if (on && i < 0) { TICKER.unshift(tk); paintTicker(); } else if (!on && i >= 0) { TICKER.splice(i, 1); paintTicker(); }
 }
 const placeTxt = n => (n === 1 ? '1er' : n + 'e');
 async function eventSheet() {
@@ -3469,7 +3502,7 @@ async function eventSheet() {
   openSheet(`<div style="text-align:center"><div style="font-size:46px">${e.emoji}</div><h3 style="justify-content:center">${esc(e.name)}</h3>
     <p class="muted" style="margin:0">${e.state === 'live' ? 'En cours jusqu’à dimanche minuit' : e.state === 'soon' ? 'Du samedi au dimanche' : 'Terminé'} · catégorie ${esc(e.catName)}</p></div>
     <div class="card cx"><h4>⭐ Comment ça marche <small></small></h4><p>Joue en <b>${esc(e.catName)}</b> (Classé ou Non classé) pendant le week-end : tes <b>pièces sont doublées</b> et tes points comptent pour le classement de l’événement.
-      Récompenses : 🥇 ${e.coins[0]} · 🥈 ${e.coins[1]} · 🥉 ${e.coins[2]} pièces, un titre pour le vainqueur, et ${e.part} pièces dès ${e.min} points.</p></div>
+      Récompenses : 🥇 ${e.coins[0]} · 🥈 ${e.coins[1]} · 🥉 ${e.coins[2]} pièces, un titre pour le vainqueur, et ${e.part} pièces dès ${e.min} points.${e.gifts ? ' 🎁 Cadre Citrouille pour le podium, avatar Chauve-souris dès ' + e.min + ' points.' : ''}</p></div>
     <h4 class="psec">Classement de l’événement <span>${e.me.pts ? `toi : ${placeTxt(e.me.place)} · ${fmt(e.me.pts)} pts` : ''}</span></h4>${rows(e.top)}
     <div class="card cx" style="margin-top:14px"><h4>🏟️ Tournoi du samedi soir <small>${st} · 20 h – 22 h</small></h4>
       <p>Tous les points marqués en partie publique (Classé ou Non classé, n’importe quelle catégorie) entre 20 h et 22 h comptent. Les 3 premiers gagnent ${e.tour.coins.join(' · ')} pièces et le vainqueur un titre.</p>
@@ -3491,11 +3524,18 @@ function honorsSheet(list) {
     if (h.title && !S.titles.includes(h.title)) S.titles.push(h.title);
   }
   S.honors = S.honors.slice(-200);
+  const gifts = [];
+  for (const h of fresh) for (const g of (h.gift || '').split(',').filter(Boolean)) {
+    const [k, v] = g.split(':');
+    if (k === 'frame' && !S.owned.includes(v)) { S.owned.push(v); gifts.push(`🎃 Cadre <b>${esc(v === 'citrouille' ? 'Citrouille' : v)}</b>`); }
+    if (k === 'av' && !S.avs.includes(v)) { S.avs.push(v); gifts.push(`${avMini(v)} 🎁 Avatar <b>${esc(avName(v))}</b>`); }
+  }
   S.coins += coins;
   save();
   const newTitle = fresh.find(h => h.title)?.title;
   openSheet(`<div style="text-align:center"><div style="font-size:54px">🏆</div><h3 style="justify-content:center">Bravo, tu es récompensé !</h3>
     ${fresh.map(h => `<div class="card cx" style="text-align:center"><b>${esc(h.label)}</b><br><span style="color:var(--gold2);font-weight:800">+${fmt(h.coins)} pièces</span></div>`).join('')}
+    ${gifts.length ? `<div class="card cx" style="text-align:center">${gifts.map(g => `<p style="margin:10px 0 4px;color:var(--fg);display:flex;align-items:center;justify-content:center;gap:12px">${g}</p>`).join('')}<small class="muted">À équiper dans ton profil.</small></div>` : ''}
     ${newTitle ? `<p>Nouveau titre : <b class="ttl" style="display:inline-block">${esc(honorTitle(newTitle))}</b><br><small class="muted">Choisis-le dans ton profil.</small></p>` : ''}
     <button class="cta" data-close>Super !</button></div>`);
 }
@@ -3695,11 +3735,13 @@ function avatarSheet() {
   const nr = RARE_AV.filter(a => S.avs.includes(a)).length;
   openSheet(`<h3>Choisis ton avatar <button data-close data-i="x"></button></h3><div class="avgrid">${AVATARS.map(a => btn(a)).join('')}
     <h4 class="sec">✨ Rares : route de saison (${nr}/${RARE_AV.length})</h4>${rares}
-    <h4 class="sec">🌟 Légendaires : boutique</h4>${legends}</div>
+    <h4 class="sec">🌟 Légendaires : boutique</h4>${legends}
+    <h4 class="sec">🎃 Événements : à gagner en jouant</h4>${EVENT_AV.map(a => btn(a, S.avs.includes(a) ? '' : '🔒')).join('')}</div>
     <p class="note">Touche un avatar verrouillé pour savoir comment l’obtenir.</p>`);
   $$('#sheetBox .avgrid button').forEach(b => b.onclick = () => {
     const a = b.dataset.av;
     if (LEGEND_AV[a]) { if (!buyAvatar(a)) return; }
+    else if (a[0] === 'H' && !S.avs.includes(a)) return toast(`« ${avName(a)} » : avatar d’événement, à gagner pendant un événement du week-end.`, 3500);
     else if (a[0] === 'R' && !S.avs.includes(a)) return toast(`« ${avName(a)} » : avatar rare à gagner sur la route de saison (3 nouveaux chaque mois).`, 3500);
     else S.av = a;
     save(); closeSheet(); renderProfile(); profileChanged();
@@ -3948,6 +3990,8 @@ function renderShop() {
     html += PRESTIGE_FRAMES.map(it => card('buy', it.id, avHTML(S.av, it.id, 58), it.name, S.fr === it.id ? 'Équipé' : S.owned.includes(it.id) ? 'Choisir' : price(it), S.fr === it.id, it.price)).join('');
     html += '<h4 class="sec">🏅 Cadre Légendaire : impossible à acheter</h4>';
     html += card('legend', 'legend', avHTML(S.av, 'legend', 58), 'Légendaire', legendOk() ? (S.fr === 'legend' ? 'Équipé' : 'Choisir') : '🔒 Une médaille Légendaire', S.fr === 'legend');
+    html += '<h4 class="sec">🎃 Cadres d’événement : à gagner en jouant</h4>';
+    html += card('event', 'citrouille', avHTML(S.av, 'citrouille', 58), 'Citrouille', S.owned.includes('citrouille') ? (S.fr === 'citrouille' ? 'Équipé' : 'Choisir') : '🔒 Événement Halloween', S.fr === 'citrouille');
     html += '<h4 class="sec">🏆 Cadres de rang : affichés tout seuls en partie classée</h4>';
     html += [0, 1, 2, 3, 4, 5, 6, 7, 8].map(t => {
       const ok = (S.rank.bestEver || 0) >= t, id = 'r' + t;
@@ -3981,7 +4025,10 @@ function renderShop() {
       return toast((S.rank.bestEver || 0) < t ? `Atteins le rang ${TIERS[t].name} en mode Classé pour débloquer ce cadre.`
         : `En partie classée, ton cadre est celui de ton rang actuel (${TIERS[S.rank.tier].name}). Ailleurs, c’est le cadre que tu choisis ici qui se voit.`, 4200);
     } else if (kind === 'season') { S.fr = id; profileChanged(); }
-    else if (kind === 'legend') {
+    else if (kind === 'event') {
+      if (!S.owned.includes(id)) return toast('Ce cadre se gagne en finissant sur le podium d’un événement du week-end (Halloween 2026).', 3500);
+      S.fr = id; profileChanged();
+    } else if (kind === 'legend') {
       if (!legendOk()) return toast('Monte une médaille au niveau Légendaire (Profil → Médailles) pour débloquer ce cadre.', 3500);
       S.fr = id; profileChanged();
     } else if (kind === 'items' || kind === 'prestige') { if (!buyThing(kind, id)) return; }

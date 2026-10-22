@@ -81,7 +81,7 @@ test('salons publics : jamais plus d’un rang d’écart', () => {
 
 test('mode Classé : 4 catégories par saison, les mêmes toute la saison, qui changent d’un mois à l’autre', async () => {
   const { rankedCats, seasonRotation, RANKED_ROTATION, CAT_IDS } = await import('../src/catalog.js');
-  if (!RANKED_ROTATION) assert.equal(rankedCats('2026-11').length, CAT_IDS.size, 'rotation pas activée : toutes les catégories');
+  if (!RANKED_ROTATION) assert.equal(rankedCats('2026-11').length, CAT_IDS.size - 1, 'rotation pas activée : toutes les catégories sauf Frissons (jamais classée)');
   const a = seasonRotation('2026-11'), b = seasonRotation('2026-11');
   assert.deepEqual(a, b);
   assert.equal(new Set(a).size, 4);

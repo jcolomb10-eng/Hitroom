@@ -31,7 +31,7 @@ export function seededRnd(text) {
 export function hitCandidates(day) {
   const rnd = seededRnd('hit:' + day), seen = new Set(), list = [];
   for (const c of CATS) {
-    if (c.id === 'mix') continue;
+    if (c.id === 'mix' || c.id === 'frissons') continue;
     for (const s of songsOf(c.id).slice(0, HIT_POOL)) if (!seen.has(s.k)) { seen.add(s.k); list.push({ ...s, cat: c.id }); }
   }
   for (let i = list.length - 1; i > 0; i--) {

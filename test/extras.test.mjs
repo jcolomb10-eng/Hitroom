@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { weekKey, isWeekend, eventState, tourState, inTour, eventOfWeek, prevSeason, monthName, topCoins, EVENTS } from '../src/extras.js';
+import { SPECIAL, weekKey, isWeekend, eventState, tourState, inTour, eventOfWeek, prevSeason, monthName, topCoins, EVENTS } from '../src/extras.js';
 import { CATS } from '../src/catalog.js';
 
 test('semaine : le lundi, week-end samedi et dimanche', () => {
@@ -34,4 +34,13 @@ test('saison précédente et récompenses', () => {
   assert.equal(prevSeason('2027-01'), '2026-12');
   assert.equal(monthName('2026-10'), 'octobre 2026');
   assert.deepEqual([1, 10, 11, 50, 51, 100].map(topCoins), [1000, 1000, 500, 500, 250, 250]);
+});
+test('Halloween : le week-end du 31 octobre 2026 a son événement', () => {
+  assert.equal(weekKey('2026-10-31'), '2026-10-26');
+  const e = eventState('2026-10-31');
+  assert.equal(e.state, 'live');
+  assert.equal(e.ev.id, 'ehallo');
+  assert.equal(eventState('2026-10-29').state, 'soon');
+  assert.ok(CATS.some(c => c.id === SPECIAL['2026-10-26'].cat));
+  assert.ok(/^[a-z0-9-]{1,24}$/.test(`h-ev-${e.ev.id}-261026`));
 });
