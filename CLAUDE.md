@@ -4,7 +4,7 @@ Blind test musical **multijoueur en direct** (l'esprit de QuiChante.com), en app
 Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisateur francophone, non développeur : répondre en français, simplement, avec des étapes claires.
 
 - Maquette de référence : 10 écrans (accueil, catégories, salon, partie, fin, profil, classements, défis, boutique, paramètres), noir avec bordures néon or et rose. L'utilisateur autorise à l'améliorer.
-- Version : **1.11** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
+- Version : **1.12** (constante `VERSION` dans `public/index.html`, à incrémenter à chaque publication).
 - Hébergement : **Cloudflare Workers** (gratuit, Durable Objects en SQLite) relié au dépôt GitHub (Workers Builds), publication automatique depuis `main`. Worker nommé **`hitroom`** : https://hitroom.jcolomb10.workers.dev. Le `name` de `wrangler.jsonc` doit rester identique au nom du Worker, sinon la publication échoue. Résultat des publications visible sur GitHub (check « Workers Builds: hitroom » sur chaque commit de `main`).
 - Le projet Cloudflare **Pages** « hitroom » (hitroom.pages.dev) et le Worker en double **`hitrooom`** (3 « o »), créés par erreur, ont été **supprimés par l'utilisateur le 22/10/2026** : il ne reste que le Worker `hitroom`. Astuce : le navigateur du téléphone de l'utilisateur traduit le tableau de bord Cloudflare, noms compris (« hitroom » → « salle de spectacle ») ; se repérer aux adresses, pas aux noms.
 - **Vercel** : le dépôt y est encore relié (ancien prototype). `vercel.json` y coupe toute publication automatique ; le projet Vercel est à débrancher ou supprimer par l'utilisateur (Vercel ne gère pas les WebSockets des salons).
@@ -87,7 +87,7 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 
 0. **Version 2.0** : vrais comptes (invité → compte sans perte, code à 6 chiffres par e-mail, puis Google ; page Confidentialité RGPD et suppression de compte), progression sur le serveur (fin de la triche).
 
-1. En ligne depuis la 1.8. Après la publication de la 1.11 : attendre environ 1 h que tout soit recherché à nouveau, puis vérifier `/api/introuvables` et `/api/versions` (titres et albums des versions retenues via `https://api.deezer.com/track/<ext>`) et corriger le catalogue si besoin.
+1. En ligne depuis la 1.8. Après la publication de la 1.12 (22/10/2026) : attendre environ 1 h 30 que les 1 208 morceaux soient recherchés, puis vérifier `/api/introuvables` et `/api/versions` (titres et albums des versions retenues via `https://api.deezer.com/track/<ext>`) et corriger le catalogue si besoin.
 2. Comptes (pour garder sa progression d'un appareil à l'autre) ; aujourd'hui tout est sur l'appareil.
 3. Notifications « tes amis jouent » (le service worker existe depuis la 1.12).
 4. Nom de domaine, vérification des conditions d'Apple pour les extraits avant un lancement public, Play Store (TWA).
