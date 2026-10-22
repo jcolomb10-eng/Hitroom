@@ -448,7 +448,21 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .reveal .t small{color:var(--muted);font-size:12px}
 .reveal .t b{display:block;font-size:18px;line-height:1.2}
 .reveal .t span{display:block;color:var(--gold2);font-weight:600}
-.reveal .t a{display:inline-block;margin-top:4px;font-size:11px;color:var(--muted)}
+.reveal .acts{display:flex;gap:8px;align-items:center;margin-top:8px}
+/* Mes découvertes : bouton Écouter, cœur des favoris, listes de morceaux */
+.lsn{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 12px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;background:linear-gradient(180deg,var(--cta1),var(--cta2));color:var(--ctaInk);text-decoration:none;box-shadow:0 0 10px rgba(var(--glow),.3)}
+.fav{width:32px;height:32px;flex:none;border-radius:50%;border:1.5px solid rgba(var(--glow),.35);background:#0f0a13;font-size:15px;display:grid;place-items:center;transition:transform .15s}
+.fav.on{border-color:#ff4f8b;box-shadow:0 0 10px rgba(255,79,139,.5)}
+.fav:active{transform:scale(.88)}
+.songs{display:flex;flex-direction:column;gap:8px}
+.song{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px}
+.song img{width:48px;height:48px;border-radius:8px;object-fit:cover;flex:none;background:#222}
+.song .tx{flex:1;min-width:0}
+.song .tx b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song .tx span{display:block;color:var(--gold2);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song .tx small{display:block;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song .lsn{height:30px;padding:0 10px;font-size:12px}
+.empty{text-align:center;color:var(--muted);font-size:14px;line-height:1.5;padding:22px 10px}
 .fab{position:absolute;right:14px;bottom:max(14px,env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;display:grid;place-items:center;z-index:12;
   background:#120c16;border:1.5px solid rgba(var(--glow),.6);box-shadow:0 0 14px rgba(var(--glow),.35)}
 /* réactions rapides (version 1.10) : boutons et emojis qui montent à l'écran avec le pseudo */
@@ -867,9 +881,10 @@ svg.med{flex:none;overflow:visible}
     <div class="reacts" id="endReacts"></div>
     <div class="card myrow" id="myrow"></div>
     <div id="rankBox"></div>
-    <div class="tabs"><button class="on" data-et="recap">Mon récapitulatif</button><button data-et="full">Classement complet</button></div>
+    <div class="tabs"><button class="on" data-et="recap">Mon récap</button><button data-et="full">Classement</button><button data-et="songs">🎵 Morceaux</button></div>
     <div id="endRecap"></div>
     <div id="endFull" class="ranklist hide"></div>
+    <div id="endSongs" class="songs hide"></div>
   </div>
   <div class="endbtns"><button class="ibtn" id="endHome" data-i="home"></button><button class="ghost" id="endSame">Même salon</button><button class="cta" id="endNew"><span data-i="playf"></span>Nouvelle partie</button></div>
 </section>
@@ -1247,7 +1262,7 @@ function fresh() {
     set: { sfx: true, music: true, vol: 0.9, chat: true, others: true, reacts: true, live: true }, games: [], cat: 'mix', acct: '', soloLvl: 1,
     rank: { sc: '', rp: 0, tier: 0, best: 0, bestEver: 0, games: 0, pos: null }, seasons: [], promos: {},
     road: { sc: month(), xp: 0, claimed: [] }, avs: [], titles: [], sframes: [], title: 'recrue', show: [], medals: {}, knownTitles: [], code: '',
-    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '',
+    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [],
   };
 }
 let S = fresh();
@@ -1559,7 +1574,7 @@ function onState(st) {
       $('#guessIn').value = ''; setHint('Le titre ou l’artiste en entier · Entrée = petites fautes acceptées');
       sfx.go();
     }
-    if (st.phase === 'reveal') setHint('');
+    if (st.phase === 'reveal') { setHint(''); noteSong(st, me); }
     if (st.phase === 'end' && st.results) applyGame(st);
     if (st.phase === 'end' && prev?.phase !== 'end') sfx.end();
     if (st.phase === 'end' && prev?.phase !== 'end' && st.results?.length > 1 && st.results[0].vfx) setTimeout(() => winFx(st.results[0].vfx), 700);
@@ -1762,7 +1777,8 @@ function renderGame() {
     const finders = st.players.filter(p => p.ft);
     rv.innerHTML = `<img src="${esc(r.art)}" alt=""><div class="t"><small>C'était…</small><b>${esc(r.t)}</b><span>${esc(r.a)}</span>
       <small>${finders.length ? 'Trouvé par ' + finders.map(p => p.id === R.me ? 'toi' : esc(p.name)).slice(0, 4).join(', ') + (finders.length > 4 ? '…' : '') : 'Personne n’a trouvé 😮'}</small>
-      ${r.link ? `<br><a href="${esc(r.link)}" target="_blank" rel="noopener">Écouter sur ${/deezer\./.test(r.link) ? 'Deezer' : 'Apple Music'} ↗</a>` : ''}</div>`;
+      <div class="acts">${r.link ? listenBtn(r.link).replace('▶ ', '▶ Écouter sur ') : ''}${favBtn(r, 'id="rvFav"')}</div></div>`;
+    $('#rvFav').onclick = () => { const on = toggleFav(r); $('#rvFav').classList.toggle('on', on); $('#rvFav').textContent = on ? '❤️' : '🤍'; };
     rv.classList.remove('hide');
   } else rv.classList.add('hide');
   // écrans d'attente
@@ -1884,6 +1900,58 @@ function checkUnlocks() {
   else if (titles.length > 1) queueToast(`🏷️ <b>${titles.length} nouveaux titres</b> débloqués : ${titles.map(t => t.name).join(', ')}`);
   if (legend) queueToast(`${avHTML(S.av, 'legend', 30)} Cadre <b>Légendaire</b> débloqué ! (Boutique → Cadres)`);
 }
+// ---------- Mes découvertes : morceaux entendus (sur l'appareil) et favoris ❤️ (dans la sauvegarde) ----------
+const DISC_KEY = 'hitroom.disc';
+let DISC = [];
+try { DISC = JSON.parse(localStorage.getItem(DISC_KEY) || '[]'); } catch (e) { /* stockage indisponible */ }
+const songKey = x => `${x.a}|${x.t}`.toLowerCase();
+const isFav = x => (S.favs || []).some(f => songKey(f) === songKey(x));
+// à chaque réponse révélée : le morceau rejoint l'historique (g = partie:manche, f = ce que j'ai trouvé)
+function noteSong(st, me) {
+  const r = st.reveal, g = `${st.gameId}:${st.round}`;
+  if (!r || !st.gameId || DISC.some(d => d.g === g)) return;
+  DISC.unshift({ g, t: r.t, a: r.a, art: r.art || '', link: r.link || '', ts: Date.now(), f: me?.ft || 0 });
+  DISC = DISC.slice(0, 150);
+  try { localStorage.setItem(DISC_KEY, JSON.stringify(DISC)); } catch (e) { /* stockage indisponible */ }
+}
+function toggleFav(x) {
+  if (isFav(x)) S.favs = S.favs.filter(f => songKey(f) !== songKey(x));
+  else {
+    S.favs = [{ t: x.t, a: x.a, art: x.art || '', link: x.link || '', ts: Date.now() }, ...(S.favs || [])].slice(0, 150);
+    toast('❤️ Ajouté à tes favoris (Profil → Mes découvertes)', 2200);
+  }
+  save();
+  return isFav(x);
+}
+const listenBtn = link => (link ? `<a class="lsn" href="${esc(link)}" target="_blank" rel="noopener">▶ ${/deezer\./.test(link) ? 'Deezer' : 'Apple Music'}</a>` : '');
+const favBtn = (x, attr = '') => `<button class="fav ${isFav(x) ? 'on' : ''}" ${attr} aria-label="Favori">${isFav(x) ? '❤️' : '🤍'}</button>`;
+const foundLabel = f => (f === 3 ? '✓ tout trouvé' : f === 2 ? '✓ artiste trouvé' : f === 1 ? '✓ titre trouvé' : 'pas trouvé');
+// liste de morceaux avec Écouter et ❤️ ; le cœur se met à jour sur place
+function fillSongs(el, list, empty, sub) {
+  el.innerHTML = list.length ? list.map((x, i) => `<div class="card song"><img src="${esc(x.art)}" alt="" loading="lazy"><div class="tx"><b>${esc(x.t)}</b><span>${esc(x.a)}</span>
+    <small>${sub ? sub(x) : x.f != null ? foundLabel(x.f) : ''}</small></div>${listenBtn(x.link)}${favBtn(x, `data-fv="${i}"`)}</div>`).join('') : `<p class="empty">${empty}</p>`;
+  el.querySelectorAll('[data-fv]').forEach(b => b.onclick = () => {
+    const on = toggleFav(list[+b.dataset.fv]);
+    b.classList.toggle('on', on); b.textContent = on ? '❤️' : '🤍';
+  });
+}
+let discTab = 'recent';
+function discSheet() {
+  const day = ts => new Date(ts).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  const draw = () => {
+    const favs = discTab === 'favs';
+    openSheet(`<h3>Mes découvertes <button data-close data-i="x"></button></h3>
+      <div class="segs"><button class="${favs ? '' : 'on'}" data-dc="recent">🎵 Récents (${DISC.length})</button><button class="${favs ? 'on' : ''}" data-dc="favs">❤️ Favoris (${(S.favs || []).length})</button></div>
+      <div class="songs" id="discList"></div>`);
+    fillSongs($('#discList'), favs ? S.favs || [] : DISC,
+      favs ? 'Touche 🤍 sur un morceau (à la réponse ou ici) pour le garder dans tes favoris.' : 'Joue une partie : chaque morceau entendu s’affichera ici, avec un lien pour l’écouter en entier.',
+      favs ? x => 'ajouté le ' + day(x.ts) : x => day(x.ts) + ' • ' + foundLabel(x.f));
+    $$('#sheetBox [data-dc]').forEach(b => b.onclick = () => { discTab = b.dataset.dc; draw(); });
+  };
+  draw();
+  onSheetClose = () => { if (curView === 'profile') renderProfile(); };
+}
+
 function renderEnd() {
   const st = R.st;
   if (!st?.results) return;
@@ -1919,6 +1987,9 @@ function renderEnd() {
   $$('#v-end [data-rid]').forEach(el => el.onclick = () => { const p = res.find(x => x.id === el.dataset.rid); if (p) playerCard(p); });
   $('#endRecap').classList.toggle('hide', endTab !== 'recap');
   $('#endFull').classList.toggle('hide', endTab !== 'full');
+  const played = DISC.filter(d => d.g.startsWith(st.gameId + ':')).reverse();
+  fillSongs($('#endSongs'), played, 'Les morceaux de la partie s’affichent ici.');
+  $('#endSongs').classList.toggle('hide', endTab !== 'songs');
   $$('[data-et]').forEach(b => b.classList.toggle('on', b.dataset.et === endTab));
   const same = $('#endSame'), nw = $('#endNew');
   if (st.pub) { same.textContent = 'Changer de salon'; nw.disabled = true; }
@@ -2245,6 +2316,7 @@ function renderProfile() {
     }).join('')}</div></div>
     <h4 class="psec">Collection</h4>
     <div class="list">
+      <button class="card li" id="profDisc"><span class="e">🎵</span><span>Mes découvertes</span><span class="muted">${DISC.length} morceau${DISC.length > 1 ? 'x' : ''} • ${(S.favs || []).length} ❤️</span><span class="chev">›</span></button>
       <button class="card li" id="profShow"><span class="e">🖼️</span><span>Ma vitrine</span><span class="muted">${showIds().map(id => medalSVG(MEDALS.find(m => m.id === id), S.medals[id] || 1, 26)).join('') || 'vide'}</span><span class="chev">›</span></button>
       <button class="card li" id="profCard"><span class="e">🪪</span><span>Voir ma carte de joueur</span><span class="chev">›</span></button>
       <button class="card li" id="profPerso"><span class="e">🎨</span><span>Cadres et thèmes</span><span class="chev">›</span></button>
@@ -2260,6 +2332,7 @@ function renderProfile() {
   $('#profCoins').onclick = () => tabGo('shop');
   $('#profMeds').onclick = () => $('#profMedSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('#profShow').onclick = () => showcaseSheet();
+  $('#profDisc').onclick = () => discSheet();
   $('#profCard').onclick = () => playerCard({ name: S.name, av: S.av, fr: S.fr, lvl: level().l, tier: S.rank.tier, title: S.title, nc: S.nc, show: showStr().split(',').filter(Boolean) });
   $$('#profBody [data-med]').forEach(b => b.onclick = () => medalSheet(MEDALS.find(m => m.id === b.dataset.med)));
   loadMe();

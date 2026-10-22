@@ -70,7 +70,7 @@ export default {
         let b;
         try { b = await req.json(); } catch { return json({ error: 'données illisibles' }, 400); }
         const c = String(b.code || '').toUpperCase().replace(/[^A-Z0-9]/g, ''), uid = cleanUid(b.uid), data = String(b.data || '');
-        if (c.length !== 12 || uid.length < 8 || data.length > 40000) return json({ error: 'sauvegarde refusée' }, 400);
+        if (c.length !== 12 || uid.length < 8 || data.length > 100000) return json({ error: 'sauvegarde refusée' }, 400);
         return json(await hub(env).saveProgress(c, uid, data));
       }
       return code.length === 12 ? json(await hub(env).loadProgress(code)) : json({ ok: 0 });

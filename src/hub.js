@@ -91,7 +91,7 @@ export class Hub extends DurableObject {
   async resolve(song) {
     if (this.env.MOCK_MUSIC) {
       const id = encodeURIComponent(song.k);
-      return { ok: 1, src: 'mock', ext: '', url: `/__mock/a/${id}.wav`, art: `/__mock/c/${id}.svg`, link: '' };
+      return { ok: 1, src: 'mock', ext: '', url: `/__mock/a/${id}.wav`, art: `/__mock/c/${id}.svg`, link: `https://www.deezer.com/search/${id}` };
     }
     let errors = 0;
     for (const find of [itunesFind, deezerFind]) {
