@@ -27,6 +27,13 @@ const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie', 'ar
 const NAME_STYLES = new Set(['', 'gold', 'rainbow']);   // pseudo doré, arc-en-ciel (boutique, Prestige)
 const WIN_FX = new Set(['', 'confetti', 'fireworks']);  // effet de victoire vu par tout le salon
 const REACTS = new Set(['👏', '🔥', '😂', '😮', '🎉']); // réactions rapides (mêmes que REACTS dans l'appli)
+const REPORT_WHY = new Set(['insultes', 'pseudo', 'spam', 'triche', 'autre']); // motifs de signalement (mêmes que dans l'appli)
+// identifiant public d'un joueur, le même dans tous les salons (pour bloquer quelqu'un) ; l'uid, lui, reste secret
+export function publicKey(uid) {
+  let a = 2166136261, b = 5381;
+  for (const c of 'hitroom-pk:' + uid) { a = Math.imul(a ^ c.charCodeAt(0), 16777619); b = Math.imul(b, 33) ^ c.charCodeAt(0); }
+  return (a >>> 0).toString(16).padStart(8, '0') + (b >>> 0).toString(16).padStart(8, '0').slice(0, 4);
+}
 // une catégorie, ou jusqu'à 3 mélangées (salon privé Premium)
 const cleanCat = c => {
   const parts = [...new Set(String(c || '').split('+'))].filter(x => CAT_IDS.has(x)).slice(0, 3);
@@ -118,7 +125,7 @@ export class Room extends DurableObject {
       t: 'state', now: Date.now(), kind: this.kind, pub: this.pub, ranked: this.ranked, solo: this.solo, win: this.win, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
       phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
-        id: p.id, name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, on: !!p.on,
+        id: p.id, pk: p.pk || '', name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, on: !!p.on,
         nc: p.nc || '', vfx: p.vfx || '', score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
       })),
       cur: this.phase === 'play' || this.phase === 'reveal' ? { url: c.s.url, art: c.s.art, start: c.start, end: c.end } : null,
@@ -177,9 +184,11 @@ export class Room extends DurableObject {
     if (p) {
       if (p.ws && p.ws !== ws) { try { p.ws.close(4000, 'remplacé'); } catch { /* déjà fermée */ } }
     } else {
-      p = { id: rid(6), uid, bot: false, score: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, rounds: 0, rt: null, lastG: 0, lastC: 0 };
+      p = { id: rid(6), uid, pk: publicKey(uid), bot: false, score: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, rounds: 0, rt: null, lastG: 0, lastC: 0 };
       if (this.phase === 'play') { p.rt = { title: 0, artist: 0 }; p.rounds = 1; }
       this.players.set(p.id, p);
+      // chat suspendu 24 h après plusieurs signalements (les réponses tapées dans le chat comptent toujours)
+      if (!this.solo) this.hub().isMuted(uid).then(m => { p.muted = m; }).catch(() => {});
     }
     p.ws = ws;
     p.on = true;
@@ -243,6 +252,7 @@ export class Room extends DurableObject {
       case 'guess': return this.guess(p, String(m.text || '').slice(0, 80), !!m.enter);
       case 'chat': return this.onChat(p, m.text);
       case 'react': return this.onReact(p, m.e);
+      case 'report': return this.onReport(p, m);
       case 'start': if (isHost && idle) this.startGame(); return;
       case 'opts': if (isHost && idle) { this.setOpts(m); this.broadcastState(); } return;
       case 'profile': this.profile(p, m); this.broadcastState(); return;
@@ -494,7 +504,7 @@ export class Room extends DurableObject {
     this.clearTimers();
     const list = [...this.players.values()].sort((a, b) => b.score - a.score);
     this.results = list.map((p, i) => ({
-      id: p.id, rank: i + 1, name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, score: p.score,
+      id: p.id, pk: p.pk || '', rank: i + 1, name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, score: p.score,
       nc: p.nc || '', vfx: p.vfx || '',
       nT: p.nT || 0, nA: p.nA || 0, best: p.best || 0, speed: p.speed || 0, fast: p.fast || 0, rounds: p.rounds || 0,
     }));
@@ -553,7 +563,8 @@ export class Room extends DurableObject {
         return this.send(p.ws, { t: 'hint', k: 'masked' });
       }
     }
-    this.pushChat({ t: 'chat', id: p.id, name: p.name, av: p.av, text, at: now });
+    if (p.muted) return this.send(p.ws, { t: 'sys', text: 'Ton chat est suspendu pendant 24 h après plusieurs signalements. Tes réponses comptent toujours.', at: now });
+    this.pushChat({ t: 'chat', id: p.id, pk: p.pk, name: p.name, av: p.av, text, at: now });
   }
 
   pushChat(msg) {
@@ -573,6 +584,24 @@ export class Room extends DurableObject {
     p.rq = (p.rq || []).filter(t => now - t < 3000);
     if (p.rq.length >= 5) return;
     p.rq.push(now);
-    this.broadcast({ t: 'react', id: p.id, name: p.name, e });
+    this.broadcast({ t: 'react', id: p.id, pk: p.pk || '', name: p.name, e });
+  }
+
+  // ---------- signalements ----------
+  // gardés par le Hub avec les derniers messages du joueur signalé ; 3 personnes différentes en 24 h = chat suspendu 24 h
+  onReport(p, m) {
+    const target = this.players.get(String(m.id || ''));
+    if (this.solo || p.bot || !target || target.bot || target === p) return;
+    const why = REPORT_WHY.has(m.why) ? m.why : 'autre';
+    const msgs = this.chat.filter(c => c.id === target.id).slice(-5).map(c => c.text);
+    this.hub().report({ reporter: p.uid, target: target.uid, pk: target.pk, name: target.name, why, msgs, room: this.name })
+      .then(r => {
+        this.send(p.ws, { t: 'reported', ok: r.ok ? 1 : 0 });
+        if (r.muted && !target.muted) {
+          target.muted = true;
+          this.send(target.ws, { t: 'sys', text: 'Plusieurs joueurs t’ont signalé : ton chat est suspendu pendant 24 h.', at: Date.now() });
+        }
+      })
+      .catch(() => this.send(p.ws, { t: 'reported', ok: 0 }));
   }
 }

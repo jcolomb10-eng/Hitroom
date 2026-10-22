@@ -78,6 +78,11 @@ export default {
     if (path === '/api/status') return json(await hub(env).catalogStatus(url.searchParams.has('test')));
     if (path === '/api/introuvables') return json(await hub(env).failedSongs());
     if (path === '/api/versions') return json(await hub(env).chosenVersions());
+    if (path === '/api/signalements') {
+      if (!env.ADMIN_KEY) return json({ error: 'Ajoute la variable secrète ADMIN_KEY dans Cloudflare (Worker hitroom → Paramètres → Variables et secrets).' }, 403);
+      if (url.searchParams.get('key') !== env.ADMIN_KEY) return json({ error: 'clé incorrecte' }, 403);
+      return json(await hub(env).reportList());
+    }
     if (env.MOCK_MUSIC && path === '/__mock/saison') {
       await hub(env).devPrevSeason(cleanUid(url.searchParams.get('uid')), url.searchParams.get('sc'), +url.searchParams.get('rp') || 0);
       return json({ ok: 1 });

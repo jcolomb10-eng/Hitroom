@@ -371,6 +371,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .chatbox{margin-top:12px;padding:10px 12px}
 .chatbox .msgs{max-height:150px;overflow-y:auto;font-size:13px;line-height:1.45}
 .msg b{color:var(--gold2)}
+.msg b[data-cp]{cursor:pointer}
 .msg.sys{color:var(--dim);font-style:italic}
 .msg.mine b{color:var(--pink)}
 .chatin{display:flex;gap:8px;margin-top:8px}
@@ -640,6 +641,13 @@ svg.med{flex:none;overflow:visible}
 .pcard .ttl{font-size:13px}
 .pc-rank{display:flex;align-items:center;gap:8px;margin:8px 0 12px;font-size:14px;color:var(--muted)}
 .pc-rank b{color:#fff}
+.pc-acts{display:flex;gap:8px;width:100%;margin-bottom:10px}
+.pc-acts button{flex:1;height:40px;font-size:13px}
+.why{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.why button{text-align:left;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(var(--glow),.3);background:#0f0a13;font-weight:600}
+.why button.on{border-color:var(--gold2);box-shadow:0 0 10px rgba(var(--glow),.35)}
+.chk{display:flex;gap:10px;align-items:center;margin:0 0 14px;font-size:14px;color:var(--muted)}
+.chk input{width:20px;height:20px;accent-color:var(--gold2)}
 .pc-show{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-bottom:12px}
 .prow,.rr.click,.pod.click{cursor:pointer}
 /* route de saison */
@@ -1262,7 +1270,7 @@ function fresh() {
     set: { sfx: true, music: true, vol: 0.9, chat: true, others: true, reacts: true, live: true }, games: [], cat: 'mix', acct: '', soloLvl: 1,
     rank: { sc: '', rp: 0, tier: 0, best: 0, bestEver: 0, games: 0, pos: null }, seasons: [], promos: {},
     road: { sc: month(), xp: 0, claimed: [] }, avs: [], titles: [], sframes: [], title: 'recrue', show: [], medals: {}, knownTitles: [], code: '',
-    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [],
+    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [], blocked: [],
   };
 }
 let S = fresh();
@@ -1552,6 +1560,7 @@ function onMsg(m) {
     case 'move': toast(`Nouveau rang : tu passes dans un salon ${rangeName(m.tier)}`, 3500); connect(R.path); return;
     case 'chat': case 'sys': return onChat(m);
     case 'react': return onReact(m);
+    case 'reported': toast(m.ok ? '⚠️ Merci, ton signalement a bien été envoyé.' : 'Signalement impossible pour le moment (10 par jour au plus).', 3200); return;
     case 'preload': if (m.url) { pre.src = m.url; } return;
     case 'ends': if (R.st?.cur) { R.st.cur.end = m.end; R.st.ends = m.end; } return;
   }
@@ -1636,7 +1645,7 @@ function onChat(m) {
   R.chat.push(m);
   if (R.chat.length > 60) R.chat.shift();
   if ($('#chatSheetMsgs')) renderChatInto($('#chatSheetMsgs'));
-  else if (curView === 'game' && m.t === 'chat' && m.id !== R.me && S.set.chat && S.set.others) { R.unread++; renderBadge(); }
+  else if (curView === 'game' && m.t === 'chat' && m.id !== R.me && S.set.chat && S.set.others && !isBlocked(m.pk)) { R.unread++; renderBadge(); }
   if (curView === 'lobby') renderChatInto($('#lobbyMsgs'));
 }
 // réactions rapides : mêmes emojis que REACTS dans src/room.js (le serveur refuse les autres et limite à 5 toutes les 3 s)
@@ -1647,7 +1656,7 @@ $$('.reacts').forEach(el => {
 });
 // l'emoji monte à l'écran avec le pseudo ; ses propres réactions toujours, celles des autres si le réglage est activé
 function onReact(m) {
-  if (!ROOM_VIEWS.includes(curView) || !REACTS.includes(m.e) || (m.id !== R.me && !S.set.reacts)) return;
+  if (!ROOM_VIEWS.includes(curView) || !REACTS.includes(m.e) || (m.id !== R.me && (!S.set.reacts || isBlocked(m.pk)))) return;
   const layer = $('#reactLayer');
   while (layer.children.length >= 14) layer.firstChild.remove();
   const b = document.createElement('div');
@@ -1660,9 +1669,15 @@ function onReact(m) {
 }
 function renderBadge() { const b = $('#chatBadge'); b.textContent = R.unread; b.classList.toggle('hide', !R.unread); }
 function renderChatInto(el) {
-  const list = R.chat.filter(m => m.t === 'sys' || m.id === R.me || S.set.others);
+  const list = R.chat.filter(m => m.t === 'sys' || m.id === R.me || (S.set.others && !isBlocked(m.pk)));
   el.innerHTML = list.map(m => m.t === 'sys' ? `<div class="msg sys">${esc(m.text)}</div>` :
-    `<div class="msg ${m.id === R.me ? 'mine' : ''}"><b>${avMini(m.av)} ${esc(m.name)}${m.bot ? ' 🤖' : ''} :</b> ${esc(m.text)}</div>`).join('') || '<div class="msg sys">Aucun message pour le moment.</div>';
+    `<div class="msg ${m.id === R.me ? 'mine' : ''}"><b${m.id !== R.me && m.pk ? ` data-cp="${esc(m.id)}"` : ''}>${avMini(m.av)} ${esc(m.name)}${m.bot ? ' 🤖' : ''} :</b> ${esc(m.text)}</div>`).join('') || '<div class="msg sys">Aucun message pour le moment.</div>';
+  // toucher le pseudo : carte du joueur (bloquer, signaler)
+  el.querySelectorAll('[data-cp]').forEach(b => b.onclick = () => {
+    const m = R.chat.find(x => x.id === b.dataset.cp && x.pk);
+    const p = R.st?.players.find(x => x.id === b.dataset.cp) || (m && { id: m.id, pk: m.pk, name: m.name, av: m.av, fr: 'def' });
+    if (p) playerCard(p);
+  });
   el.scrollTop = el.scrollHeight;
 }
 function sendChat(inp) {
@@ -2381,7 +2396,51 @@ function playerCard(p) {
     <div class="pc-rank">${p.tier != null ? `${tierBadge(p.tier, 30)} <b>${TIERS[p.tier].name}</b> • ` : ''}Niveau ${p.lvl || 1}</div>
     <div class="pc-show">${show || '<p class="muted" style="grid-column:1/-1">Pas encore de médaille en vitrine.</p>'}</div>
     ${p.bot ? '<p class="note">Joueur virtuel qui complète les salons quand il manque du monde.</p>' : ''}
+    ${!p.bot && p.pk && p.id !== R.me ? `<div class="pc-acts"><button class="ghost" id="pcBlock">${isBlocked(p.pk) ? '✅ Débloquer' : '🚫 Bloquer'}</button>${R.ws && !R.st?.solo ? '<button class="ghost" id="pcReport">⚠️ Signaler</button>' : ''}</div>` : ''}
     <button class="cta" data-close>Fermer</button></div>`);
+  if ($('#pcBlock')) $('#pcBlock').onclick = () => { setBlocked(p, !isBlocked(p.pk)); playerCard(p); };
+  if ($('#pcReport')) $('#pcReport').onclick = () => reportSheet(p);
+}
+
+// ---------- bloquer et signaler ----------
+// bloquer : sur cet appareil, on ne voit plus ses messages ni ses réactions, dans tous les salons (identifiant public pk)
+const isBlocked = pk => !!pk && (S.blocked || []).some(b => b.pk === pk);
+function setBlocked(p, on) {
+  S.blocked = (S.blocked || []).filter(b => b.pk !== p.pk);
+  if (on) S.blocked.unshift({ pk: p.pk, name: p.name, ts: Date.now() });
+  S.blocked = S.blocked.slice(0, 200);
+  save();
+  toast(on ? `🚫 ${esc(p.name)} est bloqué : tu ne verras plus ses messages ni ses réactions.` : `✅ ${esc(p.name)} est débloqué.`, 3200);
+  if ($('#lobbyMsgs') && curView === 'lobby') renderChatInto($('#lobbyMsgs'));
+  if ($('#chatSheetMsgs')) renderChatInto($('#chatSheetMsgs'));
+}
+const REPORT_WHY = [['insultes', '🤬 Insultes ou harcèlement'], ['pseudo', '🏷️ Pseudo choquant'], ['spam', '📢 Spam ou publicité'], ['triche', '🎭 Triche'], ['autre', '❓ Autre chose']];
+function reportSheet(p) {
+  let why = '';
+  openSheet(`<h3>Signaler ${esc(p.name)} <button data-close data-i="x"></button></h3>
+    <p>Pourquoi ? Tes derniers échanges avec ce joueur sont joints au signalement. Si plusieurs personnes le signalent, son chat est suspendu.</p>
+    <div class="why">${REPORT_WHY.map(([k, l]) => `<button data-why="${k}">${l}</button>`).join('')}</div>
+    <label class="chk"><input type="checkbox" id="repBlock" ${isBlocked(p.pk) ? 'checked disabled' : 'checked'}> Bloquer aussi ce joueur</label>
+    <button class="cta" id="repGo" disabled>Envoyer le signalement</button>`);
+  $$('#sheetBox [data-why]').forEach(b => b.onclick = () => {
+    why = b.dataset.why;
+    $$('#sheetBox [data-why]').forEach(x => x.classList.toggle('on', x === b));
+    $('#repGo').disabled = false;
+  });
+  $('#repGo').onclick = () => {
+    if (!why) return;
+    send({ t: 'report', id: p.id, why });
+    if ($('#repBlock').checked && !isBlocked(p.pk)) setBlocked(p, true);
+    closeSheet();
+  };
+}
+function blockedSheet() {
+  const list = S.blocked || [];
+  openSheet(`<h3>Joueurs bloqués <button data-close data-i="x"></button></h3>
+    ${list.length ? `<div class="list">${list.map((b, i) => `<div class="card li"><span class="e">🚫</span><span>${esc(b.name)}</span><button class="ghost" data-ub="${i}" style="height:34px;padding:0 12px">Débloquer</button></div>`).join('')}</div>`
+      : '<p class="empty">Personne pour le moment. Pour bloquer un joueur, touche son pseudo dans le chat ou dans la liste des joueurs.</p>'}`);
+  $$('#sheetBox [data-ub]').forEach(b => b.onclick = () => { setBlocked(list[+b.dataset.ub], false); blockedSheet(); });
+  onSheetClose = () => { if (curView === 'settings') renderSettings(); };
 }
 function avatarSheet() {
   const btn = (a, lock = '') => `<button class="${a === S.av ? 'on' : ''}${lock ? ' lock' : ''}" data-av="${a}" title="${esc(avName(a))}">${avImg(a)}${lock ? `<span class="lk">${lock}</span>` : ''}</button>`;
@@ -2775,6 +2834,7 @@ function renderSettings() {
     ${tg('live', '👁️', 'Réponses trouvées visibles en direct')}
     <button class="card li" data-go2="shop" data-tab2="themes"><span class="e">🎨</span><span>Thème</span><span class="muted">${THEMES.find(t => t.id === S.theme)?.name || 'Or'}</span><span class="chev">›</span></button>
     <button class="card li" data-go2="profile"><span class="e">👤</span><span>Pseudo et avatar</span><span class="chev">›</span></button>
+    <button class="card li" id="blockBtn"><span class="e">🚫</span><span>Joueurs bloqués</span><span class="muted">${(S.blocked || []).length}</span><span class="chev">›</span></button>
     <button class="card li" id="saveBtn"><span class="e">💾</span><span>Code de sauvegarde</span><span class="muted">changer de téléphone</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
     <button class="card li" id="resetBtn"><span class="e">🗑️</span><span>Effacer mes données</span><span class="chev">›</span></button>
@@ -2784,6 +2844,7 @@ function renderSettings() {
   $$('[data-go2]').forEach(b => b.onclick = () => { if (b.dataset.tab2) setShopTab(b.dataset.tab2); go(b.dataset.go2); });
   $('#rulesBtn').onclick = rules;
   $('#saveBtn').onclick = saveSheet;
+  $('#blockBtn').onclick = blockedSheet;
   $('#resetBtn').onclick = () => { if (confirm('Effacer ta progression (niveau, pièces, achats, statistiques) sur cet appareil ?')) { const name = S.name, av = S.av; S = fresh(); S.name = name; S.av = av; save(); applyTheme(); toast('Progression effacée.'); renderSettings(); } };
 }
 // code de sauvegarde : la progression est copiée sur le serveur et récupérable sur un autre appareil

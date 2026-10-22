@@ -42,6 +42,7 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS saves(code TEXT PRIMARY KEY, uid TEXT, data TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS shields(uid TEXT, day TEXT, PRIMARY KEY(uid, day))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS reports(target TEXT, reporter TEXT, pk TEXT, name TEXT, why TEXT, msgs TEXT, room TEXT, ts INTEGER, PRIMARY KEY(target, reporter))`);
     // version 1.5 : points de rang convertis une fois vers les paliers progressifs (chacun garde son rang)
     if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'paliers'`).toArray().length) {
       ctx.storage.transactionSync(() => {
@@ -343,6 +344,35 @@ export class Hub extends DurableObject {
     this.sql.exec(`DELETE FROM ranks WHERE uid = ? AND sc = ?`, uid, season());
     this.sql.exec(`DELETE FROM rewards WHERE uid = ?`, uid);
     this.sql.exec(`INSERT OR REPLACE INTO ranks(uid, sc, rp, best, games, wins, name, av, fr) VALUES(?,?,?,?,5,1,'Test','🎧','def')`, uid, sc, rp, rp);
+  }
+
+  // ---------- signalements (chat) ----------
+  // un joueur ne signale qu'une fois la même personne, 10 signalements par jour au plus ;
+  // 3 personnes différentes en 24 h : chat suspendu 24 h (isMuted)
+  report({ reporter, target, pk, name, why, msgs, room }) {
+    const since = Date.now() - DAY;
+    if (this.sql.exec(`SELECT COUNT(*) AS n FROM reports WHERE reporter = ? AND ts > ?`, reporter, since).one().n >= 10) return { ok: 0 };
+    this.sql.exec(`INSERT OR REPLACE INTO reports(target, reporter, pk, name, why, msgs, room, ts) VALUES(?,?,?,?,?,?,?,?)`,
+      target, reporter, pk || '', String(name || '').slice(0, 30), why, JSON.stringify(msgs || []).slice(0, 2000), room || '', Date.now());
+    return { ok: 1, muted: this.isMuted(target) };
+  }
+
+  isMuted(uid) {
+    return this.sql.exec(`SELECT COUNT(*) AS n FROM reports WHERE target = ? AND ts > ?`, uid, Date.now() - DAY).one().n >= 3;
+  }
+
+  // pour le propriétaire du jeu (/api/signalements?key=…) : joueurs signalés, sans leur identifiant secret
+  reportList() {
+    const rows = this.sql.exec(`SELECT target, pk, name, why, msgs, room, ts FROM reports ORDER BY ts DESC LIMIT 500`).toArray();
+    const by = new Map();
+    for (const r of rows) {
+      const x = by.get(r.target) || { pk: r.pk, name: r.name, n: 0, why: {}, msgs: [], last: r.ts, muted: this.isMuted(r.target) };
+      x.n++;
+      x.why[r.why] = (x.why[r.why] || 0) + 1;
+      for (const m of JSON.parse(r.msgs || '[]')) if (x.msgs.length < 10 && !x.msgs.includes(m)) x.msgs.push(m);
+      by.set(r.target, x);
+    }
+    return [...by.values()].sort((a, b) => b.n - a.n);
   }
 
   // version retenue pour chaque morceau (src : it = iTunes, dz = Deezer ; ext : son identifiant chez la source)
