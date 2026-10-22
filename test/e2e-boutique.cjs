@@ -32,6 +32,12 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await sleep(2000);
   ok((await state()).coins === 1190, 'versé une seule fois');
 
+  // 1 bis. version 1.7 : les anciens avatars emoji deviennent des avatars en image (rare d'octobre au même palier)
+  await patch(S => { S.av = '🎤'; S.avs = ['🦋']; });
+  S = await state();
+  ok(S.av === 'A01' && S.avs.join() === 'R07', `avatars emoji convertis : 🎤 → ${S.av}, 🦋 → ${S.avs}`);
+  ok(await page.$eval('#homeAv img', i => i.complete && i.naturalWidth > 0 && i.src.endsWith('/av/A01.webp')), 'accueil : image du Micro d’or chargée');
+
   // 2. boutique : thèmes de luxe
   await patch(S => { S.coins = 200000; });
   await page.click('[data-go="shop"]');
@@ -67,6 +73,10 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   ok(await page.$('.winfx'), 'aperçu des confettis à l’achat');
   S = await state();
   ok(S.nc === 'gold' && S.vfx === 'confetti', 'pseudo doré et confettis équipés');
+  await page.click('[data-kind="lav"][data-it="L06"]');
+  await sleep(300);
+  S = await state();
+  ok(S.av === 'L06' && S.avs.includes('L06'), 'avatar légendaire Casque cyber-DJ acheté et équipé');
   await shot(page, 'b04_prestige');
 
   // 5. cadres de prestige ; cadre Légendaire réservé aux médailles Légendaires
@@ -104,7 +114,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await sleep(600);
   ok((await page.textContent('#lobbyTitle')).includes('Rock + Années 80'), 'salon : Rock + Années 80 mélangés');
   const row = await page.$eval('#lobbyPlayers .prow', e => e.outerHTML);
-  ok(row.includes('nmc gold') && row.includes('f-arc'), 'serveur : pseudo doré et cadre de prestige transmis');
+  ok(row.includes('nmc gold') && row.includes('f-arc') && row.includes('/av/L06.webp'), 'serveur : pseudo doré, cadre de prestige et avatar légendaire transmis');
   await page.click('#lobbyGear');
   ok(await page.$('#sheetBox .seg[data-k="rounds"] button[data-v="30"]'), 'Premium : option 30 manches');
   await page.click('#sheetBox .seg[data-k="rounds"] button[data-v="5"]');
@@ -134,6 +144,24 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   ok(await page.$('.winfx'), 'victoire : confettis pour tout le salon');
   await shot(page, 'b09_victoire_confettis');
   ok((await page.textContent('#endRecap')).includes('×2'), 'fin de partie : XP doublée');
+  const bot = await page.$$eval('#endFull .rr', rs => rs.map(r => r.outerHTML).find(h => h.includes('🤖')) || '');
+  ok(/\/av\/A\d\d\.webp/.test(bot), 'bot : avatar classique en image, toujours marqué 🤖');
+
+  // choix de l'avatar : 42 avatars, rares et légendaires verrouillés tant qu'ils ne sont pas obtenus
+  await page.click('#endHome');
+  await page.waitForSelector('#v-home:not(.hide)');
+  await page.click('#homeAv');
+  await page.click('#profAv');
+  await sleep(1200);
+  const grid = await page.$$eval('#sheetBox .avgrid button', bs => bs.map(b => ({ av: b.dataset.av, lock: b.classList.contains('lock'), ok: b.querySelector('img').naturalWidth > 0 })));
+  ok(grid.length === 42 && grid.every(g => g.ok), `choix de l’avatar : ${grid.length} avatars, images chargées`);
+  ok(grid.filter(g => g.lock).length === 11 + 5, `rares et légendaires non obtenus verrouillés : 11 rares (Lyre céleste déjà obtenue) + 5 légendaires (${grid.filter(g => g.lock).length})`);
+  await shot(page, 'b10_choix_avatar');
+  await page.click('#sheetBox [data-av="R03"]');
+  ok((await page.textContent('#toast')).includes('route de saison'), 'avatar rare verrouillé : explique comment l’obtenir');
+  await page.click('#sheetBox [data-av="A12"]');
+  await sleep(300);
+  ok((await state()).av === 'A12', 'avatar classique Boule disco choisi');
 
   ok(!errors.length, 'aucune erreur JavaScript' + (errors.length ? ' : ' + errors.join(' | ') : ''));
   await browser.close();

@@ -32,7 +32,8 @@ const frameOk = (fr, best) => FRAMES.has(fr) || /^s\d{4}-\d{2}$/.test(fr) || (/^
 
 const BOT_NAMES = ['DJ_Lila', 'MarieFan90', 'TonyRock', 'ZazieZouk', 'MelodyLover', 'VinylBoy', 'KikiKaraoke',
   'Sophie78', 'BeatMax', 'LunaStar', 'ZikMaster', 'ClaraMusic', 'Flow', 'Niko', 'SamPlay', 'Melody'];
-const BOT_AV = ['🎧', '🎸', '🎹', '🥁', '🎷', '🦊', '🐱', '🐼', '🦄', '🐯'];
+// avatars classiques (public/av/A01.webp … A24.webp)
+const BOT_AV = Array.from({ length: 24 }, (_, i) => 'A' + String(i + 1).padStart(2, '0'));
 const GREET = ['Salut tout le monde !', 'Hello 🙂', 'Bonne partie à tous', 'On va voir qui est le meilleur 😎'];
 const GOOD = ['Trop facile 😎', 'Direct !', 'Classique !', '✌️', 'Je l’avais tout de suite', 'Easy'];
 const AFTER = ['Mythique ❤️', 'Ohhh celle-là', 'Mon enfance 🥺', 'Jamais entendu…', 'Quel son !', 'Je l’avais sur le bout de la langue'];
@@ -185,7 +186,7 @@ export class Room extends DurableObject {
     if (get('name') != null) p.name = cleanName(get('name'));
     if (!p.name) p.name = 'Joueur' + Math.floor(100 + Math.random() * 900);
     const av = Array.from(String(get('av') || '')).slice(0, 4).join('');
-    if (av) p.av = av; else if (!p.av) p.av = '🎧';
+    if (av) p.av = av; else if (!p.av) p.av = 'A02';
     if (frameOk(get('fr'), p.rbest || 0)) p.fr = get('fr'); else if (!p.fr) p.fr = 'def';
     const title = get('title');
     // titres de rang : seulement si le rang a été atteint

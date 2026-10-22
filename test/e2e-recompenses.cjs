@@ -71,7 +71,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   await shot(page, 'r05_route');
   for (const n of [5, 15]) await page.click(`[data-claim-road="${n}"]`);
   const S2 = await page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')));
-  ok(S2.avs.length === 1 && S2.titles.includes('fidele'), `route : avatar rare ${S2.avs[0]} et titre « Fidèle au poste » obtenus`);
+  ok(S2.avs.length === 1 && /^R\d\d$/.test(S2.avs[0]) && S2.titles.includes('fidele'), `route : avatar rare ${S2.avs[0]} et titre « Fidèle au poste » obtenus`);
   await page.goBack();
 
   // boutique : cadres de rang débloqués jusqu'à Maître

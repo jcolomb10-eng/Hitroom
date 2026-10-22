@@ -365,6 +365,8 @@ svg.med{flex:none;overflow:visible}
 .fxbox{position:relative;flex:none;margin:0 auto}
 .fxbox>*{position:absolute}
 .fxbox .av.f-in{border:0;z-index:1}
+.av img{width:100%;height:100%;border-radius:50%;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.avm{width:1.35em;height:1.35em;border-radius:50%;vertical-align:-.35em;background:#150f1c}
 .fximg{z-index:2;pointer-events:none;user-select:none}
 .fxshine{z-index:3;pointer-events:none;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,var(--sh)) 50%,transparent 62%);background-size:320% 100%;animation:fxshine 3.4s ease-in-out infinite;mix-blend-mode:screen}
@@ -493,8 +495,13 @@ svg.med{flex:none;overflow:visible}
 .sheet p{color:var(--muted);font-size:14px;line-height:1.5}
 .codein{width:100%;height:64px;border-radius:14px;border:2px solid rgba(var(--glow),.6);background:#0b070e;text-align:center;font-size:32px;font-weight:800;letter-spacing:12px;text-transform:uppercase;outline:none;margin-bottom:12px}
 .txtin{width:100%;height:52px;border-radius:14px;border:2px solid rgba(var(--glow),.5);background:#0b070e;padding:0 14px;font-size:17px;outline:none;margin-bottom:12px}
-.avgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:8px 0 14px}
-.avgrid button{aspect-ratio:1;border-radius:50%;font-size:26px;border:2px solid #3b3046;background:#150f1c}
+.avgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:8px 0 14px}
+.avgrid button{aspect-ratio:1;min-width:0;border-radius:50%;font-size:26px;border:2px solid #3b3046;background:radial-gradient(circle at 35% 30%,#3b2b4b,#150f1c);position:relative;padding:0}
+.avgrid button img{width:100%;height:100%;border-radius:50%;pointer-events:none}
+.avgrid button.lock img{filter:grayscale(.8) brightness(.42)}
+.avgrid button .lk{position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:800;line-height:1;padding:3px 5px;border-radius:8px;background:#1d1426;border:1px solid rgba(var(--glow),.55);color:var(--gold2);display:flex;align-items:center;gap:2px}
+.avgrid button .lk .coin{width:11px;height:11px;font-size:7px}
+.avgrid .sec{margin:6px 0 -2px}
 .avgrid button.on{border-color:var(--pink);box-shadow:0 0 12px rgba(255,46,147,.6)}
 .opt{margin:10px 0 14px}
 .opt label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
@@ -506,7 +513,8 @@ svg.med{flex:none;overflow:visible}
   font-size:14px;text-align:center;box-shadow:0 6px 24px #000a;opacity:0;pointer-events:none;transition:opacity .25s}
 #toast.on{opacity:1}
 .onb{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:20px}
-.onb img{width:min(280px,80%);filter:drop-shadow(0 0 14px rgba(255,46,147,.6));margin:10px 0 4px}
+.onb>img{width:min(280px,80%);filter:drop-shadow(0 0 14px rgba(255,46,147,.6));margin:10px 0 4px}
+.onb .avgrid{width:100%}
 .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
 .spin{width:38px;height:38px;border-radius:50%;border:4px solid #2a2233;border-top-color:var(--pink);animation:spin 1s linear infinite;margin:0 auto 12px}
 </style>
@@ -676,7 +684,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.6';
+const VERSION = '1.7';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -731,7 +739,32 @@ const catOf = id => {
   }
   return CATS.find(c => c.id === id) || CATS[0];
 };
-const AVATARS = ['🎧', '🎤', '🎸', '🥁', '🎹', '🎷', '🎺', '🦊', '🐱', '🐼', '🦁', '🐯', '🐸', '🦄', '🐙', '👽', '🤖', '😎', '🤠', '👑', '🔥', '⚡', '🌙', '💎'];
+// avatars en image (public/av/<code>.webp, sources et prompts dans assets-src/avatars, conversion par tools/avatars.py) :
+// A = classiques gratuits, R = rares (route de saison, 3 par mois), L = légendaires (boutique)
+const AV_LIST = [
+  ['A01', 'Micro d’or'], ['A02', 'Casque néon'], ['A03', 'Vinyle de lave'], ['A04', 'Cassette rétro'], ['A05', 'Guitare éclair'], ['A06', 'Caisse claire'],
+  ['A07', 'Clavier de glace'], ['A08', 'Saxophone doré'], ['A09', 'Trompette de cuivre'], ['A10', 'Maracas fiesta'], ['A11', 'Platine DJ'], ['A12', 'Boule disco'],
+  ['A13', 'Boombox'], ['A14', 'Note de verre'], ['A15', 'Mégaphone'], ['A16', 'Gramophone fleur'], ['A17', 'Violon rubis'], ['A18', 'Harpe dorée'],
+  ['A19', 'Tambourin'], ['A20', 'Clé de sol'], ['A21', 'Métronome'], ['A22', 'Enceinte'], ['A23', 'Keytar'], ['A24', 'Xylophone'],
+  ['R01', 'Micro phénix'], ['R02', 'Casque galaxie'], ['R03', 'Vinyle planète'], ['R04', 'Couronne de notes'], ['R05', 'Guitare de glace'], ['R06', 'Saxophone dragon'],
+  ['R07', 'Lyre céleste'], ['R08', 'Boule de cristal'], ['R09', 'Cassette hologramme'], ['R10', 'Disque de platine'], ['R11', 'Tambour volcan'], ['R12', 'Rossignol mécanique'],
+  ['L01', 'Phénix chanteur'], ['L02', 'Micro diamant'], ['L03', 'Dragon des platines'], ['L04', 'Sceptre du maestro'], ['L05', 'Piano céleste'], ['L06', 'Casque cyber-DJ'],
+];
+const AV_NAME = Object.fromEntries(AV_LIST);
+const AVATARS = AV_LIST.filter(a => a[0][0] === 'A').map(a => a[0]);
+const LEGEND_AV = { L01: 30000, L02: 25000, L03: 25000, L04: 20000, L05: 20000, L06: 15000 }; // prix en pièces
+const isAvCode = a => !!AV_NAME[a];
+const avName = a => AV_NAME[a] || '';
+// image de l'avatar ; un ancien avatar emoji (joueur pas encore à jour) reste affiché tel quel
+const avImg = a => (isAvCode(a) ? `<img src="/av/${a}.webp" alt="" decoding="async">` : esc(a || ''));
+const avMini = a => (isAvCode(a) ? `<img class="avm" src="/av/${a}.webp" alt="" decoding="async">` : esc(a || ''));
+// version 1.7 : chaque ancien emoji devient l'avatar le plus proche (les 3 rares d'octobre 2026 gardent leur palier)
+const OLD_AV = {
+  '🎧': 'A02', '🎤': 'A01', '🎸': 'A05', '🥁': 'A06', '🎹': 'A07', '🎷': 'A08', '🎺': 'A09', '🦊': 'A13', '🐱': 'A19', '🐼': 'A04', '🦁': 'A18', '🐯': 'A03',
+  '🐸': 'A21', '🦄': 'A14', '🐙': 'A16', '👽': 'A20', '🤖': 'A11', '😎': 'A12', '🤠': 'A10', '👑': 'A17', '🔥': 'A15', '⚡': 'A23', '🌙': 'A22', '💎': 'A24',
+  '🐲': 'R06', '🦩': 'R01', '🪐': 'R03', '🛸': 'R02', '🎻': 'R05', '🪩': 'R10', '🦚': 'R04', '🐳': 'R11', '👾': 'R09', '🧞': 'R12', '🦖': 'R06', '🌈': 'R03',
+  '🦋': 'R07', '🪗': 'R08', '🦜': 'R09', '🎮': 'R10', '🐞': 'R11', '🦈': 'R12',
+};
 // boutique (version 1.6 : plus complète et plus chère, pour garder des objectifs sur plusieurs mois)
 const FRAMES = [
   { id: 'def', name: 'Par défaut', price: 0 }, { id: 'or', name: 'Or', price: 1000 }, { id: 'neon', name: 'Néon', price: 1500 },
@@ -829,7 +862,7 @@ const titleName = id => TITLES.find(t => t.id === id)?.name || '';
 
 // route de saison : 30 paliers par mois ; 500 XP chacun à partir de novembre 2026 (100 avant : finie en quelques heures)
 const roadXp = sc => (sc < '2026-11' ? 100 : 500);
-const RARE_AV = ['🐲', '🦩', '🪐', '🛸', '🎻', '🪩', '🦚', '🐳', '👾', '🧞', '🦖', '🌈', '🦋', '🪗', '🦜', '🎮', '🐞', '🦈'];
+const RARE_AV = AV_LIST.filter(a => a[0][0] === 'R').map(a => a[0]);
 function roadRewards(sc) {
   const k = (+sc.slice(0, 4) * 12 + +sc.slice(5, 7)) * 3;
   const av = [0, 1, 2].map(i => RARE_AV[(k + i) % RARE_AV.length]);
@@ -882,7 +915,7 @@ function framedAvatar(av, fr, W, H, maxA, locked) {
   }
   return `<div class="fxbox${locked ? ' locked' : ''}" style="width:${W}px;height:${H}px;--c:${fx.c};--sh:${fx.sh}">
     <i class="fxglow" style="left:${(ax - A).toFixed(1)}px;top:${(ay - A).toFixed(1)}px;width:${2 * A}px;height:${2 * A}px"></i>
-    <div class="av f-in" style="--s:${A}px;left:${(ax - A / 2).toFixed(1)}px;top:${(ay - A / 2).toFixed(1)}px">${esc(av || '🎧')}</div>
+    <div class="av f-in" style="--s:${A}px;left:${(ax - A / 2).toFixed(1)}px;top:${(ay - A / 2).toFixed(1)}px">${avImg(av || 'A02')}</div>
     <img class="fximg${fx.fire ? ' fire' : fx.zap ? ' zap' : ''}" src="${src}" alt="" decoding="async" style="${box}">
     <i class="fxshine" style="${box};-webkit-mask-image:url(${src});mask-image:url(${src})"></i>
     <div class="fxfx" style="${box}">${fxs}</div></div>`;
@@ -949,6 +982,8 @@ function rollPeriods() {
 }
 rollPeriods();
 S.inv = Object.assign({ shield: 0, reroll: 0 }, S.inv);
+if (!isAvCode(S.av)) S.av = OLD_AV[S.av] || 'A02';
+S.avs = [...new Set((S.avs || []).map(a => (isAvCode(a) ? a : OLD_AV[a])).filter(Boolean))];
 // version 1.6 : médailles revalorisées, la différence est versée une fois pour les niveaux déjà atteints
 if ((S.eco || 0) < 16) {
   const OLD = [25, 60, 150, 400];
@@ -968,7 +1003,7 @@ function avHTML(av, fr, size, extra = '') {
   const r = /^r([0-8])$/.exec(fr);
   if (r) em = `<span class="fr-em">${HitArt.emblem(+r[1], Math.round(size * 0.5))}</span>`;
   if (/^s\d{4}-\d{2}$/.test(fr)) { cls = 'f-s'; style += `;--h:${seasonHue(fr.slice(1))}`; }
-  return `<div class="av ${esc(cls)}" style="${style}">${esc(av || '🎧')}${em}${extra}</div>`;
+  return `<div class="av ${esc(cls)}" style="${style}">${avImg(av || 'A02')}${em}${extra}</div>`;
 }
 
 // ---------- interface : vues, toasts, feuilles ----------
@@ -1235,7 +1270,7 @@ function renderBadge() { const b = $('#chatBadge'); b.textContent = R.unread; b.
 function renderChatInto(el) {
   const list = R.chat.filter(m => m.t === 'sys' || m.id === R.me || S.set.others);
   el.innerHTML = list.map(m => m.t === 'sys' ? `<div class="msg sys">${esc(m.text)}</div>` :
-    `<div class="msg ${m.id === R.me ? 'mine' : ''}"><b>${esc(m.av || '')} ${esc(m.name)}${m.bot ? ' 🤖' : ''} :</b> ${esc(m.text)}</div>`).join('') || '<div class="msg sys">Aucun message pour le moment.</div>';
+    `<div class="msg ${m.id === R.me ? 'mine' : ''}"><b>${avMini(m.av)} ${esc(m.name)}${m.bot ? ' 🤖' : ''} :</b> ${esc(m.text)}</div>`).join('') || '<div class="msg sys">Aucun message pour le moment.</div>';
   el.scrollTop = el.scrollHeight;
 }
 function sendChat(inp) {
@@ -1861,10 +1896,34 @@ function playerCard(p) {
     <button class="cta" data-close>Fermer</button></div>`);
 }
 function avatarSheet() {
-  const all = [...AVATARS, ...S.avs];
-  openSheet(`<h3>Choisis ton avatar <button data-close data-i="x"></button></h3><div class="avgrid">${all.map(a => `<button class="${a === S.av ? 'on' : ''}"${S.avs.includes(a) ? ' title="Avatar rare"' : ''}>${a}</button>`).join('')}</div>
-    <p class="note">${S.avs.length ? `✨ ${S.avs.length} avatar${S.avs.length > 1 ? 's' : ''} rare${S.avs.length > 1 ? 's' : ''} gagné${S.avs.length > 1 ? 's' : ''} sur la route de saison` : '✨ Gagne des avatars rares sur la route de saison'}</p>`);
-  $$('#sheetBox .avgrid button').forEach(b => b.onclick = () => { S.av = b.textContent; save(); closeSheet(); renderProfile(); profileChanged(); });
+  const btn = (a, lock = '') => `<button class="${a === S.av ? 'on' : ''}${lock ? ' lock' : ''}" data-av="${a}" title="${esc(avName(a))}">${avImg(a)}${lock ? `<span class="lk">${lock}</span>` : ''}</button>`;
+  const rares = RARE_AV.map(a => btn(a, S.avs.includes(a) ? '' : '🔒')).join('');
+  const legends = Object.keys(LEGEND_AV).map(a => btn(a, S.avs.includes(a) ? '' : `<span class="coin">$</span>${fmt(LEGEND_AV[a] / 1000)}k`)).join('');
+  const nr = RARE_AV.filter(a => S.avs.includes(a)).length;
+  openSheet(`<h3>Choisis ton avatar <button data-close data-i="x"></button></h3><div class="avgrid">${AVATARS.map(a => btn(a)).join('')}
+    <h4 class="sec">✨ Rares : route de saison (${nr}/${RARE_AV.length})</h4>${rares}
+    <h4 class="sec">🌟 Légendaires : boutique</h4>${legends}</div>
+    <p class="note">Touche un avatar verrouillé pour savoir comment l’obtenir.</p>`);
+  $$('#sheetBox .avgrid button').forEach(b => b.onclick = () => {
+    const a = b.dataset.av;
+    if (LEGEND_AV[a]) { if (!buyAvatar(a)) return; }
+    else if (a[0] === 'R' && !S.avs.includes(a)) return toast(`« ${avName(a)} » : avatar rare à gagner sur la route de saison (3 nouveaux chaque mois).`, 3500);
+    else S.av = a;
+    save(); closeSheet(); renderProfile(); profileChanged();
+  });
+}
+// avatar légendaire : acheté une fois (pièces), puis équipé ; renvoie true si l'avatar est équipé
+function buyAvatar(a) {
+  if (!S.avs.includes(a)) {
+    const price = LEGEND_AV[a];
+    if (S.coins < price) { toast(`« ${avName(a)} » coûte ${fmt(price)} pièces : il t’en manque ${fmt(price - S.coins)}.`, 3500); return false; }
+    if (!confirm(`Acheter l’avatar légendaire « ${avName(a)} » pour ${fmt(price)} pièces ?`)) return false;
+    S.coins -= price;
+    S.avs.push(a);
+    toast(`${avMini(a)} Avatar légendaire <b>${esc(avName(a))}</b> débloqué !`, 3500);
+  }
+  S.av = a;
+  return true;
 }
 function nameSheet() {
   openSheet(`<h3>Ton pseudo <button data-close data-i="x"></button></h3><input class="txtin" id="nameIn" maxlength="16" value="${esc(S.name)}"><button class="cta" id="nameOk">Enregistrer</button>`);
@@ -1950,13 +2009,13 @@ function roadState() {
 function rewardLabel(w) {
   if (!w) return '';
   if (w.type === 'coins') return `${w.v} pièces`;
-  if (w.type === 'av') return `avatar rare ${w.v}`;
+  if (w.type === 'av') return `avatar rare « ${avName(w.v)} »`;
   if (w.type === 'title') return `titre « ${titleName(w.v)} »`;
   return 'cadre de saison exclusif';
 }
 function rewardPic(w) {
   if (w.type === 'coins') return `<span class="coin" style="width:30px;height:30px;font-size:15px">$</span><b>${w.v} pièces</b>`;
-  if (w.type === 'av') return `<span class="big2">${w.v}</span><b>Avatar rare</b>`;
+  if (w.type === 'av') return `${avHTML(w.v, 'def', 46)}<span><b>Avatar rare</b><br><small class="muted">${esc(avName(w.v))}</small></span>`;
   if (w.type === 'title') return `<span class="big2">🏷️</span><span><b>Titre</b><br><small class="muted">${titleName(w.v)}</small></span>`;
   return `${avHTML(S.av, w.v, 54)}<span><b>Cadre de saison</b><br><small class="muted">exclusif ${seasonName(w.v.slice(1))}</small></span>`;
 }
@@ -1978,7 +2037,7 @@ function claimRoad(n) {
   if (!w || n > rs.step || rs.r.claimed.includes(n)) return;
   rs.r.claimed.push(n);
   if (w.type === 'coins') { S.coins += w.v; toast(`<span class="coin">$</span> +${w.v} pièces !`); }
-  if (w.type === 'av') { if (!S.avs.includes(w.v)) S.avs.push(w.v); toast(`✨ Avatar rare ${w.v} débloqué ! (Profil → avatar)`, 3200); }
+  if (w.type === 'av') { if (!S.avs.includes(w.v)) S.avs.push(w.v); toast(`${avMini(w.v)} Avatar rare <b>${esc(avName(w.v))}</b> débloqué ! (Profil → avatar)`, 3200); }
   if (w.type === 'title') { if (!S.titles.includes(w.v)) S.titles.push(w.v); }
   if (w.type === 'frame') {
     if (!S.sframes.includes(w.v)) S.sframes.push(w.v);
@@ -2022,6 +2081,10 @@ function renderShop() {
       const info = it.id === 'shield' ? `En réserve : ${S.inv.shield} / ${it.max}` : it.id === 'reroll' ? `Jetons : ${S.inv.reroll}` : it.id === 'boost' && boostLeft() ? `En cours : encore ${Math.ceil(boostLeft() / 60000)} min` : it.k && own ? (eq ? 'Équipé : touche pour retirer' : 'Touche pour équiper') : own ? 'Débloqué ✓' : '';
       return `<button class="card obj ${eq ? 'eq' : ''}" data-kind="${shopTab}" data-it="${it.id}"><span class="e">${it.e}</span><div><b>${it.name}</b><small>${it.desc}</small>${info ? `<em>${info}</em>` : ''}</div>${own ? '' : `<span class="price">${price(it)}</span>`}</button>`;
     }).join('');
+    if (shopTab === 'prestige') {
+      html += '<h4 class="sec">🌟 Avatars légendaires</h4>';
+      html += Object.keys(LEGEND_AV).map(a => card('lav', a, avHTML(a, 'def', 58), avName(a), S.avs.includes(a) ? (S.av === a ? 'Équipé' : 'Choisir') : price({ price: LEGEND_AV[a] }), S.av === a)).join('');
+    }
   }
   $('#shopGrid').innerHTML = html;
   $$('#shopGrid [data-it]').forEach(b => b.onclick = () => {
@@ -2035,6 +2098,7 @@ function renderShop() {
       if (!legendOk()) return toast('Monte une médaille au niveau Légendaire (Profil → Médailles) pour débloquer ce cadre.', 3500);
       S.fr = id; profileChanged();
     } else if (kind === 'items' || kind === 'prestige') { if (!buyThing(kind, id)) return; }
+    else if (kind === 'lav') { if (!buyAvatar(id)) return; profileChanged(); }
     else {
       const items = kind === 'buy' ? [...FRAMES, ...PRESTIGE_FRAMES] : THEMES, owned = kind === 'buy' ? S.owned : S.themes, it = items.find(x => x.id === id);
       if (!owned.includes(id)) {
@@ -2168,8 +2232,8 @@ function rules() {
 function onboarding() {
   $('#onbName').value = S.name || '';
   const g = $('#onbAv');
-  g.innerHTML = AVATARS.slice(0, 18).map(a => `<button class="${a === S.av ? 'on' : ''}">${a}</button>`).join('');
-  g.querySelectorAll('button').forEach(b => b.onclick = () => { S.av = b.textContent; g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); });
+  g.innerHTML = AVATARS.slice(0, 18).map(a => `<button class="${a === S.av ? 'on' : ''}" data-av="${a}" title="${esc(avName(a))}">${avImg(a)}</button>`).join('');
+  g.querySelectorAll('button').forEach(b => b.onclick = () => { S.av = b.dataset.av; g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); });
   $('#onbGo').onclick = () => {
     const v = $('#onbName').value.trim();
     if (v.length < 2) { toast('Choisis un pseudo (2 caractères minimum)'); return; }
