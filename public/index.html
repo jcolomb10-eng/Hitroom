@@ -156,14 +156,16 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .dealhd span{margin-left:auto;font-size:12px;color:#ff8cc6;font-weight:700}
 .dealrow{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .deal{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px 12px;border-radius:18px;text-align:center;overflow:hidden}
-.deal.hero{grid-column:1/-1;flex-direction:row;text-align:left;gap:14px;padding:16px}
-.deal.hero .dpic{flex:none;width:120px;display:grid;place-items:center}
-.deal.hero .dtx{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+/* offre à la une (pas « hero » : classe déjà prise par la bannière de l'accueil) */
+.deal.lead{grid-column:1/-1;flex-direction:row;text-align:left;gap:14px;padding:16px;
+  background:radial-gradient(60% 70% at 50% 100%,rgba(255,46,147,.4),transparent 70%),radial-gradient(40% 60% at 15% 0%,rgba(255,138,31,.3),transparent 70%),radial-gradient(40% 60% at 85% 0%,rgba(163,77,255,.3),transparent 70%),#0a0510}
+.deal.lead .dpic{flex:none;width:120px;display:grid;place-items:center}
+.deal.lead .dtx{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
 .deal .dpic{display:grid;place-items:center;min-height:78px}
 .deal .dpic .sw{width:64px;height:64px}
 .deal .dpic .pi{font-size:46px;line-height:1}
 .deal b{font-size:15px}
-.deal.hero b{font-size:19px}
+.deal.lead b{font-size:19px}
 .deal .dk{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase}
 .deal .old{font-size:12px;color:var(--muted);text-decoration:line-through}
 .deal .newp{display:inline-flex;align-items:center;gap:5px;font-size:17px;font-weight:900;color:var(--gold2)}
@@ -592,9 +594,9 @@ svg.med{flex:none;overflow:visible}
 .fxstrip div.it b{display:block;color:#fff;font-size:12px}
 /* titres, médailles, vitrine, carte de joueur */
 .ttl{display:block;font-size:11.5px;font-weight:600;font-style:normal;color:var(--gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.meds{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.meds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
 .md{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 6px;border-radius:12px;background:#0f0a13;border:1px solid #2a2033;font-size:10px;line-height:1.2;color:var(--muted);text-align:center}
-.md b{color:#fff;font-size:10.5px;font-weight:600}
+.md b{color:#fff;font-size:10.5px;font-weight:600;max-width:100%;hyphens:auto;overflow-wrap:anywhere}
 .md.lock svg{filter:grayscale(1) brightness(.45)}
 .md.on{border-color:var(--gold2);box-shadow:0 0 12px rgba(255,200,60,.4)}
 .mlv{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 10px}
@@ -917,7 +919,8 @@ const VERSION = '1.9';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const fmt = n => Number(n || 0).toLocaleString('fr-FR');
+// espace insécable normale : l'espace fine (U+202F) ne fait que 1,5 px en Poppins et disparaît en gras (« 30000 »)
+const fmt = n => Number(n || 0).toLocaleString('fr-FR').replace(/\u202f/g, '\u00a0');
 
 // ---------- icônes ----------
 const P = {
@@ -2508,7 +2511,7 @@ function renderShop() {
     const cards = deals.map((o, i) => {
       const own = dealOwned(o), rr = rarity(o.price);
       const tx = `<span class="dk">${o.label}</span><b>${esc(o.name)}</b><i class="rar r-${rr[0]}">${rr[1]}</i>${own ? '<span class="owned">✓ Déjà à toi</span>' : `<span class="old">${fmt(o.price)}</span><span class="newp"><span class="coin">$</span>${fmt(o.now)}</span>`}`;
-      return `<button class="card deal ${i === 0 ? 'hero' : ''} ${own ? 'done' : ''} rar-${rr[0]}" data-offer="${o.kind}:${o.id}">${own ? '' : `<span class="off">−${o.off} %</span>`}
+      return `<button class="card deal ${i === 0 ? 'lead' : ''} ${own ? 'done' : ''} rar-${rr[0]}" data-offer="${o.kind}:${o.id}">${own ? '' : `<span class="off">−${o.off} %</span>`}
         <span class="dpic">${dealPic(o, i === 0 ? 96 : 64)}</span>${i === 0 ? `<span class="dtx">${tx}</span>` : tx}</button>`;
     });
     html += cards.length ? cards[0] + (cards.length > 1 ? `<div class="dealrow">${cards.slice(1).join('')}</div>` : '')
