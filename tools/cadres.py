@@ -1,7 +1,7 @@
 """Cadres de rang : fond noir retiré, centre vidé pour l'avatar, recadrage et mesures de l'ouverture.
 
-Usage : python3 tools/cadres.py public/frames /tmp/controle
-Sources : assets-src/cadres/r0.jpg … r8.jpg (images générées, cadre sur fond noir).
+Usage : python3 tools/cadres.py public/frames /tmp/controle [noms…]   (sans noms : r0 … r8 et citrouille)
+Sources : assets-src/cadres/r0.jpg … r8.jpg et citrouille.jpg (images générées, cadre sur fond noir).
 Les mesures affichées (w, h, cx, cy, d) sont à recopier dans FRAME_META (public/index.html).
 """
 import json, math, sys
@@ -44,9 +44,10 @@ def fit_circle(pts):
     return cx, cy, math.sqrt(c + cx * cx + cy * cy)
 
 
+NAMES = sys.argv[3:] or [f'r{t}' for t in range(9)] + ['citrouille']
 meta = {}
-for t in range(9):
-    im = Image.open(os.path.join(SRC_DIR, f'r{t}.jpg')).convert('RGB')
+for t in NAMES:
+    im = Image.open(os.path.join(SRC_DIR, f'{t}.jpg')).convert('RGB')
     a = np.asarray(im).astype(np.float32)
     m = a.max(axis=2)
     h, w = m.shape
@@ -74,8 +75,8 @@ for t in range(9):
     img = img.crop((x0, y0, x1, y1))
     s = OPEN_PX / (2 * r)
     img = img.resize((round(img.width * s), round(img.height * s)), Image.LANCZOS)
-    img.save(f'{OUT}/r{t}.webp', quality=80, method=6)
-    meta[f'r{t}'] = {
+    img.save(f'{OUT}/{t}.webp', quality=80, method=6)
+    meta[t] = {
         'w': img.width, 'h': img.height,
         'cx': round(float((cx - x0) * s / img.width), 4), 'cy': round(float((cy - y0) * s / img.height), 4),
         'd': round(OPEN_PX / img.width, 4),
@@ -84,11 +85,11 @@ for t in range(9):
     bg = Image.new('RGBA', (img.width + 40, img.height + 40), (16, 11, 21, 255))
     from PIL import ImageDraw
     dr = ImageDraw.Draw(bg)
-    ox, oy = 20 + meta[f'r{t}']['cx'] * img.width, 20 + meta[f'r{t}']['cy'] * img.height
+    ox, oy = 20 + meta[t]['cx'] * img.width, 20 + meta[t]['cy'] * img.height
     ra = OPEN_PX / 2 * 1.04
     dr.ellipse((ox - ra, oy - ra, ox + ra, oy + ra), fill=(70, 50, 110, 255))
     bg.alpha_composite(img, (20, 20))
-    bg.convert('RGB').save(f'{DEBUG}/check_r{t}.jpg', quality=80)
-    print(f'r{t}', f'centre=({cx:.0f},{cy:.0f}) rayon={r:.0f}', meta[f'r{t}'])
+    bg.convert('RGB').save(f'{DEBUG}/check_{t}.jpg', quality=80)
+    print(t, f'centre=({cx:.0f},{cy:.0f}) rayon={r:.0f}', meta[t])
 
 json.dump(meta, open(f'{DEBUG}/frames_meta.json', 'w'))

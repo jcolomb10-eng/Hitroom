@@ -1525,7 +1525,8 @@ function roadRewards(sc) {
   });
 }
 // cadres de rang en image (public/frames/r0 … r8.webp) : taille, centre et diamètre de l'ouverture (fractions de l'image)
-const FRAME_META = { r0: { w: 304, h: 280, cx: 0.505, cy: 0.4982, d: 0.5789 }, r1: { w: 319, h: 312, cx: 0.4955, cy: 0.4974, d: 0.5517 }, r2: { w: 634, h: 384, cx: 0.494, cy: 0.501, d: 0.2776 }, r3: { w: 379, h: 366, cx: 0.4983, cy: 0.4991, d: 0.4644 }, r4: { w: 582, h: 365, cx: 0.4997, cy: 0.5031, d: 0.3024 }, r5: { w: 508, h: 396, cx: 0.5081, cy: 0.4977, d: 0.3465 }, r6: { w: 346, h: 326, cx: 0.5071, cy: 0.5126, d: 0.5087 }, r7: { w: 571, h: 344, cx: 0.4998, cy: 0.5248, d: 0.3082 }, r8: { w: 731, h: 411, cx: 0.499, cy: 0.5519, d: 0.2408 } };
+const FRAME_META = { r0: { w: 304, h: 280, cx: 0.505, cy: 0.4982, d: 0.5789 }, r1: { w: 319, h: 312, cx: 0.4955, cy: 0.4974, d: 0.5517 }, r2: { w: 634, h: 384, cx: 0.494, cy: 0.501, d: 0.2776 }, r3: { w: 379, h: 366, cx: 0.4983, cy: 0.4991, d: 0.4644 }, r4: { w: 582, h: 365, cx: 0.4997, cy: 0.5031, d: 0.3024 }, r5: { w: 508, h: 396, cx: 0.5081, cy: 0.4977, d: 0.3465 }, r6: { w: 346, h: 326, cx: 0.5071, cy: 0.5126, d: 0.5087 }, r7: { w: 571, h: 344, cx: 0.4998, cy: 0.5248, d: 0.3082 }, r8: { w: 731, h: 411, cx: 0.499, cy: 0.5519, d: 0.2408 },
+  citrouille: { w: 319, h: 318, cx: 0.4995, cy: 0.5069, d: 0.5517 } }; // cadre d'événement (Halloween), même traitement que les cadres de rang
 // effets par rang : couleur du halo, étincelles, force du reflet, particules (braises, lucioles, flammes), éclairs
 const FX = [
   { c: '255,140,60', tw: 2, sh: 0.35 },
@@ -1537,6 +1538,7 @@ const FX = [
   { c: '60,255,160', tw: 6, sh: 0.6, pt: '90,255,150' },
   { c: '190,110,255', tw: 7, sh: 0.6, zap: 1, pt: '210,150,255' },
   { c: '255,150,40', tw: 9, sh: 0.7, fire: 1, pt: '255,160,40' },
+  { c: '255,140,40', tw: 7, sh: 0.6, pt: '255,150,40' }, // 9 : cadre Citrouille
 ];
 // avatar dans son cadre de rang en grand, centré dans une boîte W × H (les ailes peuvent dépasser de l'avatar, pas de la boîte)
 function framedAvatar(av, fr, W, H, maxA, locked) {
@@ -1545,7 +1547,7 @@ function framedAvatar(av, fr, W, H, maxA, locked) {
     const A = Math.round(Math.min(maxA, W * 0.8, H * 0.8));
     return `<div class="fxbox" style="width:${W}px;height:${H}px"><div style="left:${(W - A) / 2}px;top:${(H - A) / 2}px">${avHTML(av, fr, A)}</div></div>`;
   }
-  const t = +fr.slice(1), fx = FX[t], k = 1.05;
+  const t = isRankFrame(fr) ? +fr.slice(1) : 9, fx = FX[t], k = 1.05;
   const A = Math.floor(Math.min(maxA, W * m.d * k, H * (m.w / m.h) * m.d * k));
   const fw = A / (m.d * k), fh = fw * m.h / m.w, il = (W - fw) / 2, it = (H - fh) / 2;
   const ax = il + m.cx * fw, ay = it + m.cy * fh, src = `/frames/${fr}.webp`;
@@ -2922,7 +2924,7 @@ function showcaseSheet() {
 // carte d'un joueur : avatar, titre, rang, vitrine
 function playerCard(p) {
   const ent = (p.show || []).map(x => { const [id, l] = x.split(':'); return { m: MEDALS.find(y => y.id === id), l: +l }; }).filter(e => e.m && e.l > 0);
-  openSheet(`<div class="pcard">${isRankFrame(p.fr) ? framedAvatar(p.av, p.fr, 320, 196, 104) : avHTML(p.av, p.fr, 96)}<h3>${nameHTML(p)}${p.bot ? ' 🤖' : ''}</h3>${p.title && titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}
+  openSheet(`<div class="pcard">${isRankFrame(p.fr) || p.fr === 'citrouille' ? framedAvatar(p.av, p.fr, 320, 196, 104) : avHTML(p.av, p.fr, 96)}<h3>${nameHTML(p)}${p.bot ? ' 🤖' : ''}</h3>${p.title && titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}
     <div class="pc-rank">${p.tier != null ? `${tierBadge(p.tier, 30)} <b>${TIERS[p.tier].name}</b> • ` : ''}Niveau ${p.lvl || 1}</div>
     ${p.club ? `<p class="pclub">${esc(p.club)}</p>` : ''}
     ${ent.length ? vitHTML(ent, { size: 50, label: 'VITRINE' }) : '<p class="muted" style="margin:0 0 12px">Pas encore de médaille en vitrine.</p>'}
@@ -3525,9 +3527,10 @@ function honorsSheet(list) {
   }
   S.honors = S.honors.slice(-200);
   const gifts = [];
+  let big = '';
   for (const h of fresh) for (const g of (h.gift || '').split(',').filter(Boolean)) {
     const [k, v] = g.split(':');
-    if (k === 'frame' && !S.owned.includes(v)) { S.owned.push(v); gifts.push(`🎃 Cadre <b>${esc(v === 'citrouille' ? 'Citrouille' : v)}</b>`); }
+    if (k === 'frame' && !S.owned.includes(v)) { S.owned.push(v); gifts.push(`🎃 Cadre <b>${esc(v === 'citrouille' ? 'Citrouille' : v)}</b>`); big = v; }
     if (k === 'av' && !S.avs.includes(v)) { S.avs.push(v); gifts.push(`${avMini(v)} 🎁 Avatar <b>${esc(avName(v))}</b>`); }
   }
   S.coins += coins;
@@ -3535,7 +3538,7 @@ function honorsSheet(list) {
   const newTitle = fresh.find(h => h.title)?.title;
   openSheet(`<div style="text-align:center"><div style="font-size:54px">🏆</div><h3 style="justify-content:center">Bravo, tu es récompensé !</h3>
     ${fresh.map(h => `<div class="card cx" style="text-align:center"><b>${esc(h.label)}</b><br><span style="color:var(--gold2);font-weight:800">+${fmt(h.coins)} pièces</span></div>`).join('')}
-    ${gifts.length ? `<div class="card cx" style="text-align:center">${gifts.map(g => `<p style="margin:10px 0 4px;color:var(--fg);display:flex;align-items:center;justify-content:center;gap:12px">${g}</p>`).join('')}<small class="muted">À équiper dans ton profil.</small></div>` : ''}
+    ${gifts.length ? `<div class="card cx" style="text-align:center">${big ? framedAvatar(S.av, big, 320, 200, 104) : ''}${gifts.map(g => `<p style="margin:10px 0 4px;color:var(--fg);display:flex;align-items:center;justify-content:center;gap:12px">${g}</p>`).join('')}<small class="muted">À équiper dans ton profil.</small></div>` : ''}
     ${newTitle ? `<p>Nouveau titre : <b class="ttl" style="display:inline-block">${esc(honorTitle(newTitle))}</b><br><small class="muted">Choisis-le dans ton profil.</small></p>` : ''}
     <button class="cta" data-close>Super !</button></div>`);
 }
@@ -3991,7 +3994,7 @@ function renderShop() {
     html += '<h4 class="sec">🏅 Cadre Légendaire : impossible à acheter</h4>';
     html += card('legend', 'legend', avHTML(S.av, 'legend', 58), 'Légendaire', legendOk() ? (S.fr === 'legend' ? 'Équipé' : 'Choisir') : '🔒 Une médaille Légendaire', S.fr === 'legend');
     html += '<h4 class="sec">🎃 Cadres d’événement : à gagner en jouant</h4>';
-    html += card('event', 'citrouille', avHTML(S.av, 'citrouille', 58), 'Citrouille', S.owned.includes('citrouille') ? (S.fr === 'citrouille' ? 'Équipé' : 'Choisir') : '🔒 Événement Halloween', S.fr === 'citrouille');
+    html += card('event', 'citrouille', framedAvatar(S.av, 'citrouille', 100, 74, 50, !S.owned.includes('citrouille')), 'Citrouille', S.owned.includes('citrouille') ? (S.fr === 'citrouille' ? 'Équipé' : 'Choisir') : '🔒 Événement Halloween', S.fr === 'citrouille');
     html += '<h4 class="sec">🏆 Cadres de rang : affichés tout seuls en partie classée</h4>';
     html += [0, 1, 2, 3, 4, 5, 6, 7, 8].map(t => {
       const ok = (S.rank.bestEver || 0) >= t, id = 'r' + t;
