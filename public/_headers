@@ -1,0 +1,15 @@
+# en-têtes des fichiers du site (Cloudflare Workers, ressources statiques)
+# images, polices et vidéos : gardées une semaine par le navigateur, revérifiées en arrière-plan
+/av/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/frames/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/fonds/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/logo.webp
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/icon-*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+# le service worker : toujours revérifié, pour que chaque nouvelle version arrive tout de suite
+/sw.js
+  Cache-Control: no-cache

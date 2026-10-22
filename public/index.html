@@ -484,6 +484,8 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .floatpts{position:absolute;left:50%;top:40%;z-index:30;font-size:28px;font-weight:900;color:var(--green);text-shadow:0 0 14px var(--green);pointer-events:none;animation:up 1.2s ease-out forwards}
 @keyframes up{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}20%{opacity:1;transform:translate(-50%,0) scale(1.1)}100%{opacity:0;transform:translate(-50%,-70px)}}
 .netbar{position:absolute;top:0;left:0;right:0;z-index:40;padding:6px;text-align:center;font-size:12px;font-weight:600;background:var(--red)}
+.offbar{position:absolute;left:50%;transform:translateX(-50%);top:max(6px,env(safe-area-inset-top));z-index:45;padding:6px 14px;border-radius:999px;white-space:nowrap;font-size:12.5px;font-weight:700;pointer-events:none;
+  background:#2a2233;border:1.5px solid rgba(var(--glow),.5);box-shadow:0 4px 18px #0008;color:#fff}
 .tapsound{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:25}
 
 @media(max-height:620px){
@@ -1582,6 +1584,7 @@ function wsURL(path, params) {
   return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${path}?${q}`;
 }
 function connect(path, params = {}) {
+  if (!navigator.onLine) { toast('📡 Pas de connexion internet : les parties reviennent dès que le réseau est là.', 3500); return; }
   closeWs();
   Object.assign(R, { path, params, st: null, me: null, chat: [], unread: 0, feed: [], closing: false, sameLobby: null });
   openWs();
@@ -3025,7 +3028,19 @@ function startDeepLink() {
   if (code) joinCode(code);
 }
 
+// ---------- hors connexion et chargement rapide (service worker, public/sw.js) ----------
+function offline() {
+  let b = $('#offbar');
+  if (navigator.onLine) { b?.remove(); return; }
+  if (!b) { b = document.createElement('div'); b.id = 'offbar'; b.className = 'offbar'; $('#app').appendChild(b); }
+  b.textContent = '📡 Hors connexion : parties en pause';
+}
+addEventListener('online', () => { offline(); toast('✅ De retour en ligne !'); if (curView === 'home') { loadCounts(); loadMe(); } });
+addEventListener('offline', offline);
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js?v=' + VERSION).catch(() => {}));
+
 // ---------- démarrage ----------
+offline();
 paintIcons();
 crowd();
 applyTheme();
