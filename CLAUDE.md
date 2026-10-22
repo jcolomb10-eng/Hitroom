@@ -64,11 +64,60 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 - `NODE_PATH=$(npm root -g) node test/e2e-classe.cjs` : partie classée complète (réponses strictes, PR gagnés, classement avec podium, partie amicale, niveau des bots, changement de saison via `/__mock/saison`). En local (MOCK_MUSIC), les parties publiques durent 5 manches de 15 s.
 - iTunes n'est pas joignable depuis l'environnement Claude : la vraie recherche ne se vérifie qu'une fois en ligne.
 
-## Prochaines étapes
+## Feuille de route (validée à 100 % par l'utilisateur le 22/10/2026 : tout faire, étape par étape, sans rien oublier)
 
-0. **Version 2.0** : vrais comptes (invité → compte sans perte, code à 6 chiffres par e-mail, puis Google ; page Confidentialité RGPD et suppression de compte), progression sur le serveur (fin de la triche). Idée : vrai thème clair.
+Cocher `[x]` chaque point terminé et publié. 👤 = à faire par l'utilisateur (je le guide pas à pas). Une version = une publication, après tous les tests et le « go » de l'utilisateur.
 
-1. Mise en ligne sur Cloudflare (compte de l'utilisateur), puis vérifier `/api/status` et `/api/introuvables` et corriger le catalogue.
-2. Comptes (pour garder sa progression d'un appareil à l'autre) ; aujourd'hui tout est sur l'appareil.
-3. Mode hors connexion / service worker, notifications « tes amis jouent ».
-4. Nom de domaine, vérification des conditions d'Apple pour les extraits avant un lancement public, Play Store (TWA).
+**1.11 Catalogue**
+- [ ] Morceaux introuvables : lire `/api/introuvables` et `/api/status` (l'environnement Claude ne joint ni le site, ni Deezer, ni iTunes : 👤 envoyer le résultat, ou 👤 autoriser `api.deezer.com`, `itunes.apple.com` et `hitroom.jcolomb10.workers.dev` dans les réglages réseau de l'environnement cloud) puis corriger.
+- [ ] Agrandir le catalogue (354 → 1 000+ morceaux) et nouvelles catégories : Disney, génériques (séries, dessins animés), jeux vidéo, années 70, tubes TikTok, latino, afro, Eurovision, rock français. Penser aux titres de catégorie (`CAT_TITLES`), au classé (`rankedCats`, `RANKED_POOL`) et aux tests du catalogue.
+
+**1.12 Musique**
+- [ ] « Écouter le morceau en entier » à la révélation (lien Deezer / Apple Music).
+- [ ] « Mes découvertes » : historique des morceaux joués et favoris ❤️.
+
+**1.13 Hit du jour**
+- [ ] 5 extraits identiques pour tout le monde chaque jour, résultat à partager façon Wordle (« Hitroom #42 🎵🎵⬛🎵🎵 »), classement du jour.
+
+**1.14 Modes et fidélité**
+- [ ] Mort subite (une erreur = éliminé), Intro éclair (1 s d'extrait), Devine l'année.
+- [ ] Récompense de connexion quotidienne (série de jours).
+- [ ] Saisons à thème (Halloween, Noël, été) et tournoi du week-end avec contour exclusif.
+
+**1.15 Confort et sécurité**
+- [ ] Thème clair, taille du texte, mode daltonien.
+- [ ] Signaler / bloquer un joueur dans le chat.
+- [ ] Statistiques de fréquentation : Cloudflare Web Analytics (gratuit, sans cookies ; 👤 l'activer dans le tableau de bord).
+
+**1.16 Appli**
+- [ ] Mode hors connexion / service worker (chargement plus rapide).
+- [ ] Notifications (défis du jour, nouvelle saison, « un ami t'invite ») : clés VAPID et envoi depuis le Worker.
+
+**2.0 Comptes** (prérequis : 👤 nom de domaine, ex. hitroom.fr, pour envoyer les e-mails ; service d'envoi d'e-mails)
+- [ ] Invité → compte sans perte, code à 6 chiffres par e-mail, puis Google (👤 projet Google Cloud).
+- [ ] Progression, pièces et achats sur le serveur (fin de la triche) ; page Confidentialité (RGPD) et suppression de compte.
+
+**2.1 Amis**
+- [ ] Liste d'amis, qui est en ligne, défier un ami en 1 contre 1 ; Duel 1 contre 1 classé.
+- [ ] Parrainage : un ami invité = pièces ou avatar pour les deux.
+
+**2.2 Équipes**
+- [ ] Clubs et classement des clubs ; mode Équipes 2 contre 2.
+
+**2.3 Soirée**
+- [ ] Mode Soirée : la télé / l'ordinateur affiche la partie, chacun répond sur son téléphone (façon Kahoot).
+- [ ] Salons avec sa propre playlist.
+
+**3.0 Rémunération** (seulement de la décoration, jamais d'avantage pour gagner)
+- [ ] Prérequis 👤 : droits des extraits (conditions de Deezer et d'Apple, demander un accord), statut pour encaisser (micro-entreprise), conditions de vente ; la 2.0 doit être faite.
+- [ ] Pass de saison Premium (~2,99 € par saison : 2e ligne de récompenses sur la route de saison).
+- [ ] Hitroom+ (~2,99 €/mois : salons Premium illimités, playlists perso, statistiques détaillées, sans pub).
+- [ ] Packs de pièces (0,99 € à 9,99 €) ; publicité récompensée facultative (jamais imposée pendant une partie).
+- [ ] Affiliation des liens d'écoute (programme Apple, à vérifier).
+- [ ] Hitroom Soirée pour les professionnels (bars, campings, comités d'entreprise) : abonnement ~15-30 €/mois, logo, classement de la soirée.
+- [ ] Play Store (TWA) : Google impose en général son paiement pour les achats dans l'appli (commission ~15 %).
+- À éviter : coffres payants au hasard (interdits en Belgique), gains en vrai argent pour les joueurs (réglementé comme les jeux d'argent).
+
+**Toujours en cours**
+- Vercel : débrancher l'ancien projet du dépôt (👤, pas urgent).
+- Avant un lancement public : conditions d'Apple et de Deezer pour les extraits.
