@@ -1,4 +1,4 @@
-// Catalogue : une ligne par morceau, « Titre | Artiste ».
+// Catalogue : une ligne par morceau, « Titre | Artiste », suivi de « | fr » pour un morceau chanté en français.
 // Variantes acceptées séparées par « ~ » (la première est celle affichée).
 // Les extraits de 30 s et pochettes sont retrouvés sur iTunes au moment de jouer (voir hub.js).
 
@@ -27,16 +27,16 @@ Total Eclipse of the Heart | Bonnie Tyler
 Money for Nothing | Dire Straits
 Jump | Van Halen
 Smalltown Boy | Bronski Beat
-Ella, elle l'a | France Gall
-Vacances j'oublie tout | Elegance
-Les démons de minuit | Images
-Voyage, voyage | Desireless
-Joe le taxi | Vanessa Paradis
-Toute première fois | Jeanne Mas
-Tous les cris les S.O.S. | Daniel Balavoine
-Partenaire particulier | Partenaire Particulier
-Nuit de folie | Début de Soirée
-Cendrillon | Téléphone
+Ella, elle l'a | France Gall | fr
+Vacances j'oublie tout | Elegance | fr
+Les démons de minuit | Images | fr
+Voyage, voyage | Desireless | fr
+Joe le taxi | Vanessa Paradis | fr
+Toute première fois | Jeanne Mas | fr
+Tous les cris les S.O.S. | Daniel Balavoine | fr
+Partenaire particulier | Partenaire Particulier | fr
+Nuit de folie | Début de Soirée | fr
+Cendrillon | Téléphone | fr
 Sweet Child O' Mine | Guns N' Roses
 Thriller | Michael Jackson
 Beat It | Michael Jackson
@@ -106,56 +106,56 @@ Tarzan Boy | Baltimora
 Cheri Cheri Lady | Modern Talking
 You're My Heart, You're My Soul ~ You're My Heart You're My Soul | Modern Talking
 Bamboléo | Gipsy Kings
-Marcia Baïla | Les Rita Mitsouko ~ Rita Mitsouko
-C'est comme ça | Les Rita Mitsouko ~ Rita Mitsouko
-L'aventurier | Indochine
-3e sexe ~ 3ème sexe ~ Troisième sexe | Indochine
-Week-end à Rome | Étienne Daho
-Ouragan | Stéphanie ~ Stéphanie de Monaco
-Résiste | France Gall
-Babacar | France Gall
-Évidemment | France Gall
-Il jouait du piano debout | France Gall
-Mon mec à moi | Patricia Kaas
-Mademoiselle chante le blues | Patricia Kaas
-Libertine | Mylène Farmer
-Pourvu qu'elles soient douces | Mylène Farmer
-Sans contrefaçon | Mylène Farmer
-Ça (c'est vraiment toi) ~ C'est vraiment toi | Téléphone
-New York avec toi | Téléphone
-L'Aziza | Daniel Balavoine
-Sauver l'amour | Daniel Balavoine
-Mon fils ma bataille | Daniel Balavoine
-Encore un matin | Jean-Jacques Goldman
-Envole-moi | Jean-Jacques Goldman
-Je te donne | Jean-Jacques Goldman ~ Michael Jones
-Là-bas | Jean-Jacques Goldman ~ Sirima
-Je marche seul | Jean-Jacques Goldman
-Elle a fait un bébé toute seule | Jean-Jacques Goldman
-Ville de lumière | Gold
-Viens boire un p'tit coup à la maison | Licence IV
-La danse des canards | J.J. Lionel ~ JJ Lionel
-Chacun fait (c'qui lui plaît) ~ Chacun fait c'qui lui plaît | Chagrin d'amour
-Musulmanes | Michel Sardou
-Être une femme | Michel Sardou
-Quelque chose de Tennessee | Johnny Hallyday
-Les bêtises | Sabine Paturel
-Les sunlights des tropiques | Gilbert Montagné
-On va s'aimer | Gilbert Montagné
-Désir désir | Laurent Voulzy ~ Véronique Jannot
-Belle-Île-en-Mer, Marie-Galante ~ Belle-Île-en-Mer | Laurent Voulzy
-Cœur de loup | Philippe Lafontaine
-Elle a les yeux revolver | Marc Lavoine
-Hélène | Roch Voisine
-T'en va pas | Elsa ~ Elsa Lunghini
-Boule de flipper | Corynne Charby
-Vertige de l'amour | Alain Bashung
-Mélissa | Julien Clerc
-Né quelque part | Maxime Le Forestier
-C'est la ouate | Caroline Loeb
-Le bal masqué | La Compagnie Créole
-Ça fait rire les oiseaux | La Compagnie Créole
-L'amour à la plage | Niagara
+Marcia Baïla | Les Rita Mitsouko ~ Rita Mitsouko | fr
+C'est comme ça | Les Rita Mitsouko ~ Rita Mitsouko | fr
+L'aventurier | Indochine | fr
+3e sexe ~ 3ème sexe ~ Troisième sexe | Indochine | fr
+Week-end à Rome | Étienne Daho | fr
+Ouragan | Stéphanie ~ Stéphanie de Monaco | fr
+Résiste | France Gall | fr
+Babacar | France Gall | fr
+Évidemment | France Gall | fr
+Il jouait du piano debout | France Gall | fr
+Mon mec à moi | Patricia Kaas | fr
+Mademoiselle chante le blues | Patricia Kaas | fr
+Libertine | Mylène Farmer | fr
+Pourvu qu'elles soient douces | Mylène Farmer | fr
+Sans contrefaçon | Mylène Farmer | fr
+Ça (c'est vraiment toi) ~ C'est vraiment toi | Téléphone | fr
+New York avec toi | Téléphone | fr
+L'Aziza | Daniel Balavoine | fr
+Sauver l'amour | Daniel Balavoine | fr
+Mon fils ma bataille | Daniel Balavoine | fr
+Encore un matin | Jean-Jacques Goldman | fr
+Envole-moi | Jean-Jacques Goldman | fr
+Je te donne | Jean-Jacques Goldman ~ Michael Jones | fr
+Là-bas | Jean-Jacques Goldman ~ Sirima | fr
+Je marche seul | Jean-Jacques Goldman | fr
+Elle a fait un bébé toute seule | Jean-Jacques Goldman | fr
+Ville de lumière | Gold | fr
+Viens boire un p'tit coup à la maison | Licence IV | fr
+La danse des canards | J.J. Lionel ~ JJ Lionel | fr
+Chacun fait (c'qui lui plaît) ~ Chacun fait c'qui lui plaît | Chagrin d'amour | fr
+Musulmanes | Michel Sardou | fr
+Être une femme | Michel Sardou | fr
+Quelque chose de Tennessee | Johnny Hallyday | fr
+Les bêtises | Sabine Paturel | fr
+Les sunlights des tropiques | Gilbert Montagné | fr
+On va s'aimer | Gilbert Montagné | fr
+Désir désir | Laurent Voulzy ~ Véronique Jannot | fr
+Belle-Île-en-Mer, Marie-Galante ~ Belle-Île-en-Mer | Laurent Voulzy | fr
+Cœur de loup | Philippe Lafontaine | fr
+Elle a les yeux revolver | Marc Lavoine | fr
+Hélène | Roch Voisine | fr
+T'en va pas | Elsa ~ Elsa Lunghini | fr
+Boule de flipper | Corynne Charby | fr
+Vertige de l'amour | Alain Bashung | fr
+Mélissa | Julien Clerc | fr
+Né quelque part | Maxime Le Forestier | fr
+C'est la ouate | Caroline Loeb | fr
+Le bal masqué | La Compagnie Créole | fr
+Ça fait rire les oiseaux | La Compagnie Créole | fr
+L'amour à la plage | Niagara | fr
 `,
   '90': `
 Wonderwall | Oasis
@@ -184,15 +184,15 @@ Vogue | Madonna
 Nothing Compares 2 U ~ Nothing Compares to You | Sinéad O'Connor
 Tubthumping | Chumbawamba
 Scatman ~ Scatman (Ski-Ba-Bop-Ba-Dop-Bop) | Scatman John
-Foule sentimentale | Alain Souchon
-Aïcha | Khaled
-La tribu de Dana | Manau
-Tomber la chemise | Zebda
-Pour que tu m'aimes encore | Céline Dion
-Désenchantée | Mylène Farmer
-Il me dit que je suis belle | Patricia Kaas
-Lucie | Pascal Obispo
-Zen | Zazie
+Foule sentimentale | Alain Souchon | fr
+Aïcha | Khaled | fr
+La tribu de Dana | Manau | fr
+Tomber la chemise | Zebda | fr
+Pour que tu m'aimes encore | Céline Dion | fr
+Désenchantée | Mylène Farmer | fr
+Il me dit que je suis belle | Patricia Kaas | fr
+Lucie | Pascal Obispo | fr
+Zen | Zazie | fr
 Everybody ~ Everybody (Backstreet's Back) | Backstreet Boys
 Genie in a Bottle | Christina Aguilera
 My Heart Will Go On | Céline Dion
@@ -246,40 +246,40 @@ Firestarter | The Prodigy ~ Prodigy
 Breathe | The Prodigy ~ Prodigy
 Jump | Kris Kross
 Samba de Janeiro | Bellini
-S'il suffisait d'aimer | Céline Dion
-Je sais pas | Céline Dion
-On ne change pas | Céline Dion
-Tandem | Vanessa Paradis
+S'il suffisait d'aimer | Céline Dion | fr
+Je sais pas | Céline Dion | fr
+On ne change pas | Céline Dion | fr
+Tandem | Vanessa Paradis | fr
 Be My Baby | Vanessa Paradis
-La corrida | Francis Cabrel
-Belle | Garou ~ Daniel Lavoie ~ Patrick Fiori
-Le temps des cathédrales | Bruno Pelletier
-Qui a le droit | Patrick Bruel
-Alors regarde | Patrick Bruel
-Sensualité | Axelle Red
-XXL | Mylène Farmer
-Allumer le feu | Johnny Hallyday
-Vivre pour le meilleur | Johnny Hallyday
-Dieu m'a donné la foi | Ophélie Winter
-Né en 17 à Leidenstadt | Fredericks Goldman Jones ~ Jean-Jacques Goldman ~ Carole Fredericks
-Dur dur d'être bébé ! ~ Dur dur d'être bébé | Jordy
-J't'emmène au vent | Louise Attaque
-L'hymne de nos campagnes | Tryo
-Lambé an dro | Matmatah
-Tu m'oublieras | Larusso
-Partir un jour | 2Be3
-Chanter pour ceux qui sont loin de chez eux | Lââm
-Il y a trop de gens qui t'aiment | Hélène Ségara
-Savoir aimer | Florent Pagny
+La corrida | Francis Cabrel | fr
+Belle | Garou ~ Daniel Lavoie ~ Patrick Fiori | fr
+Le temps des cathédrales | Bruno Pelletier | fr
+Qui a le droit | Patrick Bruel | fr
+Alors regarde | Patrick Bruel | fr
+Sensualité | Axelle Red | fr
+XXL | Mylène Farmer | fr
+Allumer le feu | Johnny Hallyday | fr
+Vivre pour le meilleur | Johnny Hallyday | fr
+Dieu m'a donné la foi | Ophélie Winter | fr
+Né en 17 à Leidenstadt | Fredericks Goldman Jones ~ Jean-Jacques Goldman ~ Carole Fredericks | fr
+Dur dur d'être bébé ! ~ Dur dur d'être bébé | Jordy | fr
+J't'emmène au vent | Louise Attaque | fr
+L'hymne de nos campagnes | Tryo | fr
+Lambé an dro | Matmatah | fr
+Tu m'oublieras | Larusso | fr
+Partir un jour | 2Be3 | fr
+Chanter pour ceux qui sont loin de chez eux | Lââm | fr
+Il y a trop de gens qui t'aiment | Hélène Ségara | fr
+Savoir aimer | Florent Pagny | fr
 Didi | Khaled
-Ma petite entreprise | Alain Bashung
-Saga Africa | Yannick Noah
-Je t'aime | Lara Fabian
-Un jour en France | Noir Désir
-Je danse le mia | IAM
-Caroline | MC Solaar
-Ma Benz | Suprême NTM ~ NTM
-Nirvana | Doc Gynéco
+Ma petite entreprise | Alain Bashung | fr
+Saga Africa | Yannick Noah | fr
+Je t'aime | Lara Fabian | fr
+Un jour en France | Noir Désir | fr
+Je danse le mia | IAM | fr
+Caroline | MC Solaar | fr
+Ma Benz | Suprême NTM ~ NTM | fr
+Nirvana | Doc Gynéco | fr
 `,
   '2000': `
 Hey Ya! | Outkast
@@ -306,16 +306,16 @@ Boulevard of Broken Dreams | Green Day
 Single Ladies ~ Single Ladies (Put a Ring on It) | Beyoncé
 One More Time | Daft Punk
 SexyBack ~ Sexy Back | Justin Timberlake
-Le vent nous portera | Noir Désir
-Moi... Lolita ~ Moi Lolita | Alizée
-Ma philosophie | Amel Bent
-Ma liberté de penser | Florent Pagny
-Qui de nous deux | M ~ Matthieu Chedid ~ -M-
-La Boulette | Diam's
-Parce qu'on vient de loin | Corneille
-Le chemin | Kyo
-Le dîner | Bénabar
-Femme Like U | K-Maro ~ K Maro
+Le vent nous portera | Noir Désir | fr
+Moi... Lolita ~ Moi Lolita | Alizée | fr
+Ma philosophie | Amel Bent | fr
+Ma liberté de penser | Florent Pagny | fr
+Qui de nous deux | M ~ Matthieu Chedid ~ -M- | fr
+La Boulette | Diam's | fr
+Parce qu'on vient de loin | Corneille | fr
+Le chemin | Kyo | fr
+Le dîner | Bénabar | fr
+Femme Like U | K-Maro ~ K Maro | fr
 Oops!... I Did It Again ~ Oops I Did It Again | Britney Spears
 Womanizer | Britney Spears
 Bye Bye Bye | *NSYNC ~ NSYNC
@@ -383,37 +383,37 @@ Fireflies | Owl City
 Grace Kelly | Mika
 Love Generation | Bob Sinclar
 When Love Takes Over | David Guetta ~ Kelly Rowland
-Seul | Garou
-Sous le vent | Garou ~ Céline Dion
-Les rois du monde | Roméo et Juliette ~ Damien Sargue ~ Grégori Baquet ~ Philippe d'Avilla
-L'envie d'aimer | Les Dix Commandements ~ Daniel Lévi
-J'ai demandé à la lune | Indochine
-Tout le bonheur du monde | Sinsemilia
-Hey Oh | Tragédie
-Tu trouveras | Natasha St-Pier ~ Pascal Obispo
-1er gaou ~ Premier gaou | Magic System
-Bouger bouger | Magic System
-J'en ai marre ! ~ J'en ai marre | Alizée
-J'ai pas vingt ans | Alizée
-On s'attache | Christophe Maé
-Mon paradis | Christophe Maé
-Face à la mer | Calogero ~ Passi
-En apesanteur | Calogero
-Caravane | Raphaël
-Elle me contrôle | M. Pokora ~ Matt Pokora ~ Pokora
-J'attends l'amour | Jenifer
-Au soleil | Jenifer
-Près de moi | Lorie
-Dernière danse | Kyo
-Butterfly | Superbus
-Dis-moi | BB Brunes
-J'traîne des pieds | Olivia Ruiz
-Marly-Gomont | Kamini
-Ça m'énerve | Helmut Fritz
-Comme des enfants | Cœur de pirate
-J'aime plus Paris | Thomas Dutronc
-Jeune demoiselle | Diam's
-Gravé dans la roche | Sniper
+Seul | Garou | fr
+Sous le vent | Garou ~ Céline Dion | fr
+Les rois du monde | Roméo et Juliette ~ Damien Sargue ~ Grégori Baquet ~ Philippe d'Avilla | fr
+L'envie d'aimer | Les Dix Commandements ~ Daniel Lévi | fr
+J'ai demandé à la lune | Indochine | fr
+Tout le bonheur du monde | Sinsemilia | fr
+Hey Oh | Tragédie | fr
+Tu trouveras | Natasha St-Pier ~ Pascal Obispo | fr
+1er gaou ~ Premier gaou | Magic System | fr
+Bouger bouger | Magic System | fr
+J'en ai marre ! ~ J'en ai marre | Alizée | fr
+J'ai pas vingt ans | Alizée | fr
+On s'attache | Christophe Maé | fr
+Mon paradis | Christophe Maé | fr
+Face à la mer | Calogero ~ Passi | fr
+En apesanteur | Calogero | fr
+Caravane | Raphaël | fr
+Elle me contrôle | M. Pokora ~ Matt Pokora ~ Pokora | fr
+J'attends l'amour | Jenifer | fr
+Au soleil | Jenifer | fr
+Près de moi | Lorie | fr
+Dernière danse | Kyo | fr
+Butterfly | Superbus | fr
+Dis-moi | BB Brunes | fr
+J'traîne des pieds | Olivia Ruiz | fr
+Marly-Gomont | Kamini | fr
+Ça m'énerve | Helmut Fritz | fr
+Comme des enfants | Cœur de pirate | fr
+J'aime plus Paris | Thomas Dutronc | fr
+Jeune demoiselle | Diam's | fr
+Gravé dans la roche | Sniper | fr
 `,
   '2010': `
 Rolling in the Deep | Adele
@@ -433,23 +433,23 @@ Titanium | David Guetta ~ Sia
 Chandelier | Sia
 Wake Me Up | Avicii
 Lean On | Major Lazer ~ DJ Snake
-Formidable | Stromae
-Papaoutai | Stromae
-Dernière danse | Indila
-Je veux | Zaz
-Bella | Gims ~ Maître Gims
-Djadja | Aya Nakamura
-Christine ~ Tilted | Christine and the Queens
-Je vole | Louane
+Formidable | Stromae | fr
+Papaoutai | Stromae | fr
+Dernière danse | Indila | fr
+Je veux | Zaz | fr
+Bella | Gims ~ Maître Gims | fr
+Djadja | Aya Nakamura | fr
+Christine ~ Tilted | Christine and the Queens | fr
+Je vole | Louane | fr
 Bad Guy | Billie Eilish
 Old Town Road | Lil Nas X
 Thinking Out Loud | Ed Sheeran
 Counting Stars | OneRepublic
 Radioactive | Imagine Dragons
 Shallow | Lady Gaga ~ Bradley Cooper
-Andalouse | Kendji Girac
-Tous les mêmes | Stromae
-Sapés comme jamais | Gims ~ Maître Gims
+Andalouse | Kendji Girac | fr
+Tous les mêmes | Stromae | fr
+Sapés comme jamais | Gims ~ Maître Gims | fr
 Waka Waka ~ Waka Waka (This Time for Africa) | Shakira
 Love the Way You Lie | Eminem ~ Rihanna
 Someone Like You | Adele
@@ -519,27 +519,27 @@ Lush Life | Zara Larsson
 All of Me | John Legend
 7 rings | Ariana Grande
 thank u, next ~ Thank U Next | Ariana Grande
-Alors on danse | Stromae
-Tourner dans le vide | Indila
-On ira | Zaz
-J'me tire | Gims ~ Maître Gims
-Est-ce que tu m'aimes ? ~ Est-ce que tu m'aimes | Gims ~ Maître Gims
-La même | Gims ~ Maître Gims ~ Vianney
-Copines | Aya Nakamura
-Avenir | Louane
-Color Gitano | Kendji Girac
-Les yeux de la mama | Kendji Girac
-Je m'en vais | Vianney
-Il est où le bonheur | Christophe Maé
-Elle me dit | Mika
-Tout oublier | Angèle ~ Roméo Elvis
-Désolé | Sexion d'Assaut
-J'ai cherché | Amir
-Ça va ça vient | Vitaa ~ Slimane
-Bim bam toi | Carla
-Reine | Dadju
-Paris-Seychelles | Julien Doré
-La grenade | Clara Luciani
+Alors on danse | Stromae | fr
+Tourner dans le vide | Indila | fr
+On ira | Zaz | fr
+J'me tire | Gims ~ Maître Gims | fr
+Est-ce que tu m'aimes ? ~ Est-ce que tu m'aimes | Gims ~ Maître Gims | fr
+La même | Gims ~ Maître Gims ~ Vianney | fr
+Copines | Aya Nakamura | fr
+Avenir | Louane | fr
+Color Gitano | Kendji Girac | fr
+Les yeux de la mama | Kendji Girac | fr
+Je m'en vais | Vianney | fr
+Il est où le bonheur | Christophe Maé | fr
+Elle me dit | Mika | fr
+Tout oublier | Angèle ~ Roméo Elvis | fr
+Désolé | Sexion d'Assaut | fr
+J'ai cherché | Amir | fr
+Ça va ça vient | Vitaa ~ Slimane | fr
+Bim bam toi | Carla | fr
+Reine | Dadju | fr
+Paris-Seychelles | Julien Doré | fr
+La grenade | Clara Luciani | fr
 `,
   '2020': `
 Blinding Lights | The Weeknd ~ Weeknd
@@ -567,12 +567,12 @@ Heat Waves | Glass Animals
 Houdini | Dua Lipa
 Save Your Tears | The Weeknd ~ Weeknd
 Montero (Call Me by Your Name) ~ Montero | Lil Nas X
-Pookie | Aya Nakamura
-Jolie nana | Aya Nakamura
-Tout va bien | Orelsan
-La kiffance | Naps
-Ciel | Gims ~ Maître Gims
-Mon amour | Slimane
+Pookie | Aya Nakamura | fr
+Jolie nana | Aya Nakamura | fr
+Tout va bien | Orelsan | fr
+La kiffance | Naps | fr
+Ciel | Gims ~ Maître Gims | fr
+Mon amour | Slimane | fr
 Tattoo | Loreen
 Shivers | Ed Sheeran
 Kiss Me More | Doja Cat ~ SZA
@@ -614,251 +614,251 @@ I'm Good ~ I'm Good (Blue) | David Guetta ~ Bebe Rexha
 Baby Don't Hurt Me | David Guetta ~ Anne-Marie ~ Coi Leray
 Where Are You Now | Lost Frequencies ~ Calum Scott
 Running Up That Hill | Kate Bush
-Bande organisée | 13 Organisé ~ Jul ~ SCH ~ Naps
-Petit génie | Jungeli ~ Imen Es ~ Alonzo
-Ma meilleure ennemie | Stromae ~ Pomme
-L'enfer | Stromae
-Santé | Stromae
-Saiyan | Heuss l'Enfoiré ~ Gazo
-Die | Gazo
-Évidemment | La Zarra
-Voilà | Barbara Pravi
-Bolide allemand | SDM
-Ceux qu'on était | Pierre Garnier
-N'y pense plus | Tayc
-Le dernier jour du disco | Juliette Armanet
-Le reste | Clara Luciani
-Triple V | Werenoi ~ Damso ~ Ninho
-Dégaine | Aya Nakamura ~ Damso
+Bande organisée | 13 Organisé ~ Jul ~ SCH ~ Naps | fr
+Petit génie | Jungeli ~ Imen Es ~ Alonzo | fr
+Ma meilleure ennemie | Stromae ~ Pomme | fr
+L'enfer | Stromae | fr
+Santé | Stromae | fr
+Saiyan | Heuss l'Enfoiré ~ Gazo | fr
+Die | Gazo | fr
+Évidemment | La Zarra | fr
+Voilà | Barbara Pravi | fr
+Bolide allemand | SDM | fr
+Ceux qu'on était | Pierre Garnier | fr
+N'y pense plus | Tayc | fr
+Le dernier jour du disco | Juliette Armanet | fr
+Le reste | Clara Luciani | fr
+Triple V | Werenoi ~ Damso ~ Ninho | fr
+Dégaine | Aya Nakamura ~ Damso | fr
 `,
   'variete': `
-Les Champs-Élysées | Joe Dassin
-L'été indien | Joe Dassin
-Comme toi | Jean-Jacques Goldman
-Quand la musique est bonne | Jean-Jacques Goldman
-Mistral gagnant | Renaud
-Alexandrie Alexandra | Claude François ~ Cloclo
-Comme d'habitude | Claude François ~ Cloclo
-La vie en rose | Édith Piaf
-Non, je ne regrette rien | Édith Piaf
-La bohème | Charles Aznavour
-Emmenez-moi | Charles Aznavour
-Je l'aime à mourir | Francis Cabrel
-Désenchantée | Mylène Farmer
-Pour que tu m'aimes encore | Céline Dion
-Dernière danse | Indila
-Je vole | Louane
-Tombé sous le charme | Christophe Maé
-Allumer le feu | Johnny Hallyday
-Que je t'aime | Johnny Hallyday
-Foule sentimentale | Alain Souchon
-Ne me quitte pas | Jacques Brel
-Les lacs du Connemara | Michel Sardou
-Le Sud | Nino Ferrer
-Je veux | Zaz
-Balance ton quoi | Angèle
-Ta reine | Angèle
-Pas là | Vianney
-Andalouse | Kendji Girac
-Si seulement je pouvais lui manquer | Calogero
-Coco Câline | Julien Doré
-Place des grands hommes | Patrick Bruel
-Le chanteur | Daniel Balavoine
-La Javanaise | Serge Gainsbourg
-Paroles, paroles | Dalida
-Aline | Christophe
-L'aventurier | Indochine
-La mer | Charles Trenet
-Douce France | Charles Trenet
-Y'a d'la joie | Charles Trenet
-Les feuilles mortes | Yves Montand
-À bicyclette | Yves Montand
-Milord | Édith Piaf
-L'hymne à l'amour | Édith Piaf
-Padam, padam ~ Padam padam | Édith Piaf
-La foule | Édith Piaf
-Hier encore | Charles Aznavour
-For me formidable | Charles Aznavour
-Amsterdam | Jacques Brel
-La valse à mille temps | Jacques Brel
-Le plat pays | Jacques Brel
-Les copains d'abord | Georges Brassens
-La mauvaise réputation | Georges Brassens
-Je t'aime... moi non plus ~ Je t'aime moi non plus | Serge Gainsbourg ~ Jane Birkin
-Le poinçonneur des Lilas | Serge Gainsbourg
-Je suis venu te dire que je m'en vais | Serge Gainsbourg
-Couleur café | Serge Gainsbourg
-Laisse tomber les filles | France Gall
-Poupée de cire, poupée de son ~ Poupée de cire poupée de son | France Gall
-Tous les garçons et les filles | Françoise Hardy
-Comment te dire adieu | Françoise Hardy
-Le temps de l'amour | Françoise Hardy
-La Maritza | Sylvie Vartan
-Salut les amoureux | Joe Dassin
-Et si tu n'existais pas | Joe Dassin
-À toi | Joe Dassin
-Siffler sur la colline | Joe Dassin
-Belles ! Belles ! Belles ! ~ Belles belles belles | Claude François ~ Cloclo
-Magnolias for Ever | Claude François ~ Cloclo
-Le téléphone pleure | Claude François ~ Cloclo
-Le lundi au soleil | Claude François ~ Cloclo
-Bambino | Dalida
-Gigi l'amoroso | Dalida
-Il venait d'avoir 18 ans | Dalida
-Laissez-moi danser ~ Laissez-moi danser (Monday, Tuesday) | Dalida
-Mourir sur scène | Dalida
-Salma ya salama | Dalida
-Les mots bleus | Christophe
-Retiens la nuit | Johnny Hallyday
-Gabrielle | Johnny Hallyday
-L'envie | Johnny Hallyday
-Noir c'est noir | Johnny Hallyday
-Je te promets | Johnny Hallyday
-Le pénitencier | Johnny Hallyday
-La maladie d'amour | Michel Sardou
-En chantant | Michel Sardou
-Les cornichons | Nino Ferrer
-Mirza | Nino Ferrer
-Il est cinq heures, Paris s'éveille ~ Il est cinq heures Paris s'éveille | Jacques Dutronc
-Et moi, et moi, et moi ~ Et moi et moi et moi | Jacques Dutronc
-J'aime les filles | Jacques Dutronc
-Petite Marie | Francis Cabrel
-L'encre de tes yeux | Francis Cabrel
-Laisse béton | Renaud
-Dès que le vent soufflera | Renaud
-Morgane de toi | Renaud
-La groupie du pianiste | Michel Berger
-Le paradis blanc | Michel Berger
-Et maintenant | Gilbert Bécaud
-Nathalie | Gilbert Bécaud
-L'important c'est la rose | Gilbert Bécaud
-Mon vieux | Daniel Guichard
-Je suis malade | Serge Lama
-SOS d'un terrien en détresse | Daniel Balavoine
-La chanson des Restos | Les Enfoirés
-Fais-moi une place | Julien Clerc
-Ma préférence | Julien Clerc
-Femmes... je vous aime ~ Femmes je vous aime | Julien Clerc
-Sous le ciel de Paris | Édith Piaf
-Un homme heureux | William Sheller
-Lettre à France | Michel Polnareff
-On ira tous au paradis | Michel Polnareff
-Love Me, Please Love Me ~ Love Me Please Love Me | Michel Polnareff
-Vous les femmes ~ Vous les femmes (Pobre diablo) | Julio Iglesias
-Prendre un enfant | Yves Duteil
-Santiano | Hugues Aufray
-Jardin d'hiver | Henri Salvador
-Laisse-moi t'aimer | Mike Brant
-Qui saura | Mike Brant
-L'école est finie | Sheila
+Les Champs-Élysées | Joe Dassin | fr
+L'été indien | Joe Dassin | fr
+Comme toi | Jean-Jacques Goldman | fr
+Quand la musique est bonne | Jean-Jacques Goldman | fr
+Mistral gagnant | Renaud | fr
+Alexandrie Alexandra | Claude François ~ Cloclo | fr
+Comme d'habitude | Claude François ~ Cloclo | fr
+La vie en rose | Édith Piaf | fr
+Non, je ne regrette rien | Édith Piaf | fr
+La bohème | Charles Aznavour | fr
+Emmenez-moi | Charles Aznavour | fr
+Je l'aime à mourir | Francis Cabrel | fr
+Désenchantée | Mylène Farmer | fr
+Pour que tu m'aimes encore | Céline Dion | fr
+Dernière danse | Indila | fr
+Je vole | Louane | fr
+Tombé sous le charme | Christophe Maé | fr
+Allumer le feu | Johnny Hallyday | fr
+Que je t'aime | Johnny Hallyday | fr
+Foule sentimentale | Alain Souchon | fr
+Ne me quitte pas | Jacques Brel | fr
+Les lacs du Connemara | Michel Sardou | fr
+Le Sud | Nino Ferrer | fr
+Je veux | Zaz | fr
+Balance ton quoi | Angèle | fr
+Ta reine | Angèle | fr
+Pas là | Vianney | fr
+Andalouse | Kendji Girac | fr
+Si seulement je pouvais lui manquer | Calogero | fr
+Coco Câline | Julien Doré | fr
+Place des grands hommes | Patrick Bruel | fr
+Le chanteur | Daniel Balavoine | fr
+La Javanaise | Serge Gainsbourg | fr
+Paroles, paroles | Dalida | fr
+Aline | Christophe | fr
+L'aventurier | Indochine | fr
+La mer | Charles Trenet | fr
+Douce France | Charles Trenet | fr
+Y'a d'la joie | Charles Trenet | fr
+Les feuilles mortes | Yves Montand | fr
+À bicyclette | Yves Montand | fr
+Milord | Édith Piaf | fr
+L'hymne à l'amour | Édith Piaf | fr
+Padam, padam ~ Padam padam | Édith Piaf | fr
+La foule | Édith Piaf | fr
+Hier encore | Charles Aznavour | fr
+For me formidable | Charles Aznavour | fr
+Amsterdam | Jacques Brel | fr
+La valse à mille temps | Jacques Brel | fr
+Le plat pays | Jacques Brel | fr
+Les copains d'abord | Georges Brassens | fr
+La mauvaise réputation | Georges Brassens | fr
+Je t'aime... moi non plus ~ Je t'aime moi non plus | Serge Gainsbourg ~ Jane Birkin | fr
+Le poinçonneur des Lilas | Serge Gainsbourg | fr
+Je suis venu te dire que je m'en vais | Serge Gainsbourg | fr
+Couleur café | Serge Gainsbourg | fr
+Laisse tomber les filles | France Gall | fr
+Poupée de cire, poupée de son ~ Poupée de cire poupée de son | France Gall | fr
+Tous les garçons et les filles | Françoise Hardy | fr
+Comment te dire adieu | Françoise Hardy | fr
+Le temps de l'amour | Françoise Hardy | fr
+La Maritza | Sylvie Vartan | fr
+Salut les amoureux | Joe Dassin | fr
+Et si tu n'existais pas | Joe Dassin | fr
+À toi | Joe Dassin | fr
+Siffler sur la colline | Joe Dassin | fr
+Belles ! Belles ! Belles ! ~ Belles belles belles | Claude François ~ Cloclo | fr
+Magnolias for Ever | Claude François ~ Cloclo | fr
+Le téléphone pleure | Claude François ~ Cloclo | fr
+Le lundi au soleil | Claude François ~ Cloclo | fr
+Bambino | Dalida | fr
+Gigi l'amoroso | Dalida | fr
+Il venait d'avoir 18 ans | Dalida | fr
+Laissez-moi danser ~ Laissez-moi danser (Monday, Tuesday) | Dalida | fr
+Mourir sur scène | Dalida | fr
+Salma ya salama | Dalida | fr
+Les mots bleus | Christophe | fr
+Retiens la nuit | Johnny Hallyday | fr
+Gabrielle | Johnny Hallyday | fr
+L'envie | Johnny Hallyday | fr
+Noir c'est noir | Johnny Hallyday | fr
+Je te promets | Johnny Hallyday | fr
+Le pénitencier | Johnny Hallyday | fr
+La maladie d'amour | Michel Sardou | fr
+En chantant | Michel Sardou | fr
+Les cornichons | Nino Ferrer | fr
+Mirza | Nino Ferrer | fr
+Il est cinq heures, Paris s'éveille ~ Il est cinq heures Paris s'éveille | Jacques Dutronc | fr
+Et moi, et moi, et moi ~ Et moi et moi et moi | Jacques Dutronc | fr
+J'aime les filles | Jacques Dutronc | fr
+Petite Marie | Francis Cabrel | fr
+L'encre de tes yeux | Francis Cabrel | fr
+Laisse béton | Renaud | fr
+Dès que le vent soufflera | Renaud | fr
+Morgane de toi | Renaud | fr
+La groupie du pianiste | Michel Berger | fr
+Le paradis blanc | Michel Berger | fr
+Et maintenant | Gilbert Bécaud | fr
+Nathalie | Gilbert Bécaud | fr
+L'important c'est la rose | Gilbert Bécaud | fr
+Mon vieux | Daniel Guichard | fr
+Je suis malade | Serge Lama | fr
+SOS d'un terrien en détresse | Daniel Balavoine | fr
+La chanson des Restos | Les Enfoirés | fr
+Fais-moi une place | Julien Clerc | fr
+Ma préférence | Julien Clerc | fr
+Femmes... je vous aime ~ Femmes je vous aime | Julien Clerc | fr
+Sous le ciel de Paris | Édith Piaf | fr
+Un homme heureux | William Sheller | fr
+Lettre à France | Michel Polnareff | fr
+On ira tous au paradis | Michel Polnareff | fr
+Love Me, Please Love Me ~ Love Me Please Love Me | Michel Polnareff | fr
+Vous les femmes ~ Vous les femmes (Pobre diablo) | Julio Iglesias | fr
+Prendre un enfant | Yves Duteil | fr
+Santiano | Hugues Aufray | fr
+Jardin d'hiver | Henri Salvador | fr
+Laisse-moi t'aimer | Mike Brant | fr
+Qui saura | Mike Brant | fr
+L'école est finie | Sheila | fr
 Spacer | Sheila
-Où sont les femmes ? ~ Où sont les femmes | Patrick Juvet
-La ballade des gens heureux | Gérard Lenorman
-Ça plane pour moi | Plastic Bertrand
-Allô maman bobo | Alain Souchon
-J'ai dix ans | Alain Souchon
-Rockollection | Laurent Voulzy
-Amoureuse | Véronique Sanson
-San Francisco | Maxime Le Forestier
-La montagne | Jean Ferrat
-Toulouse | Claude Nougaro
-L'aigle noir | Barbara
-Une belle histoire | Michel Fugain
-Capri c'est fini | Hervé Vilard
-Tombe la neige | Adamo ~ Salvatore Adamo
-Casser la voix | Patrick Bruel
-Envole-moi | Jean-Jacques Goldman
-Résiste | France Gall
-Mon mec à moi | Patricia Kaas
-Hélène | Roch Voisine
-Il y a trop de gens qui t'aiment | Hélène Ségara
-Seul | Garou
-Face à la mer | Calogero ~ Passi
-Il est où le bonheur | Christophe Maé
-Je m'en vais | Vianney
-On ira | Zaz
-Paris-Seychelles | Julien Doré
-La grenade | Clara Luciani
-Le dernier jour du disco | Juliette Armanet
-J'ai cherché | Amir
-Voilà | Barbara Pravi
-Mon amour | Slimane
+Où sont les femmes ? ~ Où sont les femmes | Patrick Juvet | fr
+La ballade des gens heureux | Gérard Lenorman | fr
+Ça plane pour moi | Plastic Bertrand | fr
+Allô maman bobo | Alain Souchon | fr
+J'ai dix ans | Alain Souchon | fr
+Rockollection | Laurent Voulzy | fr
+Amoureuse | Véronique Sanson | fr
+San Francisco | Maxime Le Forestier | fr
+La montagne | Jean Ferrat | fr
+Toulouse | Claude Nougaro | fr
+L'aigle noir | Barbara | fr
+Une belle histoire | Michel Fugain | fr
+Capri c'est fini | Hervé Vilard | fr
+Tombe la neige | Adamo ~ Salvatore Adamo | fr
+Casser la voix | Patrick Bruel | fr
+Envole-moi | Jean-Jacques Goldman | fr
+Résiste | France Gall | fr
+Mon mec à moi | Patricia Kaas | fr
+Hélène | Roch Voisine | fr
+Il y a trop de gens qui t'aiment | Hélène Ségara | fr
+Seul | Garou | fr
+Face à la mer | Calogero ~ Passi | fr
+Il est où le bonheur | Christophe Maé | fr
+Je m'en vais | Vianney | fr
+On ira | Zaz | fr
+Paris-Seychelles | Julien Doré | fr
+La grenade | Clara Luciani | fr
+Le dernier jour du disco | Juliette Armanet | fr
+J'ai cherché | Amir | fr
+Voilà | Barbara Pravi | fr
+Mon amour | Slimane | fr
 `,
   'rapfr': `
-Basique | Orelsan
-La terre est ronde | Orelsan
-Caroline | MC Solaar
-Bouge de là | MC Solaar
-Dommage | Bigflo & Oli
-Au DD | PNL
-Ma Benz | Suprême NTM ~ NTM
-Laisse pas traîner ton fils | Suprême NTM ~ NTM
-Petit frère | IAM
-Je danse le mia | IAM
-Demain c'est loin | IAM
-La Boulette | Diam's
-DJ | Diam's
-Sapés comme jamais | Gims ~ Maître Gims
-DKR | Booba
-Pitbull | Booba
-La vie qu'on mène | Ninho
-On verra | Nekfeu
-Yeux disent | Lomepal
-Avant qu'elle parte | Sexion d'Assaut
-Cosmo | Soprano
-Journal perso II ~ Journal perso 2 | Vald
-Tchikita | Jul
-Tonton du bled | 113
-Chocolat | Lartiste
-La kiffance | Naps
-Réseaux | Niska
-Zoo | Kaaris
-Sur ma route | Black M
-Meuda | Tiakola
-Papaoutai | Stromae
-Jefe | Ninho
-Maman ne le sait pas | Ninho ~ Niska
-Macarena | Damso
-Feu de bois | Damso
-On m'appelle l'ovni | Jul
-Bande organisée | 13 Organisé ~ Jul ~ SCH ~ Naps
-Deux frères | PNL
-Le monde ou rien | PNL
-Naha | PNL
-Égérie | Nekfeu
-San | Orelsan
-Défaite de famille | Orelsan
-Tout va bien | Orelsan
-Validée | Booba
-Tchoin | Kaaris
-Medellín ~ Medellin | Niska
-En feu | Soprano
-Clown | Soprano
-Désolé | Sexion d'Assaut
-Ma direction | Sexion d'Assaut
-Plus tard | Bigflo & Oli
-Trop beau | Lomepal
-Eurotrap | Vald
-Mafiosa | Lartiste
-Qui est l'exemple ? ~ Qui est l'exemple | Rohff
-Gravé dans la roche | Sniper
-Jeune demoiselle | Diam's
-Ma France à moi | Diam's
-L'école du micro d'argent | IAM
-Seine-Saint-Denis Style | Suprême NTM ~ NTM
-Nouveau western | MC Solaar
-Victime de la mode | MC Solaar
-Angela | Saïan Supa Crew
-Nirvana | Doc Gynéco
-RR 9.1 | Koba LaD
-Moulaga | Heuss l'Enfoiré ~ Jul
-Dalida | Soolking
-Suavemente | Soolking
-Die | Gazo
-Saiyan | Heuss l'Enfoiré ~ Gazo
-Triple V | Werenoi ~ Damso ~ Ninho
-Bolide allemand | SDM
-Marly-Gomont | Kamini
+Basique | Orelsan | fr
+La terre est ronde | Orelsan | fr
+Caroline | MC Solaar | fr
+Bouge de là | MC Solaar | fr
+Dommage | Bigflo & Oli | fr
+Au DD | PNL | fr
+Ma Benz | Suprême NTM ~ NTM | fr
+Laisse pas traîner ton fils | Suprême NTM ~ NTM | fr
+Petit frère | IAM | fr
+Je danse le mia | IAM | fr
+Demain c'est loin | IAM | fr
+La Boulette | Diam's | fr
+DJ | Diam's | fr
+Sapés comme jamais | Gims ~ Maître Gims | fr
+DKR | Booba | fr
+Pitbull | Booba | fr
+La vie qu'on mène | Ninho | fr
+On verra | Nekfeu | fr
+Yeux disent | Lomepal | fr
+Avant qu'elle parte | Sexion d'Assaut | fr
+Cosmo | Soprano | fr
+Journal perso II ~ Journal perso 2 | Vald | fr
+Tchikita | Jul | fr
+Tonton du bled | 113 | fr
+Chocolat | Lartiste | fr
+La kiffance | Naps | fr
+Réseaux | Niska | fr
+Zoo | Kaaris | fr
+Sur ma route | Black M | fr
+Meuda | Tiakola | fr
+Papaoutai | Stromae | fr
+Jefe | Ninho | fr
+Maman ne le sait pas | Ninho ~ Niska | fr
+Macarena | Damso | fr
+Feu de bois | Damso | fr
+On m'appelle l'ovni | Jul | fr
+Bande organisée | 13 Organisé ~ Jul ~ SCH ~ Naps | fr
+Deux frères | PNL | fr
+Le monde ou rien | PNL | fr
+Naha | PNL | fr
+Égérie | Nekfeu | fr
+San | Orelsan | fr
+Défaite de famille | Orelsan | fr
+Tout va bien | Orelsan | fr
+Validée | Booba | fr
+Tchoin | Kaaris | fr
+Medellín ~ Medellin | Niska | fr
+En feu | Soprano | fr
+Clown | Soprano | fr
+Désolé | Sexion d'Assaut | fr
+Ma direction | Sexion d'Assaut | fr
+Plus tard | Bigflo & Oli | fr
+Trop beau | Lomepal | fr
+Eurotrap | Vald | fr
+Mafiosa | Lartiste | fr
+Qui est l'exemple ? ~ Qui est l'exemple | Rohff | fr
+Gravé dans la roche | Sniper | fr
+Jeune demoiselle | Diam's | fr
+Ma France à moi | Diam's | fr
+L'école du micro d'argent | IAM | fr
+Seine-Saint-Denis Style | Suprême NTM ~ NTM | fr
+Nouveau western | MC Solaar | fr
+Victime de la mode | MC Solaar | fr
+Angela | Saïan Supa Crew | fr
+Nirvana | Doc Gynéco | fr
+RR 9.1 | Koba LaD | fr
+Moulaga | Heuss l'Enfoiré ~ Jul | fr
+Dalida | Soolking | fr
+Suavemente | Soolking | fr
+Die | Gazo | fr
+Saiyan | Heuss l'Enfoiré ~ Gazo | fr
+Triple V | Werenoi ~ Damso ~ Ninho | fr
+Bolide allemand | SDM | fr
+Marly-Gomont | Kamini | fr
 `,
   'rapus': `
 Lose Yourself | Eminem
@@ -979,8 +979,8 @@ Numb | Linkin Park
 Du hast | Rammstein
 The Final Countdown | Europe
 Paranoid | Black Sabbath
-Antisocial | Trust
-Un autre monde | Téléphone
+Antisocial | Trust | fr
+Un autre monde | Téléphone | fr
 Uprising | Muse
 Supermassive Black Hole | Muse
 Do I Wanna Know? | Arctic Monkeys
@@ -988,7 +988,7 @@ Mr. Brightside | The Killers ~ Killers
 Everlong | Foo Fighters
 Basket Case | Green Day
 Zombie | The Cranberries ~ Cranberries
-Le vent nous portera | Noir Désir
+Le vent nous portera | Noir Désir | fr
 Don't Stop Me Now | Queen
 Somebody to Love | Queen
 Under Pressure | Queen ~ David Bowie
@@ -1084,17 +1084,30 @@ Great Balls of Fire | Jerry Lee Lewis
 Don't Stop Believin' | Journey
 More Than a Feeling | Boston
 Here I Go Again | Whitesnake
-L'aventurier | Indochine
-J'ai demandé à la lune | Indochine
-Un jour en France | Noir Désir
-Aux sombres héros de l'amer | Noir Désir
-La bombe humaine | Téléphone
-Cendrillon | Téléphone
-Ça (c'est vraiment toi) ~ C'est vraiment toi | Téléphone
-J't'emmène au vent | Louise Attaque
-Jeune et con | Saez
-Respire | Mickey 3D
-Lambé an dro | Matmatah
+L'aventurier | Indochine | fr
+J'ai demandé à la lune | Indochine | fr
+Un jour en France | Noir Désir | fr
+Aux sombres héros de l'amer | Noir Désir | fr
+La bombe humaine | Téléphone | fr
+Cendrillon | Téléphone | fr
+Ça (c'est vraiment toi) ~ C'est vraiment toi | Téléphone | fr
+J't'emmène au vent | Louise Attaque | fr
+Jeune et con | Saez | fr
+Respire | Mickey 3D | fr
+Lambé an dro | Matmatah | fr
+L'homme pressé | Noir Désir | fr
+Tostaky | Noir Désir | fr
+Trois nuits par semaine | Indochine | fr
+Tes yeux noirs | Indochine | fr
+Canary Bay | Indochine | fr
+Léa | Louise Attaque | fr
+Allumer le feu | Johnny Hallyday | fr
+Rock'n'roll attitude ~ Rock 'n' roll attitude | Johnny Hallyday | fr
+Le chemin | Kyo | fr
+Butterfly | Superbus | fr
+Dis-moi | BB Brunes | fr
+Hygiaphone | Téléphone | fr
+Argent trop cher | Téléphone | fr
 `,
   'electro': `
 One More Time | Daft Punk
@@ -1118,7 +1131,7 @@ Freed from Desire | Gala
 Satisfaction | Benny Benassi
 Lady ~ Lady (Hear Me Tonight) | Modjo
 Music Sounds Better with You | Stardust
-Alors on danse | Stromae
+Alors on danse | Stromae | fr
 Call on Me | Eric Prydz
 The Rhythm of the Night | Corona
 Children | Robert Miles
@@ -1299,7 +1312,7 @@ The Time of My Life ~ (I've Had) The Time of My Life | Bill Medley ~ Jennifer Wa
 Lose Yourself | Eminem
 Stayin' Alive | Bee Gees
 Let It Go | Idina Menzel
-Libérée, délivrée | Anaïs Delva
+Libérée, délivrée | Anaïs Delva | fr
 Can You Feel the Love Tonight | Elton John
 Danger Zone | Kenny Loggins
 Ghostbusters | Ray Parker Jr. ~ Ray Parker Jr
@@ -1369,7 +1382,7 @@ Bloody Mary | Lady Gaga
 Dancing Queen | ABBA
 Gimme! Gimme! Gimme! ~ Gimme Gimme Gimme ~ Gimme! Gimme! Gimme! (A Man After Midnight) | ABBA
 Reality | Richard Sanderson
-Vois sur ton chemin | Les Choristes ~ Bruno Coulais ~ Les Petits Chanteurs de Saint-Marc
+Vois sur ton chemin | Les Choristes ~ Bruno Coulais ~ Les Petits Chanteurs de Saint-Marc | fr
 La valse d'Amélie | Yann Tiersen
 The Pink Panther Theme ~ La Panthère rose ~ The Pink Panther | Henry Mancini
 Hedwig's Theme ~ Harry Potter | John Williams
@@ -1421,10 +1434,10 @@ export function seasonRotation(sc) {
 
 function parse(block) {
   return block.trim().split('\n').map(line => {
-    const [tt, aa] = line.split(' | ');
+    const [tt, aa, lang] = line.split(' | ');
     const t = tt.split(' ~ ').map(s => s.trim());
     const a = aa.split(' ~ ').map(s => s.trim());
-    return { k: (a[0] + '|' + t[0]).toLowerCase(), t, a };
+    return { k: (a[0] + '|' + t[0]).toLowerCase(), t, a, fr: lang?.trim() === 'fr' };
   });
 }
 

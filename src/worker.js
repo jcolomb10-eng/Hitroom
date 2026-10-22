@@ -103,6 +103,7 @@ export default {
       if (path === '/api/push/inbox') return json(await hub(env).inboxFor(endpoint));
     }
     if (env.MOCK_MUSIC && path === '/__mock/push') return json(await hub(env).devPush());
+    if (env.MOCK_MUSIC && path === '/__mock/pick') return json(await hub(env).devPick(url.searchParams.get('cat') || 'mix', +url.searchParams.get('n') || 10));
     if (env.MOCK_MUSIC && path === '/__mock/cron') return json(await hub(env).cronDaily(url.searchParams.has('first')));
     if (env.MOCK_MUSIC && path === '/__mock/saison') {
       await hub(env).devPrevSeason(cleanUid(url.searchParams.get('uid')), url.searchParams.get('sc'), +url.searchParams.get('rp') || 0);

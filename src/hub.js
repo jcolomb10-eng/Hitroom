@@ -7,6 +7,7 @@ import { songsOf, songByKey, rankedCats } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
 import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 import { publicKey } from './ids.js';
+import { langMins, langFits, langOrder } from './mixlang.js';
 import { makeVapid, sendPush, epHash, vapidAuth } from './push.js';
 
 const DAY = 86400000;
@@ -133,37 +134,59 @@ export class Hub extends DurableObject {
     return res;
   }
 
-  // n morceaux jouables de la catégorie, en évitant ceux déjà passés dans ce salon
+  // n morceaux jouables de la catégorie, en évitant ceux déjà passés dans ce salon ; assez de français et d'autres
+  // langues, dans un ordre où jamais 3 morceaux de suite ne sont dans la même langue (mixlang.js)
   async pickSongs(cat, n, avoid = []) {
     this.warm();
     const now = Date.now();
     // jamais joués d'abord (dans le désordre), puis les plus anciennement joués
     const pos = new Map(avoid.map((k, i) => [k, i]));
     const rank = s => (pos.has(s.k) ? pos.get(s.k) : -1);
-    const list = shuffle(songsOf(cat).slice()).sort((x, y) => rank(x) - rank(y));
-    const out = [], dz = [], todo = [];
+    const all = songsOf(cat);
+    const list = shuffle(all.slice()).sort((x, y) => rank(x) - rank(y));
+    const mins = langMins(all, n), cnt = { fr: 0, other: 0 };
+    const take = (arr, s) => { arr.push(s); cnt[s.fr ? 'fr' : 'other']++; };
+    const picked = [], spare = [], todo = [];
     for (const s of list) {
-      if (out.length + dz.length >= n) break;
+      if (picked.length >= n) break;
       const r = this.row(s.k);
-      if (r && r.ok) (r.src === 'dz' ? dz : out).push({ ...s, url: r.url, art: r.art, link: r.link, ext: r.ext });
+      const song = r && r.ok ? { ...s, url: r.url, art: r.art, link: r.link, ext: r.ext, src: r.src } : null;
+      if (song) (langFits(s, cnt, mins, n) ? take(picked, song) : spare.length < n && spare.push(song));
       else if (!r || now - r.ts > RETRY_FAIL) todo.push(s);
     }
     // les liens Deezer expirent : lien frais pour chaque partie
-    const fresh = await Promise.allSettled(dz.map(s => deezerPreview(this.getJSON, s.ext)));
-    fresh.forEach((f, i) => { if (f.status === 'fulfilled' && f.value) out.push({ ...dz[i], url: f.value }); });
+    const freshen = async songs => {
+      const res = await Promise.allSettled(songs.map(s => (s.src === 'dz' ? deezerPreview(this.getJSON, s.ext) : s.url)));
+      return songs.map((s, i) => (res[i].status === 'fulfilled' && res[i].value ? { ...s, url: res[i].value } : null)).filter(Boolean);
+    };
+    const out = await freshen(picked);
+    cnt.fr = out.filter(s => s.fr).length; cnt.other = out.length - cnt.fr;
     // morceaux encore jamais cherchés : on les cherche maintenant, par petits paquets
     let tries = 0;
     while (out.length < n && todo.length && tries < 24) {
-      const batch = todo.splice(0, Math.min(6, n - out.length + 2));
+      // d'abord la langue dont il manque des morceaux, puis les autres
+      const size = Math.min(6, n - out.length + 2), batch = [];
+      for (const fr of [true, false]) {
+        if (cnt[fr ? 'fr' : 'other'] >= mins[fr ? 'fr' : 'other']) continue;
+        for (let i = 0; i < todo.length && batch.length < size; i++) if (todo[i].fr === fr) batch.push(...todo.splice(i--, 1));
+      }
+      while (batch.length < size && todo.length) batch.push(todo.shift());
       tries += batch.length;
       const res = await Promise.allSettled(batch.map(s => this.resolveAndStore(s)));
       res.forEach((r, i) => {
-        if (r.status === 'fulfilled' && r.value.ok && out.length < n) out.push({ ...batch[i], ...r.value });
+        if (r.status !== 'fulfilled' || !r.value.ok || out.length >= n) return;
+        const song = { ...batch[i], ...r.value };
+        if (langFits(song, cnt, mins, n)) take(out, song); else if (spare.length < n) spare.push(song);
       });
       if (Date.now() < this.paused.it && Date.now() < this.paused.dz) break;
     }
-    return shuffle(out);
+    // pas assez dans une langue : on complète avec les autres morceaux trouvés
+    if (out.length < n && spare.length) out.push(...(await freshen(spare)).slice(0, n - out.length));
+    return langOrder(out);
   }
+
+  // tests en local : un tirage de morceaux comme pour une partie (/__mock/pick)
+  async devPick(cat, n) { return (await this.pickSongs(cat, n)).map(s => ({ k: s.k, fr: s.fr })); }
 
   // préchargement progressif du catalogue (WARM_BATCH morceaux par minute)
   warm() {
