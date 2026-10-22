@@ -74,7 +74,12 @@ const patch = (p, fn, arg) => p.evaluate(([f, a]) => { const S = JSON.parse(loca
   const slots = await A.$$eval('#profBody .vslot:not(.empty)', s => s.map(x => x.className + ':' + x.dataset.med));
   ok(slots.length === 3 && slots.some(x => x.includes('k1')), `vitrine : 3 médailles sur le podium (${slots.join(' ')})`);
   const anim = await A.$eval('#profBody .vslot .fl', e => getComputedStyle(e).animationName);
-  ok(anim === 'vfloat' && (await A.$$('#profBody .vsp')).length >= 9 && (await A.$$('#profBody .vbeam')).length === 2, 'médailles qui flottent, étincelles et faisceaux');
+  ok(anim === 'vfloat' && (await A.$$('#profBody .vsp')).length >= 7 && (await A.$$('#profBody .vbeam')).length === 2, 'médailles qui flottent, étincelles et faisceaux');
+  const imgs = await A.$$eval('#profBody .vslot img', l => l.map(i => i.complete && i.naturalWidth > 0 && /^\/medals\/[a-z]+-[1-4]\.webp$/.test(new URL(i.src).pathname)));
+  ok(imgs.length === 3 && imgs.every(Boolean), 'vitrine : les nouveaux badges (images /medals/) s’affichent');
+  ok((await A.$$('#profBody .vslot .mgl')).length === 3 && (await A.$$('#profBody .vslot .vray')).length >= 1, 'badges qui brillent (reflet) et rayons pour l’or et le légendaire');
+  const all = await A.evaluate(async () => { const r = []; for (const id of ['explo', 'win', 'fire', 'flash', 'artist', 'title', 'perfect', 'marathon']) for (const n of [1, 2, 3, 4]) r.push((await fetch(`/medals/${id}-${n}.webp`)).status); return r; });
+  ok(all.length === 32 && all.every(x => x === 200), '32 badges (8 médailles × 4 niveaux) disponibles');
   const box = await A.$eval('#profBody .vit', e => { const r = e.getBoundingClientRect(); return { x: r.left + r.width * 0.9, y: r.top + r.height * 0.3 }; });
   await A.mouse.move(box.x, box.y);
   ok(parseFloat(await A.$eval('#profBody .vit', e => e.style.getPropertyValue('--ry'))) > 5, 'inclinaison des médailles au toucher');
@@ -85,7 +90,7 @@ const patch = (p, fn, arg) => p.evaluate(([f, a]) => { const S = JSON.parse(loca
   ok(t1 && t2 && t1 !== t2, `faits marquants qui défilent (« ${t1} » puis « ${t2} »)`);
   await A.screenshot({ path: `${OUT}/v4_vitrine.png` });
   await A.click('#profBody .vslot.k1');
-  ok((await A.textContent('#sheetBox')).includes('Ton record'), 'toucher une médaille : sa fiche');
+  ok((await A.textContent('#sheetBox')).includes('Ton record') && (await A.$$('#sheetBox .mlv img')).length === 4, 'toucher une médaille : sa fiche avec les 4 niveaux en image');
   await A.click('#sheetBox [data-close]');
   await A.click('#profCard');
   ok(!!(await A.$('#sheetBox .vit .vslot')), 'carte de joueur : la vitrine animée');
