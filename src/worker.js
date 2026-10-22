@@ -102,6 +102,9 @@ export default {
       if (uid.length < 8) return json({ error: 'identifiant invalide' }, 400);
       return json(await hub(env).clubAct(uid, b));
     }
+    // événement du week-end, tournoi, mode Survie
+    if (path === '/api/event') return json(await hub(env).eventInfo(cleanUid(url.searchParams.get('uid'))));
+    if (path === '/api/survie') return json(await hub(env).survieBoard(String(url.searchParams.get('cat') || 'mix').replace(/[^a-z0-9+]/g, '').slice(0, 30), cleanUid(url.searchParams.get('uid'))));
     if (path === '/api/save') {
       const code = (url.searchParams.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
       if (req.method === 'POST') {
@@ -136,6 +139,9 @@ export default {
       if (path === '/api/push/inbox') return json(await hub(env).inboxFor(endpoint));
     }
     if (env.MOCK_MUSIC && path === '/__mock/push') return json(await hub(env).devPush());
+    if (env.MOCK_MUSIC && path === '/__mock/horloge') return json(await hub(env).devClock(url.searchParams.get('t') || ''));
+    if (env.MOCK_MUSIC && path === '/__mock/points') return json(await hub(env).devPoints(cleanUid(url.searchParams.get('uid')), +url.searchParams.get('pts') || 100, url.searchParams.get('cat') || 'mix', url.searchParams.get('pub') !== '0'));
+    if (env.MOCK_MUSIC && path === '/__mock/cloture') return json(await hub(env).devClose(url.searchParams.get('sc') || '', url.searchParams.get('wk') || ''));
     if (env.MOCK_MUSIC && path === '/__mock/hit') return json(await hub(env).devHit(cleanUid(url.searchParams.get('uid')), url.searchParams.get('day'), +url.searchParams.get('score') || 50));
     if (env.MOCK_MUSIC && path === '/__mock/pick') return json(await hub(env).devPick(url.searchParams.get('cat') || 'mix', +url.searchParams.get('n') || 10));
     if (env.MOCK_MUSIC && path === '/__mock/cron') return json(await hub(env).cronDaily(url.searchParams.has('first')));

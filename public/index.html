@@ -1018,6 +1018,47 @@ svg.med{flex:none;overflow:visible}
 :root[data-light][data-theme="diamant"]{--bg:#eef5ff}
 :root[data-light][data-theme="aurore"]{--bg:#e8fff5;--glow:20,180,130}
 @media(min-width:520px){:root[data-light] #app{border-color:#ddd2e6}}
+/* ---- 1.18 : événement du week-end, tournoi, coffre et guerre de clubs, survie, intro ---- */
+.evb{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;border-radius:18px;border-color:rgba(255,154,46,.75);
+  background:radial-gradient(90% 120% at 100% 0%,rgba(255,154,46,.22),transparent 60%),radial-gradient(70% 120% at 0% 100%,rgba(255,46,147,.16),transparent 60%),linear-gradient(180deg,#171019,#0d0a12);box-shadow:0 0 18px rgba(255,154,46,.25)}
+.evb .hb{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.evb small{font-size:11px;font-weight:700;letter-spacing:1.5px;color:#ffc27a}
+.evb b{font-size:15.5px;line-height:1.25}
+.evb .hb>span{font-size:12px;color:#c9bcd8}
+.evb .em{font-size:34px;flex:none}
+.evb .go{flex:none;padding:10px 14px;border-radius:12px;font-weight:800;font-size:14px;background:linear-gradient(180deg,#ffc27a,#ff7a1f);color:#2a1100;box-shadow:0 0 16px rgba(255,154,46,.5)}
+.evb.soon{opacity:.92}
+.cx{margin:12px 0;padding:14px;border-radius:16px;text-align:left}
+.cx h4{margin:0 0 8px;font-size:15px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.cx h4 small{font-weight:500;font-size:11.5px;color:var(--muted)}
+.cx p{margin:6px 0;font-size:13px;color:var(--muted)}
+.cbar{position:relative;height:12px;border-radius:8px;background:rgba(255,255,255,.1);overflow:hidden;margin:10px 0 6px}
+.cbar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#ff2e93,#ffd36b)}
+.ctiers{display:flex;gap:6px}
+.ctiers span{flex:1;text-align:center;font-size:11.5px;padding:6px 2px;border-radius:10px;background:rgba(255,255,255,.07);color:var(--muted)}
+.ctiers span.done{background:rgba(255,211,107,.18);color:var(--gold2);font-weight:700}
+.ctiers span.got{opacity:.55}
+.vs{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
+.vs>div{flex:1;text-align:center;font-size:12.5px}
+.vs b{display:block;font-size:20px;margin-top:2px}
+.vs .x{flex:none;font-size:22px}
+.trophies{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.trophies span{padding:4px 9px;border-radius:12px;background:rgba(255,211,107,.15);color:var(--gold2);font-size:12px;font-weight:700}
+.rivalry{font-size:13px;margin:4px 0}
+.evtop{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.evtop .n{width:22px;font-weight:800;color:var(--gold2)}
+.evtop b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.evtop.me{background:rgba(255,46,147,.1)}
+.introbtn{border-radius:12px;padding:8px 10px;font-weight:700;font-size:12.5px;background:rgba(47,212,255,.18);border:1px solid rgba(47,212,255,.6);color:#7be7ff}
+.introbtn[disabled]{opacity:.4}
+.survres{border-color:rgba(255,154,46,.7)}
+.survres b{font-size:18px}
+:root[data-light] .evb{background:linear-gradient(180deg,#fff3e6,#ffe8d2)}
+:root[data-light] .evb b{color:#2a1100}
+:root[data-light] .evb .hb>span{color:#6a4a30}
+:root[data-light] .evb small{color:#b35a00}
+:root[data-light] .ctiers span{background:rgba(0,0,0,.06)}
+:root[data-light] .cbar{background:rgba(0,0,0,.1)}
 </style>
 </head>
 <body>
@@ -1069,6 +1110,7 @@ svg.med{flex:none;overflow:visible}
   <div class="scroll"><div class="home">
     <button class="card seasonb" id="homeRoad"></button>
     <button class="card hitb" id="homeHit"></button>
+    <button class="card evb hide" id="homeEvent"></button>
     <button class="mode ranked" id="bPlay"></button>
     <div class="mode-row">
       <button class="mode small open" id="bOpen"><img src="/av/A12.webp" alt=""><span class="eb">MULTIJOUEUR</span><b>Non classé</b><span class="d">Tout le monde mélangé, sans rang</span><span class="live off" id="openLive"><i></i>Ouvert 24h/24</span></button>
@@ -1231,7 +1273,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.17';
+const VERSION = '1.18';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1431,7 +1473,20 @@ const TITLES = [
   { id: 'r-maitre', name: 'Maître du son', how: 'Atteindre le rang Maître', ok: () => (S.rank.bestEver || 0) >= 7 },
   { id: 'r-gm', name: 'Grand Maître du blind test', how: 'Atteindre le rang Grand Maître', ok: () => (S.rank.bestEver || 0) >= 8 },
 ];
-const titleName = id => TITLES.find(t => t.id === id)?.name || '';
+const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const EV_NAMES = { e80: 'Week-end années 80', erapfr: 'Rap FR Night', erock: 'Rock Party', ekpop: 'K-Pop Fever', ecine: 'Soirée Cinéma', eelectro: 'Electro Weekend',
+  evariete: 'Chanson française', e2000: 'Années 2000', e90: 'Week-end années 90', erapus: 'Rap US Night' }; // comme EVENTS dans src/extras.js
+// titres gagnés (honneurs) : l'identifiant dit tout (h-top10-2610 = Top 10 d'octobre 2026), donc lisible par tous les joueurs
+function honorTitle(id) {
+  let m;
+  const mo = c => `${MONTHS_FR[+c.slice(2) - 1]} 20${c.slice(0, 2)}`;
+  if ((m = /^h-top(10|50|100)-(\d{4})$/.exec(id))) return `Top ${m[1]} · ${mo(m[2])}`;
+  if ((m = /^h-club-(\d{4})$/.exec(id))) return `Club champion · ${mo(m[1])}`;
+  if ((m = /^h-ev-(\w+)-\d{6}$/.exec(id))) return `Champion · ${EV_NAMES[m[1]] || 'événement'}`;
+  if (/^h-tour-\d{6}$/.test(id)) return 'Vainqueur du tournoi';
+  return '';
+}
+const titleName = id => TITLES.find(t => t.id === id)?.name || honorTitle(id);
 
 // route de saison : 30 paliers par mois ; 500 XP chacun à partir de novembre 2026 (100 avant : finie en quelques heures)
 const roadXp = sc => (sc < '2026-11' ? 100 : 500);
@@ -1555,7 +1610,7 @@ function fresh() {
     set: { sfx: true, music: true, vol: 0.9, chat: true, others: true, reacts: true, live: true }, games: [], cat: 'mix', acct: '', soloLvl: 1,
     rank: { sc: '', rp: 0, tier: 0, best: 0, bestEver: 0, games: 0, pos: null }, seasons: [], promos: {},
     road: { sc: month(), xp: 0, claimed: [] }, avs: [], titles: [], sframes: [], title: 'recrue', show: [], medals: {}, knownTitles: [], code: '',
-    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [], blocked: [], mates: [], push: null,
+    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [], blocked: [], mates: [], push: null, honors: [],
   };
 }
 let S = fresh();
@@ -1754,6 +1809,7 @@ function playCur() {
   const c = R.st?.cur;
   if (!c || curUrl !== c.url) return;
   const pos = (sNow() - c.start) / 1000;
+  if (R.st.opts?.intro) return introPlay(c, pos);
   if (pos < -0.05) return void setTimeout(playCur, -pos * 1000);
   try { if (audio.readyState >= 1 && Math.abs(audio.currentTime - pos) > 0.6 && pos < 29) audio.currentTime = pos; } catch (e) { /* pas encore prêt */ }
   audio.muted = muted;
@@ -1761,7 +1817,7 @@ function playCur() {
 }
 audio.addEventListener('loadedmetadata', () => {
   const c = R.st?.cur;
-  if (c && curUrl === c.url) { const pos = (sNow() - c.start) / 1000; if (pos > 0.3 && pos < 29) try { audio.currentTime = pos; } catch (e) { /* ignore */ } }
+  if (c && curUrl === c.url && !R.st.opts?.intro) { const pos = (sNow() - c.start) / 1000; if (pos > 0.3 && pos < 29) try { audio.currentTime = pos; } catch (e) { /* ignore */ } }
 });
 function setTrack(c) {
   if (curUrl === c.url) return;
@@ -1779,7 +1835,7 @@ function showTapSound() {
   const b = document.createElement('button');
   b.id = 'tapSound'; b.className = 'cta tapsound'; b.style.width = 'auto'; b.style.padding = '0 22px';
   b.innerHTML = '🔊 Touchez pour le son';
-  b.onclick = () => { b.remove(); unlock(); playCur(); };
+  b.onclick = () => { b.remove(); unlock(); if (R.st?.opts?.intro) listenIntro(); else playCur(); };
   $('#v-game').appendChild(b);
 }
 
@@ -1851,13 +1907,23 @@ function onMsg(m) {
     case 'react': return onReact(m);
     case 'invited': return onInvited(m);
     case 'hit': return onHitResult(m);
-    case 'duel': R.duelRec = m; if (curView === 'end') renderEnd(); return;
+    case 'duel': R.duelRec = m; applyBet(m); if (curView === 'end') renderEnd(); return;
+    case 'survie': R.survie = m; if (curView === 'end') renderEnd(); return;
     case 'reported': toast(m.ok ? '⚠️ Merci, ton signalement a bien été envoyé.' : 'Signalement impossible pour le moment (10 par jour au plus).', 3200); return;
     case 'preload': if (m.url) { pre.src = m.url; } return;
     case 'ends': if (R.st?.cur) { R.st.cur.end = m.end; R.st.ends = m.end; } return;
   }
 }
 
+// pari de duel : le gagnant prend la mise du perdant (une seule fois par partie)
+function applyBet(m) {
+  if (!m.bet || S.lastBet === m.gameId || m.res === 'tie') return;
+  S.lastBet = m.gameId;
+  const d = m.res === 'win' ? m.bet : -Math.min(m.bet, S.coins);
+  S.coins = Math.max(0, S.coins + d);
+  save();
+  toast(d > 0 ? `🪙 Pari gagné : +${fmt(d)} pièces !` : `🪙 Pari perdu : ${fmt(d)} pièces`, 3500);
+}
 function roomView(st) {
   if (st.pub || st.solo || st.kind === 'daily') return st.phase === 'end' && R.sameLobby !== st.gameId ? 'end' : 'game';
   if (st.phase === 'end') return R.sameLobby === st.gameId ? 'lobby' : 'end';
@@ -1867,6 +1933,7 @@ function roomView(st) {
 function onState(st) {
   const prev = R.st;
   R.st = st;
+  if (st.opts?.bet > S.coins && !prev && !R.betWarn) { R.betWarn = 1; toast(`Ce duel a un pari de ${st.opts.bet} pièces : tu n’en as pas assez.`, 4000); R.closing = true; leaveRoom(true); return; }
   if (st.msg && st.msg !== prev?.msg && !st.pub) toast(esc(st.msg), 4000);
   const me = st.players.find(p => p.id === R.me);
   if (prev?.round !== st.round || prev?.phase !== st.phase) {
@@ -2027,7 +2094,7 @@ function renderLobby() {
     : `Salon : ${esc(c.name)}<small>${esc(c.sub)} • ${st.opts.rounds} manches • ${st.opts.dur} s</small>`;
   $('#lobbyCode').textContent = st.code || '';
   $('#lobbyCount').innerHTML = `${icon('user', 16)} ${nh}/${duel ? 2 : 12}`;
-  $('#lobbyNote').textContent = duel ? (nh < 2 ? `⚔️ Duel amical, sans points de rang. En attente de ${R.duelVs ? R.duelVs.name : 'ton adversaire'}… La partie démarre dès son arrivée.` : '⚔️ Duel amical : que le meilleur gagne !')
+  $('#lobbyNote').textContent = duel ? (nh < 2 ? `⚔️ Duel amical${st.opts.bet ? ` · pari ${st.opts.bet} pièces` : ''}, sans points de rang. En attente de ${R.duelVs ? R.duelVs.name : 'ton adversaire'}… La partie démarre dès son arrivée.` : '⚔️ Duel amical : que le meilleur gagne !')
     : `🤝 Partie amicale, sans points de rang${st.opts.bots ? ` • Bots : ${BOT_LVLS[st.opts.botlvl || 0]}` : ''}`;
   const host = isHost();
   $('#lobbyGear').style.visibility = host ? '' : 'hidden';
@@ -2054,7 +2121,7 @@ function renderGame() {
   if (!st) return;
   const c = catOf(st.cat);
   const total = st.players.length;
-  $('#gameTitle').innerHTML = `${st.hit ? `🎯 Hit du jour #${st.hit.n}` : st.opts?.duel ? '⚔️ ' + esc(c.name) : esc(c.name)}<small>${st.round ? `Manche ${st.round}/${st.rounds}` : st.pub ? 'Salon public' : st.hit ? 'Un seul essai' : 'Salon ' + esc(st.code)}</small>`;
+  $('#gameTitle').innerHTML = `${st.hit ? `🎯 Hit du jour #${st.hit.n}` : st.opts?.duel ? '⚔️ ' + esc(c.name) : esc(c.name)}<small>${st.round ? (st.opts?.survie ? `🔥 Survie · manche ${st.round}` : `Manche ${st.round}/${st.rounds}`) : st.pub ? 'Salon public' : st.hit ? 'Un seul essai' : 'Salon ' + esc(st.code)}</small>`;
   $('#gameCount').innerHTML = `${icon('user', 16)} ${total}/${st.opts?.duel ? 2 : st.hit ? 1 : 12}`;
   const me = st.players.find(p => p.id === R.me);
   // pochette
@@ -2109,6 +2176,7 @@ function renderGame() {
   ov.innerHTML = html;
   ov.classList.toggle('hide', !html);
   $('#chatFab').classList.toggle('hide', !S.set.chat || st.kind === 'daily');
+  renderIntroBtn();
   renderBadge();
   $('#stage').classList.toggle('live', st.phase === 'play' && !audio.paused);
   if (!raf) raf = requestAnimationFrame(tick);
@@ -2157,6 +2225,8 @@ function applyGame(st) {
   let coins = 5 + Math.floor(r.score / 10) + ({ 1: 30, 2: 20, 3: 10 }[pod] || 0);
   if (st.solo) coins = Math.round(coins / 2);
   if (st.kind === 'daily') coins += 25; // bonus du Hit du jour (un seul essai par jour)
+  const evx = st.pub && EVL?.state === 'live' && st.cat === EVL.cat; // événement du week-end : pièces doublées dans sa catégorie
+  if (evx) coins *= 2;
   const before = level().l;
   rollPeriods();
   S.xp += xp; S.coins += coins;
@@ -2173,7 +2243,7 @@ function applyGame(st) {
   if (pod === 1) S.day.wins = (S.day.wins || 0) + 1;
   S.sea.games++; S.sea.nA += r.nA; S.sea.nT += r.nT; if (pod === 1) S.sea.wins++;
   save();
-  lastGain = { id: st.gameId, xp, coins, boost, up: level().l > before ? level().l : 0 };
+  lastGain = { id: st.gameId, xp, coins, boost, evx, up: level().l > before ? level().l : 0 };
   if (lastGain.up) setTimeout(() => toast(`🎉 Niveau ${lastGain.up} atteint !`, 3500), 1200);
   checkUnlocks();
   profileChanged();
@@ -2276,7 +2346,7 @@ function renderEnd() {
   const st = R.st;
   if (!st?.results) return;
   const res = st.results, c = catOf(st.cat), daily = st.kind === 'daily';
-  $('#endSub').textContent = daily ? `Hit du jour #${st.hit.n} • ${st.rounds} extraits` : `${st.opts?.duel ? 'Duel • ' : ''}${c.name} • ${st.rounds} extraits`;
+  $('#endSub').textContent = daily ? `Hit du jour #${st.hit.n} • ${st.rounds} extraits` : `${st.opts?.duel ? 'Duel • ' : ''}${st.opts?.survie ? 'Survie • ' : st.opts?.intro ? 'Intro 1 s • ' : ''}${c.name} • ${st.opts?.survie ? (res.find(x => x.id === R.me)?.rounds || 0) : st.rounds} extraits`;
   $('#hitBox').innerHTML = daily ? hitResHTML(R.hitRes?.day === st.hit.day ? R.hitRes : null) : '';
   if (daily && $('#hitShare')) $('#hitShare').onclick = () => hitShare(R.hitRes);
   $('#podium').classList.toggle('hide', daily);
@@ -2292,7 +2362,9 @@ function renderEnd() {
   $('#myrow').innerHTML = r ? `<span class="r">${r.rank}</span>${avHTML(S.av, S.fr, 36)}<b>Toi</b><em>${r.score} pts</em>` : '<span class="muted" style="padding:6px 0">Tu as rejoint le salon après le début de cette partie.</span>';
   const rb = $('#rankBox');
   const dr = st.opts?.duel && R.duelRec?.gameId === st.gameId ? R.duelRec : null;
-  if (dr) rb.innerHTML = `<div class="card duelres"><b>${dr.res === 'win' ? '🏆 Victoire en duel !' : dr.res === 'loss' ? '⚔️ Défaite… revanche ?' : '🤝 Égalité parfaite !'}</b><span>Vos duels : Toi ${dr.rec?.[0] || 0} – ${dr.rec?.[1] || 0} ${esc(dr.vs)}</span></div>`;
+  const sv = st.opts?.survie && R.survie?.gameId === st.gameId ? R.survie : null;
+  if (sv) rb.innerHTML = `<div class="card duelres survres"><b>🔥 ${sv.n} manche${sv.n > 1 ? 's' : ''} tenue${sv.n > 1 ? 's' : ''}${sv.record && sv.n > 0 ? ' · NOUVEAU RECORD !' : ''}</b><span>Ton record : ${sv.best} · ${placeTxt(sv.rank)} du classement ${esc(c.name)}</span></div>`;
+  else if (dr) rb.innerHTML = `<div class="card duelres"><b>${dr.res === 'win' ? '🏆 Victoire en duel !' : dr.res === 'loss' ? '⚔️ Défaite… revanche ?' : '🤝 Égalité parfaite !'}</b><span>Vos duels : Toi ${dr.rec?.[0] || 0} – ${dr.rec?.[1] || 0} ${esc(dr.vs)}</span></div>`;
   else if (!st.ranked) rb.innerHTML = `<p class="note" style="margin-top:-4px">${daily ? `🎯 Un seul essai par jour : prochain Hit dans ${untilParis()} (+25 pièces bonus)` : st.solo ? '🤖 Partie solo : pièces réduites, pas de points de rang' : st.opts?.duel ? '⚔️ Duel amical : pas de points de rang' : st.pub ? '🎮 Partie non classée : pas de points de rang' : '🤝 Partie amicale : pas de points de rang'}</p>`;
   else if (r && lastRank?.gameId === st.gameId) {
     const pr = tierProgress(lastRank.rp), d = lastRank.delta;
@@ -2302,13 +2374,13 @@ function renderEnd() {
   } else rb.innerHTML = r ? '<p class="note" style="margin-top:-4px">Calcul des points de rang…</p>' : '';
   const g = lastGain?.id === st.gameId ? lastGain : null;
   $('#endRecap').innerHTML = r ? `<div class="stats">
-    <div class="card st"><span class="e">🎤</span><div><small>Artistes trouvés</small><b>${r.nA} / ${st.rounds}</b></div></div>
+    <div class="card st"><span class="e">🎤</span><div><small>Artistes trouvés</small><b>${r.nA} / ${st.opts?.survie ? r.rounds : st.rounds}</b></div></div>
     <div class="card st"><span class="e">🎵</span><div><small>Points de partie</small><b>${r.score} pts</b></div></div>
-    <div class="card st"><span class="e">🎶</span><div><small>Titres trouvés</small><b>${r.nT} / ${st.rounds}</b></div></div>
+    <div class="card st"><span class="e">🎶</span><div><small>Titres trouvés</small><b>${r.nT} / ${st.opts?.survie ? r.rounds : st.rounds}</b></div></div>
     <div class="card st"><span class="e">⭐</span><div><small>XP gagnée${g?.boost ? ' (×2)' : ''}</small><b>+${g ? g.xp : 0} XP</b></div></div>
     <div class="card st"><span class="e">🔥</span><div><small>Meilleure série</small><b>x${r.best}</b></div></div>
     <div class="card st"><span class="e">⚡</span><div><small>Bonus rapidité</small><b>+${r.speed} pts</b></div></div>
-  </div>${g ? `<p style="text-align:center;margin:12px 0 0;font-weight:600"><span class="coin">$</span> +${g.coins} pièces${st.solo ? ' <span class="muted" style="font-weight:500">(solo : réduites)</span>' : ''}</p>` : ''}` : '';
+  </div>${g ? `<p style="text-align:center;margin:12px 0 0;font-weight:600"><span class="coin">$</span> +${g.coins} pièces${g.evx ? ' <span class="muted" style="font-weight:500">(événement ×2)</span>' : ''}${st.solo ? ' <span class="muted" style="font-weight:500">(solo : réduites)</span>' : ''}</p>` : ''}` : '';
   $('#endFull').innerHTML = daily ? hitTopHTML(HIT?.day === st.hit.day ? HIT : null) : res.map(p => `<div class="card rr click ${p.id === R.me ? 'me' : ''}" data-rid="${p.id}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${p.tier != null ? tierBadge(p.tier, 16) + ' ' : ''}${nameHTML(p)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
   $$('#v-end [data-rid]').forEach(el => el.onclick = () => { const p = res.find(x => x.id === el.dataset.rid); if (p) playerCard(p); });
   $('#endRecap').classList.toggle('hide', endTab !== 'recap');
@@ -2373,6 +2445,8 @@ async function loadMe(force) {
       <p>Nouvelle saison : tu repars en <b>${TIERS[d.tier].name}</b>. À toi de remonter !</p>
       <button class="cta" data-close>Super !</button></div>`);
   }
+  if (d.ev) { EVL = d.ev; renderEventCard(); }
+  if (d.honors?.length) setTimeout(() => honorsSheet(d.honors), d.reward ? 6000 : 400);
   checkUnlocks();
   if (curView === 'home') renderHome();
   if (curView === 'profile') renderProfile();
@@ -2474,6 +2548,7 @@ function hostSettings() {
     <div class="opt"><label>Catégorie</label><button class="ghost" style="width:100%" id="optCat">${catOf(R.st.cat).e} ${esc(catOf(R.st.cat).name)} — changer</button></div>
     <div class="opt"><label>Nombre de manches${hasPerk('premium') ? ' (Premium : jusqu’à 30)' : ''}</label>${seg('rounds', hasPerk('premium') ? [5, 10, 15, 20, 30] : [5, 10, 15, 20])}</div>
     <div class="opt"><label>Durée de chaque extrait</label>${seg('dur', [15, 20, 30], ' s')}</div>
+    <div class="opt"><label>Mode Intro : 1 seconde d’extrait, points doublés</label><div class="seg" data-k="intro">${[[0, 'Non'], [1, 'Oui']].map(([v, l]) => `<button data-v="${v}" class="${(o.intro || 0) === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
     ${o.duel ? '' : `<div class="opt"><label>Bots (joueurs virtuels pour compléter)</label>${seg('bots', [0, 1, 2, 3, 4])}</div>
     <div class="opt"><label>Niveau des bots</label><div class="seg" data-k="botlvl">${BOT_LVLS.map((l, i) => `<button data-v="${i}" class="${(o.botlvl || 0) === i ? 'on' : ''}">${l}</button>`).join('')}</div></div>`}
     <button class="cta" data-close>OK</button>`);
@@ -2488,6 +2563,36 @@ function hostSettings() {
 // ---------- catégories ----------
 let catsMode = 'public', catSel = S.cat || 'mix', counts = { r: {}, o: {} }, countsT = null;
 // modes : public = Classé (4 catégories de la saison), open = Non classé, solo = contre des bots, create = salon privé, change = catégorie du salon
+// solo : Classique, Survie (une manche ratée et c'est fini) ou Intro (1 seconde d'extrait, points ×2)
+let soloMode = S.soloMode || 'classic', duelBet = 0;
+const SOLO_DESC = { classic: 'Contre 3 bots, à ton rythme. Pièces réduites, pas de points de rang.',
+  survie: 'Seul, sans bots : tiens le plus de manches possible. Une manche sans rien trouver et c’est fini !',
+  intro: 'Contre 3 bots : tu n’entends que 1 seconde de chaque extrait (3 réécoutes par manche). Points doublés !' };
+function soloSub() {
+  return `<span id="soloDesc">${SOLO_DESC[soloMode]}</span><div class="segs" id="soloMode" style="margin-top:10px">${[['classic', 'Classique'], ['survie', '🔥 Survie'], ['intro', '🎧 Intro 1 s']].map(([k, l]) => `<button data-m="${k}" class="${soloMode === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <div class="segs ${soloMode === 'survie' ? 'hide' : ''}" id="soloLvl" style="margin-top:10px">${BOT_LVLS.map((l, i) => `<button data-l="${i}" class="${(S.soloLvl ?? 1) === i ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <button class="ghost sm ${soloMode === 'survie' ? '' : 'hide'}" id="survieTop" style="margin-top:10px">🏆 Records de survie</button>`;
+}
+function bindSolo() {
+  $$('#soloLvl button').forEach(b => b.onclick = () => { S.soloLvl = +b.dataset.l; save(); $$('#soloLvl button').forEach(x => x.classList.toggle('on', x === b)); });
+  $$('#soloMode button').forEach(b => b.onclick = () => {
+    soloMode = S.soloMode = b.dataset.m; save();
+    $$('#soloMode button').forEach(x => x.classList.toggle('on', x === b));
+    $('#soloDesc').textContent = SOLO_DESC[soloMode];
+    $('#soloLvl').classList.toggle('hide', soloMode === 'survie');
+    $('#survieTop').classList.toggle('hide', soloMode !== 'survie');
+  });
+  $('#survieTop').onclick = () => survieSheet(catSel.split('+')[0]);
+}
+// duel : pari de pièces (le gagnant prend la mise, égalité : rien ne bouge)
+function duelSub() {
+  return `1 contre 1 : 10 extraits de 20 s, sans bots ni points de rang. Ton ami reçoit le défi (10 minutes pour répondre).
+    <div style="margin-top:10px;font-weight:600">🪙 Pari (facultatif)</div><div class="segs" id="duelBet" style="margin-top:6px">${[0, 50, 100, 250].map(v => `<button data-b="${v}" class="${duelBet === v ? 'on' : ''}" ${v > S.coins ? 'disabled' : ''}>${v ? v : 'Aucun'}</button>`).join('')}</div>`;
+}
+function bindDuel() {
+  if (duelBet > S.coins) duelBet = 0;
+  $$('#duelBet button').forEach(b => b.onclick = () => { duelBet = +b.dataset.b; $$('#duelBet button').forEach(x => x.classList.toggle('on', x === b)); });
+}
 function openCats(mode) {
   catsMode = mode;
   catSel = mode === 'change' ? R.st.cat : (S.cat || 'mix');
@@ -2495,10 +2600,12 @@ function openCats(mode) {
   $('#catsTitle').textContent = mode === 'duel' ? `⚔️ Duel contre ${duelVs?.name || 'un ami'}` : { public: 'Classé', open: 'Non classé', solo: 'Solo' }[mode] || (multiCats() ? 'Choisir jusqu’à 3 catégories' : 'Choisir une catégorie');
   $('#catsSub').innerHTML = mode === 'public' ? `${tierBadge(S.rank.tier, 16)} Avec ton rang, un en dessous ou un au-dessus (${rangeName(S.rank.tier)}).${allRanked() ? '' : ` ${rankedCatsNow().length} catégories classées ce mois-ci.`}`
     : mode === 'open' ? 'Tout le monde mélangé, sans points de rang. On ne voit pas le rang des autres.'
-    : mode === 'duel' ? '1 contre 1 : 10 extraits de 20 s, sans bots ni points de rang. Ton ami reçoit le défi (10 minutes pour répondre).'
-    : mode === 'solo' ? `Contre 3 bots, à ton rythme. Pièces réduites, pas de points de rang.<div class="segs" id="soloLvl" style="margin-top:10px">${BOT_LVLS.map((l, i) => `<button data-l="${i}" class="${(S.soloLvl ?? 1) === i ? 'on' : ''}">${l}</button>`).join('')}</div>`
+    : mode === 'duel' ? duelSub()
+    : mode === 'solo' ? soloSub()
+
     : multiCats() ? '🎛️ Salon Premium : touche plusieurs catégories pour les mélanger.' : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
-  $$('#soloLvl button').forEach(b => b.onclick = () => { S.soloLvl = +b.dataset.l; save(); $$('#soloLvl button').forEach(x => x.classList.toggle('on', x === b)); });
+  if (mode === 'solo') bindSolo();
+  if (mode === 'duel') bindDuel();
   $('#catsOk').textContent = mode === 'change' ? 'Valider la catégorie' : mode === 'public' || mode === 'open' ? 'Entrer dans le salon' : mode === 'solo' ? 'Lancer la partie' : mode === 'duel' ? '⚔️ Envoyer le défi' : 'Créer le salon';
   if (mode === 'change') { history.pushState({ v: 'room' }, ''); show('cats'); } else go('cats');
   renderCats();
@@ -2535,14 +2642,14 @@ $('#catsOk').onclick = async () => {
   if (catsMode === 'change') { send({ t: 'opts', cat: catSel }); history.back(); return; }
   if (catsMode === 'public') { connect(`/api/public/${catSel}/ws`); return; }
   if (catsMode === 'open') { connect(`/api/open/${catSel}/ws`); return; }
-  if (catsMode === 'solo') { connect(`/api/solo/${rid(10)}/ws`, { create: 1, cat: catSel, botlvl: S.soloLvl ?? 1 }); return; }
+  if (catsMode === 'solo') { connect(`/api/solo/${rid(10)}/ws`, { create: 1, cat: catSel, botlvl: S.soloLvl ?? 1, ...(soloMode === 'survie' ? { mode: 'survie' } : soloMode === 'intro' ? { intro: 1 } : {}) }); return; }
   const b = $('#catsOk'), duel = catsMode === 'duel' && duelVs;
   b.disabled = true;
   try {
     const r = await (await fetch('/api/salon', { method: 'POST' })).json();
     if (!r.code) throw new Error(r.error);
     history.replaceState(history.state, '', `?salon=${r.code}`);
-    connect(`/api/salon/${r.code}/ws`, duel ? { create: 1, cat: catSel, rounds: 10, dur: 20, bots: 0, duel: 1 } : { create: 1, cat: catSel, rounds: 10, dur: 30, bots: 0 });
+    connect(`/api/salon/${r.code}/ws`, duel ? { create: 1, cat: catSel, rounds: 10, dur: 20, bots: 0, duel: 1, bet: duelBet } : { create: 1, cat: catSel, rounds: 10, dur: 30, bots: 0 });
     if (duel) sendDuel(duel, r.code, catSel);
   } catch (e) { toast(duel ? 'Impossible de créer le duel. Vérifie ta connexion.' : 'Impossible de créer le salon. Vérifie ta connexion.'); }
   b.disabled = false;
@@ -2611,6 +2718,8 @@ function renderHome() {
   loadCounts();
   renderHitCard();
   loadHit();
+  renderEventCard();
+  loadEvent().then(renderEventCard);
   renderSocial();
 }
 // joueurs en ligne sur les tuiles Classé (salons de son niveau) et Non classé
@@ -2626,6 +2735,7 @@ $('#bSolo').onclick = () => openCats('solo');
 $('#bCreate').onclick = () => openCats('create');
 $('#bJoin').onclick = () => joinSheet();
 $('#homeHit').onclick = () => hitIntro();
+$('#homeEvent').onclick = () => eventSheet();
 $('#bFriends').onclick = () => go('friends');
 $('#bClub').onclick = () => openClub();
 $('#profSet').onclick = () => go('settings');
@@ -2766,9 +2876,9 @@ function medalSheet(m) {
 }
 function titleSheet() {
   openSheet(`<h3>Mon titre <button data-close data-i="x"></button></h3><p>Il s’affiche sous ton pseudo dans les salons et sur ta carte de joueur.</p>
-    <div class="tlist">${TITLES.map(t => { const ok = t.ok(); return `<button class="card ti ${ok ? '' : 'lock'} ${S.title === t.id ? 'on' : ''}" data-t="${t.id}"><b>${ok ? '' : '🔒 '}${t.name}</b><small>${t.how}</small></button>`; }).join('')}</div>`);
+    <div class="tlist">${[...TITLES, ...S.titles.filter(x => x.startsWith('h-')).map(id => ({ id, name: honorTitle(id), how: 'Gagné en jeu', ok: () => true }))].map(t => { const ok = t.ok(); return `<button class="card ti ${ok ? '' : 'lock'} ${S.title === t.id ? 'on' : ''}" data-t="${t.id}"><b>${ok ? '' : '🔒 '}${t.name}</b><small>${t.how}</small></button>`; }).join('')}</div>`);
   $$('#sheetBox [data-t]').forEach(b => b.onclick = () => {
-    const t = TITLES.find(x => x.id === b.dataset.t);
+    const t = TITLES.find(x => x.id === b.dataset.t) || { id: b.dataset.t, ok: () => S.titles.includes(b.dataset.t) };
     if (!t.ok()) return toast(`Pour le débloquer : ${t.how}`, 3200);
     S.title = t.id; save(); closeSheet(); profileChanged(); renderProfile();
   });
@@ -3180,7 +3290,8 @@ const CLUB_COLORS = ['#ff2e93', '#ffb21e', '#2fd4ff', '#36e07c', '#a34dff', '#ff
 const clubBadge = (c, size = 40) => `<span class="cbadge" style="--cc:${CLUB_COLORS[c?.c] || CLUB_COLORS[0]};--s:${size}px">${esc(c?.e || '🛡️')}</span>`;
 const CLUB_ERR = { name: 'Nom refusé : 3 caractères minimum, sans grossièreté.', taken: 'Ce nom de club est déjà pris.', full: 'Ce club est complet (30 membres).',
   banned: 'Tu as été exclu de ce club : réessaie dans quelques jours.', limit: 'Tu as déjà créé plusieurs clubs aujourd’hui.', gone: 'Ce club n’existe plus.',
-  chief: 'Seul le chef du club peut faire ça.', err: 'Impossible pour le moment.' };
+  chief: 'Seul le chef du club peut faire ça.', played: 'Joue au moins une partie cette semaine pour toucher la récompense.', none: 'Rien à récupérer pour le moment.',
+  claimed: 'Déjà récupéré.', war: 'La guerre n’est pas terminée.', club: 'Tu n’as pas de club.', err: 'Impossible pour le moment.' };
 let clubShown = null; // club affiché (null : le mien, ou la liste des clubs)
 function openClub(id = null) { clubShown = id; go('club'); }
 async function clubAct(act, data = {}) {
@@ -3223,11 +3334,13 @@ function clubPage(d) {
       <div class="cstats"><div><b>${d.rank ? '#' + d.rank : '—'}</b><small>Classement</small></div><div><b>${fmt(d.pts)}</b><small>Points de saison</small></div><div><b>${d.n}/${d.max}</b><small>Membres</small></div></div>
       <div class="cacts">${d.member ? `<button class="cta" id="clubInv">${icon('share', 18)}Inviter</button>${d.chief ? '<button class="ghost" id="clubEdit">Modifier</button>' : ''}<button class="ghost" id="clubLeave">Quitter</button>`
         : `<button class="cta" id="clubJoin" ${d.n >= d.max ? 'disabled' : ''}>${d.n >= d.max ? 'Club complet' : '🛡️ Rejoindre ce club'}</button>`}</div></div>
+    ${clubExtraHTML(d)}
     <p class="note">Les points marqués par chaque membre en Classé, en Non classé et au Hit du jour s’additionnent. Nouveau classement chaque saison (fin le ${seasonEnd()}).</p>
     <h4 class="psec">Membres <span>${d.n}</span></h4>
     ${d.members.map((m, i) => `<div class="card rr ${m.me ? 'me' : ''} ${d.chief && !m.me ? 'click' : ''}" data-mk="${esc(m.pk)}"><span class="n">${i + 1}</span>${avHTML(m.av, m.fr, 32)}<b>${esc(m.name)}${m.chief ? ' 👑' : ''}${m.me ? ' (toi)' : ''}<span class="sub">${tierBadge(m.tier, 12)} ${TIERS[m.tier].name} · Niv. ${m.lvl}</span></b><em>${fmt(m.pts)} pts</em></div>`).join('')}
     <button class="ghost" id="clubRank" style="width:100%;margin-top:12px">🏆 Classement des clubs</button>
     ${!d.member ? '<button class="ghost" id="clubAll" style="width:100%;margin-top:8px">Voir les autres clubs</button>' : ''}`;
+  clubExtraInit(d);
   $('#clubRank').onclick = () => { boardTab = 'clubs'; $$('[data-bt]').forEach(x => x.classList.toggle('on', x.dataset.bt === 'clubs')); tabGo('board'); };
   if ($('#clubAll')) $('#clubAll').onclick = () => { clubShown = null; if (S.club) clubDiscover(null); else renderClub(); };
   if ($('#clubJoin')) $('#clubJoin').onclick = () => joinClub(d.id, d.name);
@@ -3325,10 +3438,152 @@ async function loadClubBoard() {
   $$('#boardList [data-club]').forEach(b => b.onclick = () => openClub(b.dataset.club));
 }
 
+// ---------- version 1.18 : honneurs, événement du week-end, tournoi, coffre et guerre de clubs, survie, intro ----------
+let EV = null, EVT = 0, EVL = null; // EV : détail de l'événement (feuille), EVL : version courte donnée par /api/me
+async function loadEvent(force) {
+  if (!force && EV && Date.now() - EVT < 30000) return EV;
+  try { EV = await (await fetch(`/api/event?uid=${S.uid}`)).json(); EVT = Date.now(); } catch (e) { /* hors ligne : on garde l'ancien */ }
+  return EV;
+}
+function renderEventCard() {
+  const el = $('#homeEvent'), e = EV || EVL;
+  if (!el) return;
+  el.classList.toggle('hide', !e);
+  if (!e) return;
+  const c = catOf(e.cat).name;
+  const sub = e.state === 'live' ? `Pièces ×2 en ${esc(c)} · classement du week-end · tournoi samedi soir`
+    : e.state === 'soon' ? `Commence samedi : ${esc(c)}, pièces ×2 et classement spécial` : 'Terminé : récompenses à retrouver dans « Mon profil »';
+  el.className = `card evb ${e.state}`;
+  el.innerHTML = `<span class="em">${e.emoji}</span><span class="hb"><small>${e.state === 'live' ? '🔥 ÉVÉNEMENT EN COURS' : e.state === 'soon' ? '⏳ CE WEEK-END' : '🏁 ÉVÉNEMENT TERMINÉ'}</small><b>${esc(e.name)}</b><span>${sub}</span></span>
+    <span class="go">${e.state === 'live' ? 'Jouer' : 'Voir'}</span>`;
+}
+const placeTxt = n => (n === 1 ? '1er' : n + 'e');
+async function eventSheet() {
+  openSheet('<div class="empty"><div class="spin"></div>Chargement…</div>');
+  const e = await loadEvent(true);
+  if (!e || e.error) return closeSheet();
+  const rows = (list, short) => list.length ? list.map(r => `<div class="evtop ${r.me ? 'me' : ''}"><span class="n">${r.place}</span>${avHTML(r.av, r.fr, 28)}<b>${esc(r.name)}</b><em>${fmt(r.pts)} pts</em></div>`).join('')
+    : `<p class="muted" style="margin:6px 0">${short || 'Personne n’a encore marqué de points : à toi de lancer le classement !'}</p>`;
+  const t = e.tour, st = { soon: 'Samedi soir', live: '🔴 EN DIRECT', done: 'Terminé' }[t.state];
+  const canTop = rankedCatsNow().includes(e.cat);
+  openSheet(`<div style="text-align:center"><div style="font-size:46px">${e.emoji}</div><h3 style="justify-content:center">${esc(e.name)}</h3>
+    <p class="muted" style="margin:0">${e.state === 'live' ? 'En cours jusqu’à dimanche minuit' : e.state === 'soon' ? 'Du samedi au dimanche' : 'Terminé'} · catégorie ${esc(e.catName)}</p></div>
+    <div class="card cx"><h4>⭐ Comment ça marche <small></small></h4><p>Joue en <b>${esc(e.catName)}</b> (Classé ou Non classé) pendant le week-end : tes <b>pièces sont doublées</b> et tes points comptent pour le classement de l’événement.
+      Récompenses : 🥇 ${e.coins[0]} · 🥈 ${e.coins[1]} · 🥉 ${e.coins[2]} pièces, un titre pour le vainqueur, et ${e.part} pièces dès ${e.min} points.</p></div>
+    <h4 class="psec">Classement de l’événement <span>${e.me.pts ? `toi : ${placeTxt(e.me.place)} · ${fmt(e.me.pts)} pts` : ''}</span></h4>${rows(e.top)}
+    <div class="card cx" style="margin-top:14px"><h4>🏟️ Tournoi du samedi soir <small>${st} · 20 h – 22 h</small></h4>
+      <p>Tous les points marqués en partie publique (Classé ou Non classé, n’importe quelle catégorie) entre 20 h et 22 h comptent. Les 3 premiers gagnent ${e.tour.coins.join(' · ')} pièces et le vainqueur un titre.</p>
+      ${t.state === 'soon' ? '' : rows(t.top, 'Personne n’a encore marqué de points.')}${t.me.pts ? `<p>Toi : ${placeTxt(t.me.place)} · ${fmt(t.me.pts)} pts</p>` : ''}</div>
+    ${e.state === 'live' ? `<button class="cta" id="evOpen">${icon('playf')}Jouer en Non classé</button>${canTop ? '<button class="ghost" id="evRank" style="width:100%;margin-top:8px">Jouer en Classé</button>' : ''}` : '<button class="cta" data-close>OK</button>'}`);
+  if ($('#evOpen')) $('#evOpen').onclick = () => { closeSheet(); connect(`/api/open/${e.cat}/ws`); };
+  if ($('#evRank')) $('#evRank').onclick = () => { closeSheet(); connect(`/api/public/${e.cat}/ws`); };
+}
+
+// honneurs gagnés (fin de saison, événement, tournoi) : pièces et titre, une seule fois
+function honorsSheet(list) {
+  S.honors = S.honors || [];
+  const fresh = list.filter(h => !S.honors.includes(`${h.key}:${h.kind}`));
+  if (!fresh.length) return;
+  let coins = 0;
+  for (const h of fresh) {
+    S.honors.push(`${h.key}:${h.kind}`);
+    coins += h.coins;
+    if (h.title && !S.titles.includes(h.title)) S.titles.push(h.title);
+  }
+  S.honors = S.honors.slice(-200);
+  S.coins += coins;
+  save();
+  const newTitle = fresh.find(h => h.title)?.title;
+  openSheet(`<div style="text-align:center"><div style="font-size:54px">🏆</div><h3 style="justify-content:center">Bravo, tu es récompensé !</h3>
+    ${fresh.map(h => `<div class="card cx" style="text-align:center"><b>${esc(h.label)}</b><br><span style="color:var(--gold2);font-weight:800">+${fmt(h.coins)} pièces</span></div>`).join('')}
+    ${newTitle ? `<p>Nouveau titre : <b class="ttl" style="display:inline-block">${esc(honorTitle(newTitle))}</b><br><small class="muted">Choisis-le dans ton profil.</small></p>` : ''}
+    <button class="cta" data-close>Super !</button></div>`);
+}
+
+// blocs de la page d'un club : coffre, guerre, rivalité, trophées
+function clubExtraHTML(d) {
+  const dayEnd = s => new Date(s + 'T12:00:00Z').toLocaleDateString('fr-FR', { weekday: 'long', timeZone: 'UTC' });
+  let h = '';
+  if (d.trophies?.length) h += `<div class="trophies">${d.trophies.map(t => `<span>${['🥇', '🥈', '🥉'][t.place - 1]} ${MONTHS_FR[+t.sc.slice(5, 7) - 1]} ${t.sc.slice(0, 4)}</span>`).join('')}</div>`;
+  if (!d.member) return h;
+  const ch = d.chest, last = ch.tiers[ch.tiers.length - 1].need, claim = ch.mine > 0 && ch.tiers.some(t => t.done && !t.got);
+  h += `<div class="card cx"><h4>🎁 Coffre de la semaine <small>jusqu’à ${dayEnd(ch.end)} minuit</small></h4>
+    <div class="cbar"><i style="width:${Math.min(100, 100 * ch.pts / last)}%"></i></div>
+    <div class="ctiers">${ch.tiers.map(t => `<span class="${t.done ? 'done' : ''} ${t.got ? 'got' : ''}">${t.got ? '✓ ' : ''}${fmt(t.need)} pts<br>${t.coins} 🪙</span>`).join('')}</div>
+    <p>Points du club cette semaine : <b>${fmt(ch.pts)}</b> · dont toi : <b>${fmt(ch.mine)}</b>. Chaque membre qui a joué reçoit les pièces des paliers atteints.</p>
+    ${claim ? '<button class="cta" id="chestGo">🎁 Récupérer mes pièces</button>' : ''}</div>`;
+  const w = d.war;
+  if (w) {
+    let body = '';
+    if (w.state === 'soon') body = '<p>Samedi matin, ton club affrontera un club de même niveau jusqu’à dimanche minuit. Plus vous jouez, plus vous marquez !</p>';
+    else if (w.state === 'none') body = '<p>Pas encore d’adversaire pour ton club (il faut au moins 2 membres). Le tirage se fait pendant le week-end, dès qu’un autre club est prêt.</p>';
+    else {
+      const vs = w.opp ? `<div>${clubBadge(d, 40)}<br>${esc(d.name)}<b>${fmt(w.pts)}</b></div><span class="x">⚔️</span><div>${clubBadge(w.opp, 40)}<br>${esc(w.opp.name)}<b>${fmt(w.opp.pts)}</b></div>`
+        : `<div>${clubBadge(d, 40)}<br>${esc(d.name)}<b>${fmt(w.pts)}</b></div><span class="x">🎯</span><div>Objectif<b>${fmt(w.target)}</b></div>`;
+      body = `<div class="vs">${vs}</div><p>Toi : ${fmt(w.mine)} pts${w.bye ? ' · pas d’adversaire cette fois : atteignez l’objectif pour gagner.' : ''}</p>`;
+      if (w.state === 'done') body += `<p><b>${{ win: '🏆 Victoire de ton club !', tie: '🤝 Égalité !', loss: '😤 Défaite… revanche samedi !' }[w.result]}</b> Récompense : ${w.coins[w.result]} pièces.</p>`
+        + (w.claimed ? '<p class="muted">Récompense déjà récupérée.</p>' : w.mine > 0 ? '<button class="cta" id="warGo">⚔️ Récupérer ma récompense</button>' : '<p class="muted">Joue au moins une partie pendant la guerre pour toucher la récompense.</p>');
+    }
+    h += `<div class="card cx"><h4>⚔️ Guerre de clubs <small>${{ soon: 'samedi – dimanche', none: '', live: '🔴 en cours', done: 'terminée' }[w.state]}</small></h4>${body}</div>`;
+  }
+  const r = d.rivals || {};
+  if (r.above || r.below) h += `<div class="card cx"><h4>📈 Rivalité</h4>${r.above ? `<p class="rivalry">Il manque <b>${fmt(r.above.gap)} pts</b> pour passer devant ${clubBadge(r.above, 18)} <b>${esc(r.above.name)}</b>.</p>` : '<p class="rivalry">🥇 Vous êtes en tête du classement !</p>'}
+    ${r.below ? `<p class="rivalry">${clubBadge(r.below, 18)} <b>${esc(r.below.name)}</b> vous talonne à ${fmt(r.below.gap)} pts.</p>` : ''}</div>`;
+  return h;
+}
+function clubExtraInit(d) {
+  const claim = async (act, id) => {
+    const b = $('#' + id);
+    b.disabled = true;
+    const r = await clubAct(act);
+    if (r?.ok) { S.coins += r.coins; save(); toast(`🎉 +${fmt(r.coins)} pièces !`, 3500); renderClub(); } else if (b) b.disabled = false;
+  };
+  if ($('#chestGo')) $('#chestGo').onclick = () => claim('chest', 'chestGo');
+  if ($('#warGo')) $('#warGo').onclick = () => claim('war', 'warGo');
+}
+
+// Survie : classement d'une catégorie
+async function survieSheet(cat) {
+  openSheet('<div class="empty"><div class="spin"></div>Chargement…</div>');
+  let d;
+  try { d = await (await fetch(`/api/survie?cat=${encodeURIComponent(cat)}&uid=${S.uid}`)).json(); } catch (e) { return closeSheet(); }
+  openSheet(`<h3>🔥 Records de survie <button data-close data-i="x"></button></h3><p>Combien de manches d’affilée en ${esc(catOf(cat).name)} ? Une manche sans rien trouver et c’est fini.${d.me ? ` Ton record : <b>${d.me}</b>.` : ''}</p>
+    ${d.top.length ? d.top.map(r => `<div class="evtop ${r.me ? 'me' : ''}"><span class="n">${r.place}</span>${avHTML(r.av, r.fr, 28)}<b>${esc(r.name)}</b><em>${r.best} manche${r.best > 1 ? 's' : ''}</em></div>`).join('') : '<p class="empty">Aucun record pour le moment : sois le premier !</p>'}
+    <button class="cta" data-close style="margin-top:12px">OK</button>`);
+}
+
+// mode Intro : 1 seconde d'extrait (3 réécoutes par manche), points doublés
+let introDone = '', introLeft = 3, introT = 0;
+function listenIntro() {
+  try { audio.currentTime = 0; } catch (e) { /* pas encore prêt */ }
+  audio.muted = muted;
+  audio.play().then(() => { clearTimeout(introT); introT = setTimeout(() => audio.pause(), 1000); $('#tapSound')?.remove(); }).catch(() => showTapSound());
+}
+function introPlay(c, pos) {
+  if (pos < -0.05) return void setTimeout(playCur, -pos * 1000);
+  if (introDone === c.url) return;
+  introDone = c.url; introLeft = 3;
+  listenIntro();
+  renderIntroBtn();
+}
+function renderIntroBtn() {
+  const st = R.st, want = !!st?.opts?.intro && st.phase === 'play';
+  let b = $('#introBtn');
+  if (!want) { if (b) b.remove(); return; }
+  if (!b) {
+    b = document.createElement('button');
+    b.id = 'introBtn'; b.className = 'introbtn';
+    b.onclick = () => { if (introLeft > 0 && R.st?.phase === 'play') { introLeft--; listenIntro(); renderIntroBtn(); } };
+    $('#chipStreak').before(b);
+  }
+  b.disabled = introLeft <= 0;
+  b.textContent = `🔁 Intro 1 s (${introLeft})`;
+}
+
 // ---------- notifications (service worker : public/sw.js ; serveur : Hub, push.js) ----------
 const PUSH_PREFS = [['daily', '🎯', 'Rappel des défis du jour', 'en fin de journée, seulement si tu n’as pas encore joué'],
-  ['season', '🏆', 'Nouvelle saison', 'le 1er du mois, avec ta récompense'], ['invites', '📨', 'Invitations, défis et demandes d’amis', 'de tes amis et partenaires de jeu']];
-const pushPrefs = () => ({ daily: true, season: true, invites: true, ...(S.push?.prefs || {}), blocked: (S.blocked || []).map(b => b.pk) });
+  ['clubs', '🛡️', 'Clubs et événements', 'événement du week-end, club proche de passer devant'], ['season', '🏆', 'Nouvelle saison', 'le 1er du mois, avec ta récompense'], ['invites', '📨', 'Invitations, défis et demandes d’amis', 'de tes amis et partenaires de jeu']];
+const pushPrefs = () => ({ daily: true, season: true, invites: true, clubs: true, ...(S.push?.prefs || {}), blocked: (S.blocked || []).map(b => b.pk) });
 const pushReady = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const keyBytes = k => Uint8Array.from(atob(k.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - k.length % 4) % 4)), c => c.charCodeAt(0));
@@ -3972,6 +4227,7 @@ function startDeepLink() {
   if (code) joinCode(code);
   else if (q.get('go') === 'defis') { clean(); tabGo('defis'); }
   else if (q.get('go') === 'amis') { clean(); go('friends'); }
+  else if (q.get('go') === 'event') { clean(); eventSheet(); }
   else if (q.has('hit')) { clean(); hitIntro(); }
   else if (q.get('ami')) { const fc = q.get('ami').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); clean(); friTab = 'add'; go('friends'); addCodeSheet(fc); }
   else if (q.get('club')) { const id = q.get('club').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); clean(); openClub(id); }

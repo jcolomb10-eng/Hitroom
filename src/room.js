@@ -24,6 +24,8 @@ const OFFLINE_GRACE = 15000;
 const PTS = { title: 15, artist: 10 };
 const ROUNDS = [5, 10, 15, 20, 30]; // 30 : salon privé Premium
 const DURS = [15, 20, 30];
+const SURVIE_MAX = 40; // manches tirées d'avance en mode Survie
+const BETS = [0, 50, 100, 250]; // paris de pièces en duel
 // cadres achetés (boutique, cadres de prestige compris) et cadre « Légendaire » (médaille au niveau Légendaire) :
 // pièces et médailles sont sur l'appareil, le serveur ne peut que vérifier que le cadre existe
 const FRAMES = new Set(['def', 'or', 'diamant', 'flamme', 'neon', 'galaxie', 'arc', 'aurore', 'royal', 'icone', 'legend']);
@@ -67,7 +69,7 @@ export class Room extends DurableObject {
     this.players = new Map();
     this.host = null;
     this.cat = this.pub ? this.cat : 'mix';
-    this.opts = { rounds: 10, dur: 30, bots: 0, botlvl: 0, duel: 0 };
+    this.opts = { rounds: 10, dur: 30, bots: 0, botlvl: 0, duel: 0, survie: 0, intro: 0, bet: 0 };
     this.phase = 'lobby';
     this.ends = 0;
     this.round = 0;
@@ -186,11 +188,13 @@ export class Room extends DurableObject {
       this.reset();
       this.opts.botlvl = bracketOf(parseInt(q.get('tier'), 10) || 0);
       if (this.solo) this.opts = { ...this.opts, bots: 3, ...(this.env.MOCK_MUSIC ? { rounds: 5, dur: 15 } : {}) };
+      // Survie : jusqu'à la première manche ratée, sans bots ; Intro : extrait de 1 seconde, points doublés
+      if (this.solo && q.get('mode') === 'survie') this.opts = { ...this.opts, survie: 1, bots: 0, rounds: SURVIE_MAX, dur: 20 };
       // Hit du jour : réglages fixes, les mêmes pour tout le monde
       if (this.kind === 'daily') this.opts = { ...this.opts, rounds: HIT_N, dur: this.env.MOCK_MUSIC ? 15 : 20, bots: 0 };
       else {
         this.setOpts(q);
-        if (this.kind === 'priv' && q.get('duel') === '1') this.opts = { ...this.opts, duel: 1, bots: 0 };
+        if (this.kind === 'priv' && q.get('duel') === '1') this.opts = { ...this.opts, duel: 1, bots: 0, bet: BETS.includes(parseInt(q.get('bet'), 10)) ? parseInt(q.get('bet'), 10) : 0 };
       }
       soloStart = this.alone;
     }
@@ -264,6 +268,7 @@ export class Room extends DurableObject {
     if (b >= 0 && b <= 4) this.opts.bots = b;
     if (l >= 0 && l <= 3) this.opts.botlvl = l;
     if (this.opts.duel) this.opts.bots = 0;
+    if (!this.opts.survie && (this.solo || this.kind === 'priv') && get('intro') != null) this.opts.intro = get('intro') === '1' || get('intro') === 1 ? 1 : 0;
   }
 
   onMessage(p, ws, data) {
@@ -422,8 +427,9 @@ export class Room extends DurableObject {
     this.songs = songs;
     this.rounds = Math.min(this.opts.rounds, songs.length);
     this.round = 0;
+    this.dead = false;
     this.gameId = rid(10);
-    for (const p of this.players.values()) Object.assign(p, { score: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, rounds: 0, rt: null, grid: '' });
+    for (const p of this.players.values()) Object.assign(p, { score: 0, surv: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, rounds: 0, rt: null, grid: '' });
     this.played = [...this.played.filter(k => !songs.some(s => s.k === k)), ...songs.map(s => s.k)].slice(-300);
     this.phase = 'countdown';
     this.ends = Date.now() + COUNTDOWN;
@@ -507,7 +513,7 @@ export class Room extends DurableObject {
       if (!p.fast || ms < p.fast) p.fast = ms;
     }
     p.speed = (p.speed || 0) + bonus;
-    const total = pts + bonus + ser;
+    const total = (pts + bonus + ser) * (this.opts.intro ? 2 : 1);
     p.score += total;
     const kind = newT && newA ? 'both' : newT ? 'title' : 'artist';
     c.found.push({ id: p.id, kind, pts: total });
@@ -532,6 +538,7 @@ export class Room extends DurableObject {
     for (const p of this.players.values()) {
       if (p.rt && !p.rt.title && !p.rt.artist) p.streak = 0;
       if (!p.bot) p.grid = (p.grid || '') + ((p.rt?.title ? 1 : 0) | (p.rt?.artist ? 2 : 0));
+      if (this.opts.survie && !p.bot && p.rt) { if (p.rt.title || p.rt.artist) p.surv = (p.surv || 0) + 1; else this.dead = true; } // Survie : une manche ratée = fin
     }
     this.phase = 'reveal';
     this.ends = Date.now() + REVEAL;
@@ -542,7 +549,7 @@ export class Room extends DurableObject {
     if (this.round < this.rounds && next) this.broadcast({ t: 'preload', url: next.url });
     const bots = this.bots();
     if (bots.length && Math.random() < 0.3) this.botSay(pick(bots), pick(AFTER), 300);
-    this.later(REVEAL, () => (this.round < this.rounds ? this.startRound(this.round) : this.endGame()));
+    this.later(REVEAL, () => (this.round < this.rounds && !this.dead ? this.startRound(this.round) : this.endGame()));
   }
 
   endGame() {
@@ -563,11 +570,21 @@ export class Room extends DurableObject {
       .map(p => ({ uid: p.uid, name: p.name, av: p.av, fr: p.fr, pts: p.score, win: list[0] === p && list.length > 1 }));
     if (rows.length && !this.alone) this.hub().addResults(rows).catch(() => {}); // le solo ne compte pas au classement
     // clubs : points des parties publiques et du Hit du jour
-    if (rows.length && (this.pub || this.kind === 'daily')) this.hub().clubScore(rows.map(r => ({ uid: r.uid, pts: r.pts }))).catch(() => {});
+    if (rows.length && (this.pub || this.kind === 'daily')) this.hub().clubScore(rows.map(r => ({ uid: r.uid, pts: r.pts })), this.cat, this.pub).catch(() => {});
     if (this.opts.duel) this.duelEnd(list);
+    if (this.opts.survie) this.survieEnd(list);
     if (this.pub) this.later(PUBLIC_NEXT, () => (this.humans().length ? this.startGame() : this.stop()));
     if (this.ranked) this.rankGame(list).catch(e => console.log('rangs', e));
     setTimeout(() => this.sweep(), 500);
+  }
+
+  // Survie : nombre de manches tenues, record personnel et place dans le classement de la catégorie
+  survieEnd(list) {
+    const p = list.find(x => !x.bot);
+    if (!p) return;
+    this.hub().survieSave(p.uid, this.cat, p.surv || 0)
+      .then(r => this.send(p.ws, { t: 'survie', gameId: this.gameId, n: p.surv || 0, ...r }))
+      .catch(e => console.log('survie', e));
   }
 
   // duel : le gagnant (ou l'égalité) est noté, chacun reçoit le bilan de leurs duels
@@ -576,7 +593,7 @@ export class Room extends DurableObject {
     if (!a || !b) return;
     this.hub().duelResult(a.uid, b.uid, a.score > b.score ? a.uid : b.score > a.score ? b.uid : '')
       .then(rec => {
-        for (const [p, o] of [[a, b], [b, a]]) this.send(p.ws, { t: 'duel', gameId: this.gameId, rec: rec[p.uid], vs: o.name, res: p.score > o.score ? 'win' : p.score < o.score ? 'loss' : 'tie' });
+        for (const [p, o] of [[a, b], [b, a]]) this.send(p.ws, { t: 'duel', gameId: this.gameId, bet: this.opts.bet || 0, rec: rec[p.uid], vs: o.name, res: p.score > o.score ? 'win' : p.score < o.score ? 'loss' : 'tie' });
       })
       .catch(e => console.log('duel', e));
   }

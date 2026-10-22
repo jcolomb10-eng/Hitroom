@@ -13,6 +13,7 @@ import { cleanText } from './filter.js';
 import { norm } from './match.js';
 import { parisDay, dayAdd, hitNumber, hitCandidates, seededRnd, streaks, friendCode, HIT_N, ONLINE, AT_RE,
   CLUB_MAX, CLUB_EMBLEMS, CLUB_COLORS, clubId } from './social.js';
+import { extraMethods, eventState } from './extras.js';
 
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
@@ -96,6 +97,7 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS cseason(club TEXT, sc TEXT, pts INTEGER, PRIMARY KEY(club, sc))`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS cseason_pts ON cseason(sc, pts DESC)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS cban(club TEXT, uid TEXT, ts INTEGER, PRIMARY KEY(club, uid))`);
+    this.initExtras();
     // version 1.5 : points de rang convertis une fois vers les paliers progressifs (chacun garde son rang)
     if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'paliers'`).toArray().length) {
       ctx.storage.transactionSync(() => {
@@ -325,10 +327,11 @@ export class Hub extends DurableObject {
     const sc = season();
     const r = this.rankRow(uid);
     const pos = r.games ? this.sql.exec(`SELECT COUNT(*) AS n FROM ranks WHERE sc = ? AND games > 0 AND rp > ?`, sc, r.rp).one().n + 1 : null;
+    const honors = this.honorsFor(uid);
     const rw = this.sql.exec(`SELECT sc, tier FROM rewards WHERE uid = ? AND claimed = 0 ORDER BY sc DESC LIMIT 1`, uid).toArray()[0];
     if (rw) this.sql.exec(`UPDATE rewards SET claimed = 1 WHERE uid = ? AND sc = ?`, uid, rw.sc);
     return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), bestEver: this.bestEver(uid), games: r.games, wins: r.wins, pos, reward: rw || null,
-      rcats: rankedCats(sc, this.env.RANKED_CATS) };
+      rcats: rankedCats(sc, this.env.RANKED_CATS), honors, ev: this.eventLite() };
   }
 
   // fin d'une partie classée : rows = [{ uid, name, av, fr, delta, win, shield }]
@@ -449,7 +452,7 @@ export class Hub extends DurableObject {
   async subscribe(uid, endpoint, prefs = {}) {
     if (!/^https:\/\/[^\s]{8,900}$/.test(endpoint || '')) return { ok: 0 };
     const p = {
-      daily: prefs.daily !== false, season: prefs.season !== false, invites: prefs.invites !== false,
+      daily: prefs.daily !== false, season: prefs.season !== false, invites: prefs.invites !== false, clubs: prefs.clubs !== false,
       blocked: (Array.isArray(prefs.blocked) ? prefs.blocked : []).filter(x => /^[0-9a-f]{12}$/.test(x)).slice(0, 200),
     };
     const ep = await epHash(endpoint);
@@ -501,6 +504,22 @@ export class Hub extends DurableObject {
       const p = JSON.parse(sub.prefs || '{}');
       if (first && p.season) todo.push([sub, SEASON_MSG]);
       else if (!first && p.daily && !this.sql.exec(`SELECT 1 FROM actives WHERE day = ? AND uid = ?`, day, sub.uid).toArray().length) todo.push([sub, DAILY_MSG]);
+    }
+    // clubs et événements (préférence « clubs ») : événement du week-end annoncé le vendredi, club proche de passer devant
+    if (!first) {
+      const fri = this.clock().getUTCDay() === 5, es = eventState(this.pDay()).ev;
+      const rival = new Map();
+      for (const c of this.sql.exec(`SELECT club FROM cseason WHERE sc = ? AND pts > 0`, season()).toArray()) {
+        const a = this.rivals(c.club).above;
+        if (a && a.gap <= 400) rival.set(c.club, a);
+      }
+      for (const sub of subs) {
+        const p = JSON.parse(sub.prefs || '{}');
+        if (!p.clubs) continue;
+        if (fri) todo.push([sub, { title: `${es.emoji} ${es.name} ce week-end`, body: 'Deux jours pour grimper au classement de l’événement et gagner des pièces. Le tournoi a lieu samedi soir !', url: '/?go=event' }]);
+        const c = this.clubOf(sub.uid), a = c && rival.get(c.id);
+        if (a) todo.push([sub, { title: `🛡️ ${c.name} talonne ${a.name}`, body: `Il ne manque que ${a.gap} points à ton club pour passer devant. Une partie ?`, url: '/' }]);
+      }
     }
     for (let i = 0; i < todo.length; i += 10) await Promise.all(todo.slice(i, i + 10).map(([sub, msg]) => this.notify(sub, msg)));
     return { sent: todo.length };
@@ -871,7 +890,7 @@ export class Hub extends DurableObject {
       .map(m => ({ pk: m.pk || publicKey(m.uid), name: m.name || 'Joueur', av: m.av || 'A02', fr: m.fr || 'def', lvl: m.lvl || 1, pts: m.pts || 0,
         tier: tierOf(this.peekRank(m.uid)), chief: m.uid === c.chief, me: m.uid === uid, since: m.ts }))
       .sort((a, b) => b.pts - a.pts || a.since - b.since);
-    return { ...this.clubCard(c, sc), sc, max: CLUB_MAX, member: mine?.id === id, chief: !!uid && c.chief === uid, inClub: mine ? mine.name : '', members };
+    return { ...this.clubCard(c, sc), sc, max: CLUB_MAX, member: mine?.id === id, chief: !!uid && c.chief === uid, inClub: mine ? mine.name : '', members, ...this.clubExtra(id, uid, mine?.id === id) };
   }
 
   clubName(raw) {
@@ -912,6 +931,8 @@ export class Hub extends DurableObject {
       case 'leave':
         if (mine) this.leaveClub(uid, mine);
         return { ok: 1 };
+      case 'chest': return mine ? this.claimChest(uid, mine.id) : { ok: 0, why: 'club' };
+      case 'war': return mine ? this.claimWar(uid, mine.id) : { ok: 0, why: 'club' };
       case 'edit': {
         if (!mine || mine.chief !== uid) return { ok: 0, why: 'chief' };
         const name = b.name != null ? this.clubName(b.name) : mine.name;
@@ -936,12 +957,13 @@ export class Hub extends DurableObject {
   leaveClub(uid, club) {
     this.sql.exec(`DELETE FROM cmembers WHERE uid = ?`, uid);
     const next = this.sql.exec(`SELECT uid FROM cmembers WHERE club = ? ORDER BY ts LIMIT 1`, club.id).toArray()[0];
-    if (!next) for (const t of ['clubs WHERE id', 'cpts WHERE club', 'cseason WHERE club', 'cban WHERE club']) this.sql.exec(`DELETE FROM ${t} = ?`, club.id);
+    if (!next) for (const t of ['clubs WHERE id', 'cpts WHERE club', 'cseason WHERE club', 'cban WHERE club', 'cwk WHERE club', 'cwar WHERE club', 'cwpm WHERE club', 'chonors WHERE club']) this.sql.exec(`DELETE FROM ${t} = ?`, club.id);
     else if (club.chief === uid) this.sql.exec(`UPDATE clubs SET chief = ? WHERE id = ?`, next.uid, club.id);
   }
 
   // points marqués en partie publique (classé, non classé) et au Hit du jour : ajoutés au club de chaque joueur
-  clubScore(rows) {
+  clubScore(rows, cat, pub) {
+    this.trackPts(rows, cat, pub);
     const sc = season();
     for (const r of rows) {
       const c = this.clubOf(r.uid);
@@ -951,3 +973,4 @@ export class Hub extends DurableObject {
     }
   }
 }
+Object.assign(Hub.prototype, extraMethods);
