@@ -10,6 +10,7 @@ import { DurableObject } from 'cloudflare:workers';
 import { judge, norm } from './match.js';
 import { CAT_IDS } from './catalog.js';
 import { cleanText, cleanName } from './filter.js';
+import { publicKey } from './ids.js';
 import { bracketOf, rpDelta, BOT_SKILL, TIERS_OF_BRACKET, WINDOWS, windowTiers, windowSkill, inWindow } from './ranks.js';
 
 const MAX_HUMANS = 12;
@@ -28,12 +29,7 @@ const NAME_STYLES = new Set(['', 'gold', 'rainbow']);   // pseudo doré, arc-en-
 const WIN_FX = new Set(['', 'confetti', 'fireworks']);  // effet de victoire vu par tout le salon
 const REACTS = new Set(['👏', '🔥', '😂', '😮', '🎉']); // réactions rapides (mêmes que REACTS dans l'appli)
 const REPORT_WHY = new Set(['insultes', 'pseudo', 'spam', 'triche', 'autre']); // motifs de signalement (mêmes que dans l'appli)
-// identifiant public d'un joueur, le même dans tous les salons (pour bloquer quelqu'un) ; l'uid, lui, reste secret
-export function publicKey(uid) {
-  let a = 2166136261, b = 5381;
-  for (const c of 'hitroom-pk:' + uid) { a = Math.imul(a ^ c.charCodeAt(0), 16777619); b = Math.imul(b, 33) ^ c.charCodeAt(0); }
-  return (a >>> 0).toString(16).padStart(8, '0') + (b >>> 0).toString(16).padStart(8, '0').slice(0, 4);
-}
+
 // une catégorie, ou jusqu'à 3 mélangées (salon privé Premium)
 const cleanCat = c => {
   const parts = [...new Set(String(c || '').split('+'))].filter(x => CAT_IDS.has(x)).slice(0, 3);
@@ -253,6 +249,7 @@ export class Room extends DurableObject {
       case 'chat': return this.onChat(p, m.text);
       case 'react': return this.onReact(p, m.e);
       case 'report': return this.onReport(p, m);
+      case 'invite': return this.onInvite(p, m);
       case 'start': if (isHost && idle) this.startGame(); return;
       case 'opts': if (isHost && idle) { this.setOpts(m); this.broadcastState(); } return;
       case 'profile': this.profile(p, m); this.broadcastState(); return;
@@ -586,6 +583,15 @@ export class Room extends DurableObject {
     if (p.rq.length >= 5) return;
     p.rq.push(now);
     this.broadcast({ t: 'react', id: p.id, pk: p.pk || '', name: p.name, e });
+  }
+
+  // ---------- invitations (notification au joueur invité, salons entre amis seulement) ----------
+  onInvite(p, m) {
+    const pk = String(m.pk || '');
+    if (this.kind !== 'priv' || p.bot || !/^[0-9a-f]{12}$/.test(pk)) return;
+    this.hub().invite(p.uid, p.name, this.code, pk)
+      .then(r => this.send(p.ws, { t: 'invited', pk, ...r }))
+      .catch(() => this.send(p.ws, { t: 'invited', pk, ok: 0, why: 'err' }));
   }
 
   // ---------- signalements ----------

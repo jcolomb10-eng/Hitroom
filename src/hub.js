@@ -6,6 +6,8 @@ import { DurableObject } from 'cloudflare:workers';
 import { songsOf, songByKey, rankedCats } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
 import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
+import { publicKey } from './ids.js';
+import { makeVapid, sendPush, epHash, vapidAuth } from './push.js';
 
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
@@ -26,6 +28,9 @@ function shuffle(a) {
 
 export const season = (d = new Date()) => d.toISOString().slice(0, 7);
 const today = () => new Date().toISOString().slice(0, 10);
+const PUSH_SUBJECT = 'https://hitroom.jcolomb10.workers.dev'; // contact demandé par les services de notification
+const DAILY_MSG = { title: '🎯 Tes défis du jour t’attendent', body: 'Des pièces et de l’XP à gagner : une petite partie ?', url: '/?go=defis' };
+const SEASON_MSG = { title: '🏆 Nouvelle saison !', body: 'Ta récompense de la saison passée t’attend. Viens grimper les rangs !', url: '/' };
 
 export class Hub extends DurableObject {
   constructor(ctx, env) {
@@ -52,6 +57,11 @@ export class Hub extends DurableObject {
       for (const t of ['ranks', 'scores', 'saves']) this.sql.exec(`INSERT OR IGNORE INTO firsts(uid, day) SELECT DISTINCT uid, '' FROM ${t}`);
       this.sql.exec(`INSERT INTO meta(k, v) VALUES('stats', '1')`);
     }
+    // notifications : abonnements (ep = empreinte de l'adresse du téléphone), messages à afficher, invitations envoyées
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS subs(ep TEXT PRIMARY KEY, uid TEXT, pk TEXT, endpoint TEXT, prefs TEXT, ts INTEGER)`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS subs_pk ON subs(pk)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS inbox(id INTEGER PRIMARY KEY AUTOINCREMENT, ep TEXT, title TEXT, body TEXT, url TEXT, ts INTEGER)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS invites(from_pk TEXT, to_pk TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS reports(target TEXT, reporter TEXT, pk TEXT, name TEXT, why TEXT, msgs TEXT, room TEXT, ts INTEGER, PRIMARY KEY(target, reporter))`);
     // version 1.5 : points de rang convertis une fois vers les paliers progressifs (chacun garde son rang)
     if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'paliers'`).toArray().length) {
@@ -356,6 +366,97 @@ export class Hub extends DurableObject {
     this.sql.exec(`DELETE FROM rewards WHERE uid = ?`, uid);
     this.sql.exec(`INSERT OR REPLACE INTO ranks(uid, sc, rp, best, games, wins, name, av, fr) VALUES(?,?,?,?,5,1,'Test','🎧','def')`, uid, sc, rp, rp);
   }
+
+  // ---------- notifications (Web Push sans contenu : le service worker vient chercher le message, voir push.js) ----------
+  async vapid() {
+    const row = this.sql.exec(`SELECT v FROM meta WHERE k = 'vapid'`).toArray()[0];
+    if (row) return JSON.parse(row.v);
+    const v = await makeVapid();
+    this.sql.exec(`INSERT OR IGNORE INTO meta(k, v) VALUES('vapid', ?)`, JSON.stringify(v));
+    return JSON.parse(this.sql.exec(`SELECT v FROM meta WHERE k = 'vapid'`).one().v);
+  }
+
+  async pushKey() { return (await this.vapid()).pub; }
+
+  // prefs : daily (rappel des défis), season (nouvelle saison), invites, blocked (identifiants publics bloqués)
+  async subscribe(uid, endpoint, prefs = {}) {
+    if (!/^https:\/\/[^\s]{8,900}$/.test(endpoint || '')) return { ok: 0 };
+    const p = {
+      daily: prefs.daily !== false, season: prefs.season !== false, invites: prefs.invites !== false,
+      blocked: (Array.isArray(prefs.blocked) ? prefs.blocked : []).filter(x => /^[0-9a-f]{12}$/.test(x)).slice(0, 200),
+    };
+    const ep = await epHash(endpoint);
+    this.sql.exec(`INSERT OR REPLACE INTO subs(ep, uid, pk, endpoint, prefs, ts) VALUES(?,?,?,?,?,?)`, ep, uid, publicKey(uid), endpoint, JSON.stringify(p), Date.now());
+    // 5 téléphones ou navigateurs au plus par joueur
+    for (const r of this.sql.exec(`SELECT ep FROM subs WHERE uid = ? ORDER BY ts DESC LIMIT -1 OFFSET 5`, uid).toArray()) this.dropSub(r.ep);
+    return { ok: 1 };
+  }
+
+  async unsubscribe(endpoint) { this.dropSub(await epHash(endpoint || '')); return { ok: 1 }; }
+
+  dropSub(ep) {
+    this.sql.exec(`DELETE FROM subs WHERE ep = ?`, ep);
+    this.sql.exec(`DELETE FROM inbox WHERE ep = ?`, ep);
+  }
+
+  // le service worker vient chercher ses messages (3 derniers jours, 3 au plus) ; ils sont effacés une fois lus
+  async inboxFor(endpoint) {
+    const ep = await epHash(endpoint || '');
+    const rows = this.sql.exec(`SELECT title, body, url FROM inbox WHERE ep = ? AND ts > ? ORDER BY id DESC LIMIT 3`, ep, Date.now() - 3 * DAY).toArray();
+    this.sql.exec(`DELETE FROM inbox WHERE ep = ?`, ep);
+    return rows;
+  }
+
+  // message gardé dans la boîte, puis push vide pour réveiller le téléphone ; abonnement effacé s'il n'existe plus
+  async notify(sub, msg) {
+    this.sql.exec(`INSERT INTO inbox(ep, title, body, url, ts) VALUES(?,?,?,?,?)`, sub.ep, msg.title, msg.body, msg.url || '/', Date.now());
+    this.sql.exec(`DELETE FROM inbox WHERE ep = ? AND id NOT IN (SELECT id FROM inbox WHERE ep = ? ORDER BY id DESC LIMIT 5)`, sub.ep, sub.ep);
+    const vapid = await this.vapid();
+    let res;
+    if (this.env.MOCK_MUSIC) { // tests en local : rien n'est envoyé, l'envoi est noté (/__mock/push)
+      (this.pushLog ||= []).push({ endpoint: sub.endpoint, auth: await vapidAuth(sub.endpoint, vapid, PUSH_SUBJECT), title: msg.title });
+      res = /gone/.test(sub.endpoint) ? 'gone' : 'ok';
+    } else res = await sendPush(sub.endpoint, vapid, PUSH_SUBJECT);
+    if (res === 'gone') this.dropSub(sub.ep);
+    return res;
+  }
+
+  // chaque jour en fin d'après-midi (cron du Worker) : le 1er du mois, la nouvelle saison ; sinon le rappel des défis,
+  // seulement à ceux qui n'ont pas encore joué aujourd'hui
+  async cronDaily(first = new Date().getUTCDate() === 1) {
+    const day = today();
+    const subs = this.sql.exec(`SELECT ep, uid, endpoint, prefs FROM subs`).toArray();
+    const todo = [];
+    for (const sub of subs) {
+      const p = JSON.parse(sub.prefs || '{}');
+      if (first && p.season) todo.push([sub, SEASON_MSG]);
+      else if (!first && p.daily && !this.sql.exec(`SELECT 1 FROM actives WHERE day = ? AND uid = ?`, day, sub.uid).toArray().length) todo.push([sub, DAILY_MSG]);
+    }
+    for (let i = 0; i < todo.length; i += 10) await Promise.all(todo.slice(i, i + 10).map(([sub, msg]) => this.notify(sub, msg)));
+    return { sent: todo.length };
+  }
+
+  // invitation dans un salon entre amis : 10 par heure au plus, 2 par heure à la même personne ;
+  // jamais si l'invité a coupé les invitations ou bloqué l'expéditeur (réponse identique : « pas de notifications »)
+  async invite(fromUid, fromName, code, toPk) {
+    const fromPk = publicKey(fromUid), hour = Date.now() - 3600000;
+    if (toPk === fromPk || !/^[A-Z0-9]{4}$/.test(code || '')) return { ok: 0, why: 'err' };
+    if (this.sql.exec(`SELECT COUNT(*) AS n FROM invites WHERE from_pk = ? AND ts > ?`, fromPk, hour).one().n >= 10) return { ok: 0, why: 'limit' };
+    if (this.sql.exec(`SELECT COUNT(*) AS n FROM invites WHERE from_pk = ? AND to_pk = ? AND ts > ?`, fromPk, toPk, hour).one().n >= 2) return { ok: 0, why: 'again' };
+    const subs = this.sql.exec(`SELECT ep, uid, endpoint, prefs FROM subs WHERE pk = ?`, toPk).toArray().filter(s => {
+      const p = JSON.parse(s.prefs || '{}');
+      return p.invites && !(p.blocked || []).includes(fromPk);
+    });
+    if (!subs.length) return { ok: 0, why: 'off' };
+    this.sql.exec(`INSERT INTO invites(from_pk, to_pk, ts) VALUES(?,?,?)`, fromPk, toPk, Date.now());
+    this.sql.exec(`DELETE FROM invites WHERE ts < ?`, Date.now() - DAY);
+    const name = String(fromName || 'Un ami').slice(0, 20);
+    const msg = { title: `🎵 ${name} t’invite à jouer`, body: `Rejoins son salon Hitroom (code ${code}) !`, url: `/?salon=${code}` };
+    await Promise.all(subs.map(s => this.notify(s, msg)));
+    return { ok: 1 };
+  }
+
+  devPush() { return { subs: this.sql.exec(`SELECT pk, endpoint, prefs FROM subs`).toArray(), log: this.pushLog || [] }; }
 
   // ---------- statistiques de fréquentation ----------
   bump(k, n = 1) {

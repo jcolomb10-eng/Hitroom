@@ -18,5 +18,7 @@
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["Room", "Hub"] }
   ],
+  // rappel quotidien des notifications (défis du jour, nouvelle saison le 1er du mois)
+  "triggers": { "crons": ["0 17 * * *"] },
   "observability": { "enabled": true }
 }

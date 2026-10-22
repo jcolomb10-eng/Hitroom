@@ -32,6 +32,11 @@ async function toRoom(req, env, name, ranked) {
 }
 
 export default {
+  // chaque jour à 17 h UTC (18 h à Paris en hiver, 19 h en été) : rappel des défis, ou nouvelle saison le 1er du mois
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(hub(env).cronDaily());
+  },
+
   async fetch(req, env) {
     const url = new URL(req.url);
     const path = url.pathname;
@@ -84,6 +89,21 @@ export default {
       if (url.searchParams.get('key') !== env.ADMIN_KEY) return json({ error: 'Clé incorrecte.' }, 403);
       return json(path === '/api/stats' ? await hub(env).statsReport() : await hub(env).reportList());
     }
+    // notifications : clé publique, abonnement, désabonnement, messages à afficher (lus par le service worker)
+    if (path === '/api/push/key') return json({ key: await hub(env).pushKey() });
+    if (path.startsWith('/api/push/') && req.method === 'POST') {
+      let b;
+      try { b = await req.json(); } catch { return json({ error: 'données illisibles' }, 400); }
+      const endpoint = String(b.endpoint || '').slice(0, 1000);
+      if (path === '/api/push/sub') {
+        const uid = cleanUid(b.uid);
+        return uid.length >= 8 ? json(await hub(env).subscribe(uid, endpoint, b.prefs || {})) : json({ error: 'identifiant invalide' }, 400);
+      }
+      if (path === '/api/push/unsub') return json(await hub(env).unsubscribe(endpoint));
+      if (path === '/api/push/inbox') return json(await hub(env).inboxFor(endpoint));
+    }
+    if (env.MOCK_MUSIC && path === '/__mock/push') return json(await hub(env).devPush());
+    if (env.MOCK_MUSIC && path === '/__mock/cron') return json(await hub(env).cronDaily(url.searchParams.has('first')));
     if (env.MOCK_MUSIC && path === '/__mock/saison') {
       await hub(env).devPrevSeason(cleanUid(url.searchParams.get('uid')), url.searchParams.get('sc'), +url.searchParams.get('rp') || 0);
       return json({ ok: 1 });

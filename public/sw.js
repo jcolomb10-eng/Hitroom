@@ -38,3 +38,22 @@ self.addEventListener('fetch', e => {
   e.respondWith(caches.match(req).then(hit => hit || net));
   e.waitUntil(net.catch(() => {}));
 });
+
+// ---------- notifications ----------
+// le serveur envoie un « réveil » vide ; on vient chercher le message à afficher (boîte /api/push/inbox)
+const showMsg = m => self.registration.showNotification(m.title, { body: m.body, icon: '/icon-192.png', badge: '/icon-192.png', data: { url: m.url || '/' }, tag: m.url || 'hitroom' });
+self.addEventListener('push', e => {
+  e.waitUntil(self.registration.pushManager.getSubscription()
+    .then(sub => (sub ? fetch('/api/push/inbox', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }) }).then(r => r.json()) : []))
+    .catch(() => [])
+    .then(list => (list.length ? Promise.all(list.map(showMsg)) : showMsg({ title: 'Hitroom', body: 'Une partie de blind test ? 🎵', url: '/' }))));
+});
+// toucher la notification : on revient dans l'appli déjà ouverte, sinon on l'ouvre, à la bonne adresse
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = new URL(e.notification.data?.url || '/', self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    const c = list.find(x => new URL(x.url).origin === self.location.origin);
+    return c ? c.focus().then(w => (w || c).navigate(url)) : self.clients.openWindow(url);
+  }));
+});

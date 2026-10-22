@@ -1033,7 +1033,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.12';
+const VERSION = '1.13';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1347,7 +1347,7 @@ function fresh() {
     set: { sfx: true, music: true, vol: 0.9, chat: true, others: true, reacts: true, live: true }, games: [], cat: 'mix', acct: '', soloLvl: 1,
     rank: { sc: '', rp: 0, tier: 0, best: 0, bestEver: 0, games: 0, pos: null }, seasons: [], promos: {},
     road: { sc: month(), xp: 0, claimed: [] }, avs: [], titles: [], sframes: [], title: 'recrue', show: [], medals: {}, knownTitles: [], code: '',
-    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [], blocked: [],
+    inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [], blocked: [], mates: [], push: null,
   };
 }
 let S = fresh();
@@ -1638,6 +1638,7 @@ function onMsg(m) {
     case 'move': toast(`Nouveau rang : tu passes dans un salon ${rangeName(m.tier)}`, 3500); connect(R.path); return;
     case 'chat': case 'sys': return onChat(m);
     case 'react': return onReact(m);
+    case 'invited': return onInvited(m);
     case 'reported': toast(m.ok ? '⚠️ Merci, ton signalement a bien été envoyé.' : 'Signalement impossible pour le moment (10 par jour au plus).', 3200); return;
     case 'preload': if (m.url) { pre.src = m.url; } return;
     case 'ends': if (R.st?.cur) { R.st.cur.end = m.end; R.st.ends = m.end; } return;
@@ -1669,6 +1670,7 @@ function onState(st) {
   // son
   if ((st.phase === 'play' || st.phase === 'reveal') && st.cur) setTrack(st.cur);
   else stopAudio();
+  noteMates(st);
   const v = roomView(st);
   const pickingCat = curView === 'cats' && catsMode === 'change' && !['countdown', 'play', 'reveal'].includes(st.phase);
   if (curView !== v && !pickingCat) {
@@ -2209,6 +2211,14 @@ function copy(text, msg) {
 function invite() {
   const code = R.st?.code;
   if (!code) return;
+  const here = new Set(R.st.players.map(p => p.pk).filter(Boolean));
+  const mates = (S.mates || []).filter(m => !here.has(m.pk) && !isBlocked(m.pk)).slice(0, 15);
+  if (mates.length) return inviteSheet(mates);
+  shareLink();
+}
+function shareLink() {
+  const code = R.st?.code;
+  if (!code) return;
   const url = `${location.origin}/?salon=${code}`;
   const text = `Viens jouer au blind test avec moi sur Hitroom ! 🎵 Code du salon : ${code}`;
   if (navigator.share) navigator.share({ title: 'Hitroom', text, url }).catch(() => {});
@@ -2480,6 +2490,106 @@ function playerCard(p) {
   if ($('#pcReport')) $('#pcReport').onclick = () => reportSheet(p);
 }
 
+// ---------- partenaires de jeu et invitations ----------
+// les joueurs croisés dans les salons (identifiant public pk), pour pouvoir les inviter plus tard
+function noteMates(st) {
+  let changed = false;
+  for (const p of st.players) {
+    if (p.bot || !p.pk || p.id === R.me) continue;
+    const old = (S.mates || []).find(m => m.pk === p.pk);
+    if (old && old.name === p.name && old.av === p.av && Date.now() - old.ts < 3600000) continue;
+    S.mates = [{ pk: p.pk, name: p.name, av: p.av, ts: Date.now() }, ...(S.mates || []).filter(m => m.pk !== p.pk)].slice(0, 30);
+    changed = true;
+  }
+  if (changed) save();
+}
+function inviteSheet(mates) {
+  openSheet(`<h3>Inviter des amis <button data-close data-i="x"></button></h3>
+    <button class="cta" id="invShare"><span data-i="share"></span>Partager le lien du salon</button>
+    <h4 class="psec" style="margin:18px 0 8px">Tes partenaires de jeu</h4>
+    <p style="margin-top:0">Ils reçoivent une notification s’ils l’ont activée.</p>
+    <div class="list">${mates.map((m, i) => `<div class="card li">${avHTML(m.av, 'def', 34)}<span>${esc(m.name)}</span><button class="ghost" data-inv="${i}" data-pk="${esc(m.pk)}" style="height:36px;min-height:36px;padding:0 12px">Inviter</button></div>`).join('')}</div>`);
+  $('#invShare').onclick = () => { closeSheet(); shareLink(); };
+  $$('#sheetBox [data-inv]').forEach(b => b.onclick = () => {
+    send({ t: 'invite', pk: mates[+b.dataset.inv].pk });
+    b.disabled = true; b.textContent = '…';
+  });
+}
+function onInvited(m) {
+  const who = esc((S.mates || []).find(x => x.pk === m.pk)?.name || 'Ce joueur');
+  const b = $$('#sheetBox [data-pk]').find(x => x.dataset.pk === m.pk);
+  if (b) { b.textContent = m.ok ? 'Envoyée ✓' : 'Inviter'; b.disabled = !!m.ok; }
+  toast(m.ok ? `📨 Invitation envoyée à ${who} !` : m.why === 'off' ? `${who} n’a pas activé les notifications : partage-lui plutôt le lien.`
+    : m.why === 'again' ? `Tu as déjà invité ${who} : laisse-lui un peu de temps 🙂` : m.why === 'limit' ? 'Beaucoup d’invitations envoyées : réessaie dans un moment.' : 'Invitation impossible pour le moment.', 3600);
+}
+
+// ---------- notifications (service worker : public/sw.js ; serveur : Hub, push.js) ----------
+const PUSH_PREFS = [['daily', '🎯', 'Rappel des défis du jour', 'en fin de journée, seulement si tu n’as pas encore joué'],
+  ['season', '🏆', 'Nouvelle saison', 'le 1er du mois, avec ta récompense'], ['invites', '📨', 'Invitations de tes partenaires de jeu', 'pour rejoindre leur salon']];
+const pushPrefs = () => ({ daily: true, season: true, invites: true, ...(S.push?.prefs || {}), blocked: (S.blocked || []).map(b => b.pk) });
+const pushReady = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const keyBytes = k => Uint8Array.from(atob(k.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - k.length % 4) % 4)), c => c.charCodeAt(0));
+async function pushPost(path, body) {
+  return (await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })).json();
+}
+async function pushOn() {
+  if ((await Notification.requestPermission()) !== 'granted') { toast('Notifications refusées. Tu peux les autoriser dans les réglages du navigateur.', 4000); return false; }
+  const reg = await navigator.serviceWorker.ready;
+  const { key } = await (await fetch('/api/push/key')).json();
+  const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(key) }));
+  const r = await pushPost('/api/push/sub', { uid: S.uid, endpoint: sub.endpoint, prefs: pushPrefs() });
+  if (!r.ok) throw new Error('abonnement refusé');
+  S.push = { on: true, prefs: pushPrefs(), d: today() };
+  save();
+  return true;
+}
+async function pushOff() {
+  const sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
+  if (sub) { await pushPost('/api/push/unsub', { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+  S.push = { ...(S.push || {}), on: false };
+  save();
+}
+// abonnement renvoyé au serveur une fois par jour (ou tout de suite si les préférences ou les blocages changent)
+async function pushSync(force) {
+  if (!S.push?.on || !pushReady() || Notification.permission !== 'granted' || (!force && S.push.d === today())) return;
+  try {
+    const sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
+    if (!sub) { S.push.on = false; save(); return; }
+    await pushPost('/api/push/sub', { uid: S.uid, endpoint: sub.endpoint, prefs: pushPrefs() });
+    S.push.d = today(); save();
+  } catch (e) { /* hors ligne : nouvel essai plus tard */ }
+}
+function notifSheet() {
+  const on = !!S.push?.on && pushReady() && Notification.permission === 'granted';
+  let why = '';
+  if (!pushReady()) why = isIOS() && !navigator.standalone
+    ? 'Sur iPhone et iPad, ajoute d’abord Hitroom à ton écran d’accueil (bouton Partager, puis « Sur l’écran d’accueil »), ouvre-le depuis son icône et reviens ici.'
+    : 'Ce navigateur ne sait pas recevoir de notifications. Essaie avec Chrome, Firefox, Edge ou Safari à jour.';
+  else if (Notification.permission === 'denied') why = 'Les notifications sont bloquées pour Hitroom. Autorise-les dans les réglages du navigateur (le cadenas à côté de l’adresse), puis reviens ici.';
+  const p = pushPrefs();
+  openSheet(`<h3>Notifications <button data-close data-i="x"></button></h3>
+    <p>Hitroom te prévient au bon moment, jamais plus d’une fois par jour (sauf les invitations de tes amis).</p>
+    ${PUSH_PREFS.map(([k, e, l, d]) => `<div class="card set" style="margin-bottom:8px"><span class="e">${e}</span><span>${l}<br><small class="muted">${d}</small></span><button class="tg ${p[k] ? 'on' : ''}" data-np="${k}" aria-label="${l}"></button></div>`).join('')}
+    ${why ? `<p class="note">${why}</p>` : `<button class="${on ? 'ghost' : 'cta'}" id="notifGo" style="width:100%;margin-top:6px">${on ? 'Désactiver les notifications' : '🔔 Activer les notifications'}</button>`}`);
+  $$('#sheetBox [data-np]').forEach(b => b.onclick = () => {
+    const prefs = { ...pushPrefs(), [b.dataset.np]: !pushPrefs()[b.dataset.np] };
+    S.push = { ...(S.push || {}), prefs };
+    save();
+    b.classList.toggle('on', prefs[b.dataset.np]);
+    pushSync(true);
+  });
+  if ($('#notifGo')) $('#notifGo').onclick = async () => {
+    $('#notifGo').disabled = true;
+    try {
+      if (on) { await pushOff(); toast('Notifications désactivées.'); }
+      else if (await pushOn()) toast('🔔 Notifications activées !');
+    } catch (e) { toast('Impossible d’activer les notifications pour le moment.', 3500); }
+    notifSheet();
+  };
+  onSheetClose = () => { if (curView === 'settings') renderSettings(); if (curView === 'defis') renderDefis(); };
+}
+
 // ---------- bloquer et signaler ----------
 // bloquer : sur cet appareil, on ne voit plus ses messages ni ses réactions, dans tous les salons (identifiant public pk)
 const isBlocked = pk => !!pk && (S.blocked || []).some(b => b.pk === pk);
@@ -2488,6 +2598,7 @@ function setBlocked(p, on) {
   if (on) S.blocked.unshift({ pk: p.pk, name: p.name, ts: Date.now() });
   S.blocked = S.blocked.slice(0, 200);
   save();
+  pushSync(true);
   toast(on ? `🚫 ${esc(p.name)} est bloqué : tu ne verras plus ses messages ni ses réactions.` : `✅ ${esc(p.name)} est débloqué.`, 3200);
   if ($('#lobbyMsgs') && curView === 'lobby') renderChatInto($('#lobbyMsgs'));
   if ($('#chatSheetMsgs')) renderChatInto($('#chatSheetMsgs'));
@@ -2631,6 +2742,7 @@ function renderDefis() {
   $('#defiList').innerHTML = `<div class="card dhead"><div><small>${day ? 'DÉFIS DU JOUR' : `DÉFIS DE LA SAISON DE ${seasonName().toUpperCase()}`}</small>
       <b>${nDone} / ${list.length} terminés</b><span>${day ? `Nouveaux défis dans ${untilMidnight()}` : `Fin de la saison dans ${daysLeft()} jour${daysLeft() > 1 ? 's' : ''}`}</span></div>
       <div class="dring dbig">${ring(nDone / list.length, 64, 6)}<span>${nDone}/${list.length}</span></div></div>`
+    + (day && !S.push?.on ? '<button class="card li" id="defiNotif" style="margin-bottom:10px"><span class="e">🔔</span><span>Me rappeler mes défis chaque jour</span><span class="chev">›</span></button>' : '')
     + st.map(({ d, v, done, got }) => `<div class="card defi2 ${got ? 'got' : done ? 'ready' : ''}">
       <div class="dring">${ring(v / d.goal)}<span>${d.e}</span></div>
       <div class="mid"><b>${d.label}</b><span class="pg">${got ? 'Récompense récupérée' : `${fmt(v)} / ${fmt(d.goal)}`}</span>
@@ -2638,6 +2750,7 @@ function renderDefis() {
       <div class="act">${got ? '<span class="okk">✅</span>' : done ? `<button data-claim="${d.id}">Récupérer</button>` : day ? `<button class="rr2" data-reroll="${d.id}">🔄 Changer</button>` : ''}</div></div>`).join('')
     + `<p class="muted" style="font-size:12.5px;text-align:center">${day ? `🔄 change un défi : ${S.inv.reroll ? `${S.inv.reroll} jeton${S.inv.reroll > 1 ? 's' : ''}` : '150 pièces'}.` : 'Les défis de saison changent chaque mois.'} L’XP fait aussi avancer la route de saison.</p>`;
   $$('[data-reroll]').forEach(b => b.onclick = () => rerollDaily(b.dataset.reroll));
+  if ($('#defiNotif')) $('#defiNotif').onclick = notifSheet;
   $$('[data-claim]').forEach(b => b.onclick = () => {
     const d = list.find(x => x.id === b.dataset.claim);
     per.claimed.push(d.id); S.xp += d.xp; S.road.xp += d.xp; S.coins += d.coins; save();
@@ -2924,6 +3037,7 @@ function renderSettings() {
     ${tg('cb', '🌈', 'Mode daltonien (bleu et orange au lieu de vert et rouge)')}
     <button class="card li" data-go2="shop" data-tab2="themes"><span class="e">🎨</span><span>Thème</span><span class="muted">${THEMES.find(t => t.id === S.theme)?.name || 'Or'}</span><span class="chev">›</span></button>
     <button class="card li" data-go2="profile"><span class="e">👤</span><span>Pseudo et avatar</span><span class="chev">›</span></button>
+    <button class="card li" id="notifBtn"><span class="e">🔔</span><span>Notifications</span><span class="muted">${S.push?.on ? 'activées' : 'désactivées'}</span><span class="chev">›</span></button>
     <button class="card li" id="blockBtn"><span class="e">🚫</span><span>Joueurs bloqués</span><span class="muted">${(S.blocked || []).length}</span><span class="chev">›</span></button>
     <button class="card li" id="saveBtn"><span class="e">💾</span><span>Code de sauvegarde</span><span class="muted">changer de téléphone</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
@@ -2936,6 +3050,7 @@ function renderSettings() {
   $('#rulesBtn').onclick = rules;
   $('#saveBtn').onclick = saveSheet;
   $('#blockBtn').onclick = blockedSheet;
+  $('#notifBtn').onclick = notifSheet;
   $('#resetBtn').onclick = () => { if (confirm('Effacer ta progression (niveau, pièces, achats, statistiques) sur cet appareil ?')) { const name = S.name, av = S.av; S = fresh(); S.name = name; S.av = av; save(); applyTheme(); toast('Progression effacée.'); renderSettings(); } };
 }
 // code de sauvegarde : la progression est copiée sur le serveur et récupérable sur un autre appareil
@@ -3024,8 +3139,9 @@ function onboarding() {
   show('onb');
 }
 function startDeepLink() {
-  const code = new URLSearchParams(location.search).get('salon');
+  const q = new URLSearchParams(location.search), code = q.get('salon');
   if (code) joinCode(code);
+  else if (q.get('go') === 'defis') { history.replaceState(history.state, '', '/'); tabGo('defis'); }
 }
 
 // ---------- hors connexion et chargement rapide (service worker, public/sw.js) ----------
@@ -3047,7 +3163,7 @@ applyTheme();
 history.replaceState({ v: 'home' }, '');
 if (S.name && !S.acct) { S.acct = 'guest'; save(); } // joueurs d'avant la version 1.8 : invités
 paintMusic();
-if (!S.acct) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); }
+if (!S.acct) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); pushSync(); }
 })();
 </script>
 </body>
