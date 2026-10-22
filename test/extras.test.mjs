@@ -35,6 +35,15 @@ test('saison précédente et récompenses', () => {
   assert.equal(monthName('2026-10'), 'octobre 2026');
   assert.deepEqual([1, 10, 11, 50, 51, 100].map(topCoins), [1000, 1000, 500, 500, 250, 250]);
 });
+test('Halloween : événement de 48 h, du vendredi 30 octobre à midi au dimanche 1er novembre à midi', () => {
+  const h = SPECIAL['2026-10-26'];
+  assert.equal(h.to - h.from, 48 * 3600 * 1000);
+  const st = iso => eventState(iso.slice(0, 10), new Date(iso)).state;
+  assert.equal(st('2026-10-30T10:59:00Z'), 'soon');
+  assert.equal(st('2026-10-30T11:00:00Z'), 'live');
+  assert.equal(st('2026-11-01T10:59:00Z'), 'live');
+  assert.equal(st('2026-11-01T11:00:00Z'), 'done');
+});
 test('Halloween : le week-end du 31 octobre 2026 a son événement', () => {
   assert.equal(weekKey('2026-10-31'), '2026-10-26');
   const e = eventState('2026-10-31');
@@ -44,10 +53,10 @@ test('Halloween : le week-end du 31 octobre 2026 a son événement', () => {
   assert.ok(CATS.some(c => c.id === SPECIAL['2026-10-26'].cat));
   assert.ok(/^[a-z0-9-]{1,24}$/.test(`h-ev-${e.ev.id}-261026`));
 });
-test('Frissons : playlist secrète jusqu’au samedi 31 octobre, ouverte en local', () => {
-  assert.equal(catOpen('frissons', {}, '2026-10-30'), false);
-  assert.equal(catOpen('frissons', {}, '2026-10-31'), true);
-  assert.equal(catOpen('rock', {}, '2026-10-01'), true);
-  assert.equal(catOpen('frissons', { MOCK_MUSIC: '1' }, '2026-10-22'), true);
-  assert.equal(catOpen('frissons', { MOCK_MUSIC: '1', FRISSONS_LOCK: '1' }, '2026-10-22'), false);
+test('Frissons : playlist secrète jusqu’au vendredi 30 octobre à midi, ouverte en local', () => {
+  assert.equal(catOpen('frissons', {}, Date.parse('2026-10-30T10:59:00Z')), false);
+  assert.equal(catOpen('frissons', {}, Date.parse('2026-10-30T11:00:00Z')), true);
+  assert.equal(catOpen('rock', {}, 0), true);
+  assert.equal(catOpen('frissons', { MOCK_MUSIC: '1' }, 0), true);
+  assert.equal(catOpen('frissons', { MOCK_MUSIC: '1', FRISSONS_LOCK: '1' }, 0), false);
 });

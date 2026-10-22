@@ -1447,11 +1447,11 @@ export const CATS = [
 ];
 
 export const CAT_IDS = new Set(CATS.map(c => c.id));
-// Frissons (Halloween 2026) : la playlist reste secrète jusqu'au début de l'événement, samedi 31 octobre à minuit (Paris).
+// Frissons (Halloween 2026) : la playlist reste secrète jusqu'au début de l'événement, vendredi 30 octobre à midi (Paris).
 // En local (MOCK_MUSIC) toujours ouverte, sauf avec FRISSONS_LOCK=1.
-export const FRISSONS_FROM = '2026-10-31';
-export const catOpen = (id, env, today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' })) =>
-  id !== 'frissons' || (!!env?.MOCK_MUSIC && !env.FRISSONS_LOCK) || today >= FRISSONS_FROM;
+export const FRISSONS_FROM = Date.parse('2026-10-30T11:00:00Z'); // vendredi 30 octobre à midi (Paris) : début de l'événement
+export const catOpen = (id, env, now = Date.now()) =>
+  id !== 'frissons' || (!!env?.MOCK_MUSIC && !env.FRISSONS_LOCK) || now >= FRISSONS_FROM;
 
 // mode Classé : catégories où l'on peut jouer classé. Rotation prévue (4 catégories tirées au sort pour chaque saison,
 // les mêmes pour tout le monde pendant la saison) mais pas encore activée à la demande de l'utilisateur : toutes les

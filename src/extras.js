@@ -50,14 +50,20 @@ export const TOUR_COINS = [500, 300, 150];
 // événements spéciaux (jour de la semaine = lundi) : Halloween le week-end du 31 octobre 2026 ; theme = décor de l'appli,
 // gifts = cadeaux : frame au podium, av à partir de EVENT_MIN points (cadre Citrouille et avatar Chauve-citrouille au podium, avatar Chauve-souris dès 300 points)
 export const SPECIAL = {
-  '2026-10-26': { id: 'ehallo', name: 'Nuit des Frissons', emoji: '🎃', cat: 'frissons', theme: 'halloween', gifts: { frame: 'citrouille', av: 'H01', avTop: 'H02' } },
+  // 48 h pile : du vendredi 30 octobre à midi au dimanche 1er novembre à midi (heure de Paris, UTC+1 : 11 h UTC)
+  '2026-10-26': { id: 'ehallo', name: 'Nuit des Frissons', emoji: '🎃', cat: 'frissons', theme: 'halloween', gifts: { frame: 'citrouille', av: 'H01', avTop: 'H02' },
+    from: Date.parse('2026-10-30T11:00:00Z'), to: Date.parse('2026-11-01T11:00:00Z'), startTxt: 'vendredi à midi', endTxt: 'dimanche 1er novembre à midi', rangeTxt: 'Du vendredi 30 octobre à midi au dimanche 1er novembre à midi' },
 };
 export const eventOfWeek = wk => SPECIAL[wk] || EVENTS[Math.floor(Date.parse(wk + 'T12:00:00Z') / (7 * DAY)) % EVENTS.length];
 // événement à afficher un jour donné : lun-mer = celui du week-end passé (terminé), jeu-ven = à venir, sam-dim = en cours
-export function eventState(day) {
+// now : pour un événement spécial avec ses propres horaires (from / to), l'état suit l'heure et non le jour de la semaine
+export function eventState(day, now) {
   const d = dow(day), thisWk = weekKey(day);
   const wk = d <= 2 ? dayAdd(thisWk, -7) : thisWk;
-  return { wk, state: d <= 2 ? 'done' : d <= 4 ? 'soon' : 'live', ev: eventOfWeek(wk), sat: dayAdd(wk, 5), sun: dayAdd(wk, 6) };
+  const ev = eventOfWeek(wk);
+  let state = d <= 2 ? 'done' : d <= 4 ? 'soon' : 'live';
+  if (ev.from && now) state = +now < ev.from ? 'soon' : +now < ev.to ? 'live' : 'done';
+  return { wk, state, ev, sat: dayAdd(wk, 5), sun: dayAdd(wk, 6) };
 }
 export const tourState = (day, mins) => {
   const es = eventState(day);
@@ -156,7 +162,7 @@ export const extraMethods = {
   // ----- points : coffre, guerre, événement, tournoi (appelé avec clubScore) -----
   // rows = [{uid, pts}] ; cat = catégorie de la partie publique (absente au Hit du jour) ; pub = partie classée ou non classée
   trackPts(rows, cat, pub) {
-    const now = this.clock(), day = this.pDay(), wk = weekKey(day), es = eventState(day), mins = parisMinutes(now);
+    const now = this.clock(), day = this.pDay(), wk = weekKey(day), es = eventState(day, now), mins = parisMinutes(now);
     const live = es.state === 'live';
     if (isWeekend(day)) this.ensureWar(wk);
     for (const r of rows) {
@@ -255,7 +261,7 @@ export const extraMethods = {
 
   // ----- événement du week-end et tournoi -----
   eventInfo(uid) {
-    const now = this.clock(), day = this.pDay(), mins = parisMinutes(now), es = eventState(day), ev = es.ev;
+    const now = this.clock(), day = this.pDay(), mins = parisMinutes(now), es = eventState(day, now), ev = es.ev;
     const board = (table) => this.sql.exec(`SELECT t.uid, t.pts, p.pk, p.name, p.av, p.fr FROM ${table} t LEFT JOIN players p ON p.uid = t.uid WHERE t.ev = ? ORDER BY t.pts DESC LIMIT 10`, es.wk).toArray()
       .map((r, i) => ({ place: i + 1, pk: r.pk || '', name: r.name || 'Joueur', av: r.av || 'A02', fr: r.fr || 'def', pts: r.pts, me: r.uid === uid }));
     const mine = table => {
@@ -263,11 +269,11 @@ export const extraMethods = {
       return r ? { pts: r.pts, place: this.sql.exec(`SELECT COUNT(*) AS n FROM ${table} WHERE ev = ? AND pts > ?`, es.wk, r.pts).one().n + 1 } : { pts: 0, place: null };
     };
     const secret = !catOpen(ev.cat, this.env); // playlist pas encore dévoilée : ni catégorie ni cadeaux
-    return { wk: es.wk, state: es.state, id: ev.id, name: ev.name, emoji: ev.emoji, cat: secret ? '' : ev.cat, theme: ev.theme || '', gifts: secret ? null : ev.gifts || null, catName: secret ? 'secrète' : nameOf(ev.cat), from: es.sat, to: es.sun,
+    return { wk: es.wk, state: es.state, id: ev.id, name: ev.name, emoji: ev.emoji, cat: secret ? '' : ev.cat, theme: ev.theme || '', gifts: secret ? null : ev.gifts || null, startTxt: ev.startTxt || 'samedi', endTxt: ev.endTxt || 'dimanche minuit', rangeTxt: ev.rangeTxt || 'Du samedi au dimanche', catName: secret ? 'secrète' : nameOf(ev.cat), from: es.sat, to: es.sun,
       top: board('evpts'), me: mine('evpts'), min: EVENT_MIN, coins: EVENT_COINS, part: EVENT_PART,
       tour: { state: tourState(day, mins), day: es.sat, from: '20 h', to: '22 h', top: board('tpts').slice(0, 5), me: mine('tpts'), coins: TOUR_COINS } };
   },
-  eventLite() { const es = eventState(this.pDay()); return { state: es.state, cat: catOpen(es.ev.cat, this.env) ? es.ev.cat : '', name: es.ev.name, emoji: es.ev.emoji, wk: es.wk, theme: es.ev.theme || '' }; },
+  eventLite() { const es = eventState(this.pDay(), this.clock()); return { state: es.state, startTxt: es.ev.startTxt || 'samedi', cat: catOpen(es.ev.cat, this.env) ? es.ev.cat : '', name: es.ev.name, emoji: es.ev.emoji, wk: es.wk, theme: es.ev.theme || '' }; },
 
   // ----- mode Survie : nombre de manches tenues sans rater -----
   survieSave(uid, cat, n) {

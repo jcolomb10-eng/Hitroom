@@ -22,7 +22,7 @@ const shot = async (page, n) => page.screenshot({ path: `${OUT}/hw_${n}.png` });
   page.on('pageerror', e => errors.push(e.message));
   const state = () => page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')));
   const text = sel => page.$eval(sel, e => e.textContent).catch(() => '');
-  await api('/__mock/horloge?t=2026-10-30T17:00:00Z'); // vendredi 18 h à Paris
+  await api('/__mock/horloge?t=2026-10-29T10:00:00Z'); // jeudi 11 h à Paris : l'événement commence vendredi à midi
   await page.goto(BASE + '/');
   await page.click('#loginGuest');
   await page.fill('#onbName', 'Mina' + tag);
@@ -32,13 +32,17 @@ const shot = async (page, n) => page.screenshot({ path: `${OUT}/hw_${n}.png` });
   const uid = (await state()).uid;
 
   // 1. vendredi : événement à venir, décor déjà là
-  ok(await until(() => page.$eval('#homeEvent', e => e.classList.contains('hw') && e.textContent.includes('Nuit des Frissons') && e.textContent.includes('CE WEEK-END')), 8000), 'vendredi : tuile Halloween « ce week-end »');
+  ok(await until(() => page.$eval('#homeEvent', e => e.classList.contains('hw') && e.textContent.includes('Nuit des Frissons') && e.textContent.includes('CE WEEK-END') && e.textContent.includes('vendredi à midi')), 8000), 'jeudi : tuile Halloween « commence vendredi à midi »');
   if (new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' }) < '2026-10-29') ok(await page.$eval('#homeHw', e => !e.classList.contains('hide') && e.textContent.includes('Nuit des Frissons') && /BIENTÔT/.test(e.textContent)), 'avant le 29 octobre : compte à rebours Halloween sans rien dévoiler');
   ok(await page.evaluate(() => document.documentElement.dataset.hw === '1' && !!document.querySelector('.hwfx')), 'décor d’Halloween sur l’accueil');
   ok((await text('#homeTk')).includes('Nuit des Frissons'), 'bande défilante : message d’Halloween');
   await shot(page, '01_accueil_vendredi');
 
   // 2. samedi 20 h 30 : en cours ; catégorie Frissons jouable en solo / non classé, pas en classé
+  await api('/__mock/horloge?t=2026-10-30T10:30:00Z'); // vendredi 11 h 30 à Paris : encore 30 minutes
+  ok((await api(`/api/event?uid=${uid}`)).state === 'soon', 'vendredi 11 h 30 : pas encore commencé');
+  await api('/__mock/horloge?t=2026-10-30T11:00:00Z');
+  ok((await api(`/api/event?uid=${uid}`)).state === 'live', 'vendredi midi : l’événement commence');
   await api('/__mock/horloge?t=2026-10-31T19:30:00Z');
   await page.goto(BASE + '/');
   ok(await until(() => page.$eval('#homeEvent', e => e.textContent.includes('ÉVÉNEMENT EN COURS')), 8000), 'samedi : événement en cours');
@@ -61,6 +65,12 @@ const shot = async (page, n) => page.screenshot({ path: `${OUT}/hw_${n}.png` });
   await mk(1, 'Lola', 700); await mk(2, 'Hugo', 500); await mk(3, 'Sam', 320); await mk(4, 'Ana', 100);
   const ev = await api(`/api/event?uid=${uid}`);
   ok(ev.me.place === 1 && ev.cat === 'frissons' && ev.theme === 'halloween' && ev.gifts.frame === 'citrouille', 'classement de l’événement : 1re place, thème Halloween');
+
+  // dimanche midi passé : l'événement est fini, les points ne comptent plus
+  await api('/__mock/horloge?t=2026-11-01T11:30:00Z');
+  await api(`/__mock/points?uid=${uid}&pts=500&cat=frissons`);
+  const fin = await api(`/api/event?uid=${uid}`);
+  ok(fin.state === 'done' && fin.me.pts === 900, 'dimanche après midi : terminé, points non comptés');
 
   // 4. lundi : récompenses (pièces, titre, cadre Citrouille, avatar Chauve-citrouille)
   await api('/__mock/horloge?t=2026-11-02T09:00:00Z');

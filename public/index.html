@@ -1343,9 +1343,9 @@ const TICKER = ['🚧 Application en développement', '💡 Vos retours et vos i
 function paintTicker() { const a = TICKER.map(t => `<span>${esc(t)}</span><i>✦</i>`).join(''); $('#homeTk').innerHTML = a + a; }
 
 // ---------- données ----------
-const FRISSONS_FROM = '2026-10-31', HW_TEASER_END = '2026-10-29'; // playlist Frissons secrète jusqu'au début de l'événement (comme catOpen dans src/catalog.js)
+const FRISSONS_FROM = Date.parse('2026-10-30T11:00:00Z'), HW_TEASER_END = '2026-10-29'; // playlist Frissons secrète jusqu'au début de l'événement (comme catOpen dans src/catalog.js)
 let FRIS = null; // le serveur dit si la playlist est ouverte (/api/me) ; à défaut, la date
-const frissonsOpen = () => (FRIS == null ? parisDay() >= FRISSONS_FROM : FRIS);
+const frissonsOpen = () => (FRIS == null ? Date.now() >= FRISSONS_FROM : FRIS);
 const CATS = [
   { id: 'mix', name: 'Mix', sub: 'Tous styles', e: '♾️' },
   { id: '80', name: 'Années 80', sub: 'Pop • FR • Rock', e: '📻' },
@@ -3479,8 +3479,8 @@ function renderEventCard() {
   el.classList.toggle('hide', !e);
   if (!e) return;
   const c = e.cat ? catOf(e.cat).name : '';
-  const sub = !e.cat ? 'Commence samedi : une catégorie secrète, pièces ×2 et classement spécial' : e.state === 'live' ? `Pièces ×2 en ${esc(c)} · classement du week-end · tournoi samedi soir`
-    : e.state === 'soon' ? `Commence samedi : ${esc(c)}, pièces ×2 et classement spécial` : 'Terminé : récompenses à retrouver dans « Mon profil »';
+  const sub = !e.cat ? `Commence ${e.startTxt || 'samedi'} : une catégorie secrète, pièces ×2 et classement spécial` : e.state === 'live' ? `Pièces ×2 en ${esc(c)} · classement du week-end · tournoi samedi soir`
+    : e.state === 'soon' ? `Commence ${e.startTxt || 'samedi'} : ${esc(c)}, pièces ×2 et classement spécial` : 'Terminé : récompenses à retrouver dans « Mon profil »';
   el.className = `card evb ${e.state}${e.theme === 'halloween' ? ' hw' : ''}`;
   halloweenDecor(e);
   el.innerHTML = `<span class="em">${e.emoji}</span><span class="hb"><small>${e.state === 'live' ? '🔥 ÉVÉNEMENT EN COURS' : e.state === 'soon' ? '⏳ CE WEEK-END' : '🏁 ÉVÉNEMENT TERMINÉ'}</small><b>${esc(e.name)}</b><span>${sub}</span></span>
@@ -3500,18 +3500,18 @@ function halloweenDecor(e) {
   if (on && i < 0) { TICKER.unshift(tk); paintTicker(); } else if (!on && i >= 0) { TICKER.splice(i, 1); paintTicker(); }
 }
 // avant le jeudi 29 octobre : annonce d'Halloween avec compte à rebours, sans rien dévoiler (ni playlist ni cadeaux)
-const hwDays = () => Math.round((Date.parse(FRISSONS_FROM) - Date.parse(parisDay())) / 86400000);
-const hwWhen = () => { const n = hwDays(); return n <= 0 ? 'ce week-end' : n === 1 ? 'demain' : `dans ${n} jours`; };
+const hwDays = () => Math.round((Date.parse('2026-10-30') - Date.parse(parisDay())) / 86400000); // l'événement commence le 30 à midi
+const hwWhen = () => { const n = hwDays(); return n <= 0 ? 'aujourd’hui à midi' : n === 1 ? 'demain à midi' : `dans ${n} jours`; };
 function renderHwTeaser() {
   const el = $('#homeHw');
   if (!el) return;
   const on = parisDay() < HW_TEASER_END;
   el.classList.toggle('hide', !on);
-  if (on) el.innerHTML = `<span class="em">🎃</span><span class="hb"><small>⏳ BIENTÔT · ${hwWhen().toUpperCase()}</small><b>Nuit des Frissons</b><span>31 octobre – 1er novembre · une surprise t’attend…</span></span><span class="go">Voir</span>`;
+  if (on) el.innerHTML = `<span class="em">🎃</span><span class="hb"><small>⏳ BIENTÔT · ${hwWhen().toUpperCase()}</small><b>Nuit des Frissons</b><span>30 octobre midi – 1er novembre midi · une surprise t’attend…</span></span><span class="go">Voir</span>`;
 }
 function hwTeaserSheet() {
   openSheet(`<div style="text-align:center"><div style="font-size:54px">🎃</div><h3 style="justify-content:center">Nuit des Frissons</h3>
-    <p class="muted" style="margin:0">Du samedi 31 octobre au dimanche 1er novembre · ${hwWhen()}</p></div>
+    <p class="muted" style="margin:0">Du vendredi 30 octobre à midi au dimanche 1er novembre à midi · ${hwWhen()}</p></div>
     <div class="card cx"><h4>🤫 Un week-end spécial Halloween</h4><p>Une catégorie secrète, des pièces doublées, un classement et un tournoi le samedi soir, et des récompenses exclusives à gagner. Tout sera dévoilé en jeu : reviens jeudi 29 octobre !</p></div>
     <button class="cta" data-close>OK</button>`);
 }
@@ -3525,8 +3525,8 @@ async function eventSheet() {
   const t = e.tour, st = { soon: 'Samedi soir', live: '🔴 EN DIRECT', done: 'Terminé' }[t.state];
   const canTop = rankedCatsNow().includes(e.cat);
   openSheet(`<div style="text-align:center"><div style="font-size:46px">${e.emoji}</div><h3 style="justify-content:center">${esc(e.name)}</h3>
-    <p class="muted" style="margin:0">${e.state === 'live' ? 'En cours jusqu’à dimanche minuit' : e.state === 'soon' ? 'Du samedi au dimanche' : 'Terminé'} · catégorie ${esc(e.catName)}</p></div>
-    <div class="card cx"><h4>⭐ Comment ça marche <small></small></h4><p>${e.cat ? `Joue en <b>${esc(e.catName)}</b> (Classé ou Non classé) pendant le week-end` : 'La catégorie sera dévoilée samedi'} : tes <b>pièces sont doublées</b> et tes points comptent pour le classement de l’événement.
+    <p class="muted" style="margin:0">${e.state === 'live' ? 'En cours jusqu’à ' + (e.endTxt || 'dimanche minuit') : e.state === 'soon' ? (e.rangeTxt || 'Du samedi au dimanche') : 'Terminé'} · catégorie ${esc(e.catName)}</p></div>
+    <div class="card cx"><h4>⭐ Comment ça marche <small></small></h4><p>${e.cat ? `Joue en <b>${esc(e.catName)}</b> (Classé ou Non classé) pendant le week-end` : 'La catégorie sera dévoilée au début de l’événement'} : tes <b>pièces sont doublées</b> et tes points comptent pour le classement de l’événement.
       Récompenses : 🥇 ${e.coins[0]} · 🥈 ${e.coins[1]} · 🥉 ${e.coins[2]} pièces, un titre pour le vainqueur, et ${e.part} pièces dès ${e.min} points.${e.gifts ? ' 🎁 Cadre Citrouille et avatar Chauve-citrouille pour le podium, avatar Chauve-souris dès ' + e.min + ' points.' : ''}</p></div>
     <h4 class="psec">Classement de l’événement <span>${e.me.pts ? `toi : ${placeTxt(e.me.place)} · ${fmt(e.me.pts)} pts` : ''}</span></h4>${rows(e.top)}
     <div class="card cx" style="margin-top:14px"><h4>🏟️ Tournoi du samedi soir <small>${st} · 20 h – 22 h</small></h4>
