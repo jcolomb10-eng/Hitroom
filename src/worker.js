@@ -117,7 +117,7 @@ export default {
       return code.length === 12 ? json(await hub(env).loadProgress(code)) : json({ ok: 0 });
     }
     if (path === '/api/status') return json(await hub(env).catalogStatus(url.searchParams.has('test')));
-    if (path === '/api/introuvables') return json(await hub(env).failedSongs());
+    if (path === '/api/introuvables') return json(await hub(env).failedSongs(url.searchParams.get('f') === '1'));
     if (path === '/api/versions') return json(await hub(env).chosenVersions());
     // pour le propriétaire du jeu (page /stats.html) : protégé par la variable secrète ADMIN_KEY
     if (path === '/api/signalements' || path === '/api/stats') {

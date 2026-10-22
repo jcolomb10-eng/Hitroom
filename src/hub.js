@@ -3,7 +3,7 @@
 // - compte les joueurs présents dans chaque salon public
 // - tient les rangs (points de rang par saison mensuelle) et le classement « tous les temps »
 import { DurableObject } from 'cloudflare:workers';
-import { songsOf, songByKey, rankedCats, CATS, catOpen } from './catalog.js';
+import { songsOf, songByKey, rankedCats, CATS, catOpen, allSongs, frissonsOnly } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
 import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 import { publicKey } from './ids.js';
@@ -232,7 +232,7 @@ export class Hub extends DurableObject {
   async alarm() {
     const now = Date.now();
     const known = new Map(this.sql.exec(`SELECT k, ok, ts FROM tracks`).toArray().map(r => [r.k, r]));
-    const due = [], all = songsOf('mix');
+    const due = [], all = allSongs();
     const inCatalog = new Set(all.map(s => s.k));
     for (const k of known.keys()) if (!inCatalog.has(k)) this.sql.exec(`DELETE FROM tracks WHERE k = ?`, k); // retiré du catalogue
     for (const s of all) {
@@ -402,7 +402,7 @@ export class Hub extends DurableObject {
     this.warm();
     const r = this.sql.exec(`SELECT SUM(ok) AS ok, COUNT(*) AS n FROM tracks`).one();
     const bySrc = Object.fromEntries(this.sql.exec(`SELECT src, COUNT(*) AS n FROM tracks WHERE ok = 1 GROUP BY src`).toArray().map(x => [x.src || '?', x.n]));
-    const out = { songs: songsOf('mix').length, checked: r.n || 0, playable: r.ok || 0, bySource: bySrc, sources: this.diag };
+    const out = { songs: allSongs().length - (catOpen('frissons', this.env) ? 0 : songsOf('frissons').filter(x => frissonsOnly(x.k)).length), checked: r.n || 0, playable: r.ok || 0, bySource: bySrc, sources: this.diag };
     if (test) {
       const song = songByKey('daft punk|one more time') || songsOf('mix')[0];
       const force = (src, url) => this.getJSON(src, url, true);
@@ -645,8 +645,9 @@ export class Hub extends DurableObject {
     });
   }
 
-  failedSongs() {
-    return this.sql.exec(`SELECT k FROM tracks WHERE ok = 0`).toArray().map(r => songByKey(r.k)).filter(Boolean)
+  // les morceaux Frissons (playlist secrète avant le 30/10 à midi) n'apparaissent pas sans le paramètre ?f=1
+  failedSongs(withFrissons) {
+    return this.sql.exec(`SELECT k FROM tracks WHERE ok = 0`).toArray().filter(r => withFrissons || catOpen('frissons', this.env) || !frissonsOnly(r.k)).map(r => songByKey(r.k)).filter(Boolean)
       .map(s => `${s.t[0]} — ${s.a[0]}`);
   }
 

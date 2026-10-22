@@ -1505,6 +1505,10 @@ export function songsOf(cat) {
   return BY_CAT[cat] || BY_CAT.mix;
 }
 
+// tout le catalogue, Frissons compris (songsOf('mix') n'en contient pas) : préchargement et diagnostic
+export const allSongs = () => [...ALL.values()];
+export const frissonsOnly = k => BY_CAT.frissons.some(f => f.k === k) && !BY_CAT.mix.some(m => m.k === k);
+
 export function songByKey(k) {
   return ALL.get(k);
 }
