@@ -82,6 +82,13 @@ test('Deezer : la version la plus écoutée, sans remix ni « rendu célèbre pa
     dz('Bryan Adams', '(Everything I Do) I Do It For You (Live)', 400000, 'Bare Bones (Live)'),
     dz('Bryan Adams', '(Everything I Do) I Do It For You', 300000),
   ], song('(Everything I Do) I Do It for You', 'Bryan Adams')), '(Everything I Do) I Do It For You');
+  // seulement des remix, un instrumental ou une version orchestre : introuvable plutôt que méconnaissable
+  assert.equal(pickBest([dz('Don Omar', 'Danza Kuduro (Tiësto Remix)', 500000)], song('Danza Kuduro', 'Don Omar')), null);
+  assert.equal(pickBest([dz('Lady Gaga', "Just Dance (HCCR'S Bambossa Main Mix)", 500000)], song('Just Dance', 'Lady Gaga')), null);
+  assert.equal(pickBest([dz('MIKA', 'Elle Me Dit (Orchestra Version)', 500000)], song('Elle me dit', 'Mika')), null);
+  // un live reste reconnaissable : gardé faute de mieux
+  assert.equal(pick([dz('Coldplay', 'Viva La Vida (Live)', 500000, 'Live 2012')], song('Viva la Vida', 'Coldplay')), 'Viva La Vida (Live)');
+  assert.equal(pick([dz('PNAU', 'x', 1), dz('Elton John', 'Cold Heart (PNAU Remix)', 500000)], song(['Cold Heart', 'Cold Heart (PNAU Remix)'], 'Elton John')), 'Cold Heart (PNAU Remix)');
   // un morceau du catalogue qui contient lui-même le mot n'est pas pénalisé
   assert.equal(pick([
     dz('Queen', 'Live Forever', 10),

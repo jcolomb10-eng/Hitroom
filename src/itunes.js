@@ -39,6 +39,8 @@ const EDITED = /\b(edit|mix|maxi|extended|club|dub)\b/i;
 // album de remix ou de concert ; mentions sans conséquence entre parenthèses (featuring, remaster, B.O.…)
 const OTHER_ALBUM = /\b(remix\w*|re-?mixes|mixes|megamix|live|en concert|unplugged|acousti\w*)\b/i;
 const BENIGN = /^(feat|ft\b|featuring|with |avec |from |de |du film|bande originale|theme|love theme|original|version originale|single version|album version|explicit|clean|mono|stereo)|remaster/i;
+// méconnaissable dans un blind test : jamais choisi, même faute de mieux (le morceau est alors introuvable)
+const UNPLAYABLE = /\b(remix\w*|re-?mix|instrumental|karaok\w*|a ?cappella|sped up|slowed|nightcore|8-bit|lullaby|berceuse|orchestra\w*|main mix|club mix|dub mix|retro version)\b/i;
 // pas l'artiste lui-même : karaoké, hommage, reprise, « rendu célèbre par »…
 const NOT_ARTIST = /\b(karaok\w*|tribute|hommage|covers?|covered|reprise|parod\w*|originally|made famous|in the style|rendu c[ée]l[èe]bre|interpr[ée]t[ée]e? (?:à|a) l.origine)\b/i;
 
@@ -71,5 +73,6 @@ export function pickBest(results, song) {
     if (NOT_ARTIST.test(`${x.trackName} ${x.collectionName || ''} ${x.artistName || ''}`) && !own(NOT_ARTIST)) s -= 1;
     if (s > bs) { bs = s; best = x; }
   }
+  if (best && UNPLAYABLE.test(best.trackName) && !song.t.some(t => UNPLAYABLE.test(t))) return null;
   return best;
 }

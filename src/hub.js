@@ -16,7 +16,7 @@ const RETRY_FAIL = 7 * DAY;  // un morceau introuvable est retenté une semaine 
 const WARM_BATCH = 15;       // morceaux recherchés à chaque minute en tâche de fond
 // à changer quand la façon de choisir la version (pickBest) change : tous les morceaux sont recherchés à nouveau
 // petit à petit en tâche de fond (on garde l'ancienne version en attendant)
-const PICKER = '3';
+const PICKER = '4';
 const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; Hitroom/1.0; blind test)', Accept: 'application/json' };
 
 function shuffle(a) {
