@@ -66,6 +66,16 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 
 ## Prochaines étapes
 
+**Peaufiner ce qui existe** (liste de l'utilisateur, 22/10/2026, à faire dans cet ordre sauf avis contraire) :
+- ⭐ Catalogue plus gros : plus de 1 000 morceaux (354 aujourd'hui, les habitués retombent vite sur les mêmes) et corriger ceux sans extrait.
+- Écouter le morceau en entier : à la révélation, bouton « Écouter sur Deezer / Apple Music » (piste pour gagner de l'argent : liens affiliés).
+- « Mes découvertes » : historique des morceaux joués, avec des ❤️ favoris.
+- Notifications : défis du jour, nouvelle saison, « Léa t'invite dans son salon ».
+- Mode hors connexion et chargement plus rapide.
+- Confort : thème clair, taille du texte, mode pour les daltoniens.
+- Signaler ou bloquer un joueur dans le chat.
+- Statistiques de fréquentation (Cloudflare Web Analytics, gratuit, sans cookies).
+
 0. **Version 2.0** : vrais comptes (invité → compte sans perte, code à 6 chiffres par e-mail, puis Google ; page Confidentialité RGPD et suppression de compte), progression sur le serveur (fin de la triche). Idée : vrai thème clair.
 
 1. En ligne depuis la 1.8. Après la publication de la 1.11 : attendre environ 1 h que tout soit recherché à nouveau, puis vérifier `/api/introuvables` et `/api/versions` (titres et albums des versions retenues via `https://api.deezer.com/track/<ext>`) et corriger le catalogue si besoin.
