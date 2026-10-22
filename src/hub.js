@@ -3,12 +3,16 @@
 // - compte les joueurs présents dans chaque salon public
 // - tient les rangs (points de rang par saison mensuelle) et le classement « tous les temps »
 import { DurableObject } from 'cloudflare:workers';
-import { songsOf, songByKey, rankedCats } from './catalog.js';
+import { songsOf, songByKey, rankedCats, CATS } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
 import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 import { publicKey } from './ids.js';
 import { langMins, langFits, langOrder } from './mixlang.js';
 import { makeVapid, sendPush, epHash, vapidAuth } from './push.js';
+import { cleanText } from './filter.js';
+import { norm } from './match.js';
+import { parisDay, dayAdd, hitNumber, hitCandidates, seededRnd, streaks, friendCode, HIT_N, ONLINE, AT_RE,
+  CLUB_MAX, CLUB_EMBLEMS, CLUB_COLORS, clubId } from './social.js';
 
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
@@ -33,6 +37,9 @@ const PUSH_SUBJECT = 'https://hitroom.jcolomb10.workers.dev'; // contact demand�
 const DAILY_MSG = { title: '🎯 Tes défis du jour t’attendent', body: 'Des pièces et de l’XP à gagner : une petite partie ?', url: '/?go=defis' };
 const WELCOME_MSG = { title: '🔔 Notifications activées !', body: 'Tu seras prévenu ici de tes défis, des nouvelles saisons et des invitations de tes amis.', url: '/' };
 const SEASON_MSG = { title: '🏆 Nouvelle saison !', body: 'Ta récompense de la saison passée t’attend. Viens grimper les rangs !', url: '/' };
+const MAX_FRIENDS = 100;
+const CHAL_TTL = 10 * 60000; // un défi ou une invitation reçue reste valable 10 minutes
+const catName = c => String(c || 'mix').split('+').map(x => CATS.find(y => y.id === x)?.name).filter(Boolean).join(' + ') || 'Mix';
 
 export class Hub extends DurableObject {
   constructor(ctx, env) {
@@ -65,6 +72,30 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS inbox(id INTEGER PRIMARY KEY AUTOINCREMENT, ep TEXT, title TEXT, body TEXT, url TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS invites(from_pk TEXT, to_pk TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS reports(target TEXT, reporter TEXT, pk TEXT, name TEXT, why TEXT, msgs TEXT, room TEXT, ts INTEGER, PRIMARY KEY(target, reporter))`);
+    // version 1.15 : fiche publique des joueurs (pseudo, avatar, présence), amis, demandes, défis en duel, bilans des duels
+    // (pk = identifiant public ; l'uid ne sort jamais du serveur)
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS players(uid TEXT PRIMARY KEY, pk TEXT, fc TEXT, name TEXT, av TEXT, fr TEXT, lvl INTEGER, seen INTEGER, at TEXT)`);
+    this.sql.exec(`CREATE UNIQUE INDEX IF NOT EXISTS players_pk ON players(pk)`);
+    this.sql.exec(`CREATE UNIQUE INDEX IF NOT EXISTS players_fc ON players(fc)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS friends(a TEXT, b TEXT, ts INTEGER, PRIMARY KEY(a, b))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS freqs(src TEXT, dst TEXT, ts INTEGER, PRIMARY KEY(src, dst))`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS freqs_dst ON freqs(dst)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS chal(dst TEXT, src TEXT, kind TEXT, code TEXT, cat TEXT, ts INTEGER, PRIMARY KEY(dst, src))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS duels(a TEXT, b TEXT, wa INTEGER, wb INTEGER, PRIMARY KEY(a, b))`);
+    // Hit du jour : les extraits de chaque jour (les mêmes pour tous) et le résultat de chacun (grid : un chiffre par extrait)
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS hitday(day TEXT PRIMARY KEY, keys TEXT)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS hits(day TEXT, uid TEXT, pk TEXT, name TEXT, av TEXT, score INTEGER, grid TEXT, done INTEGER, ts INTEGER, PRIMARY KEY(day, uid))`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS hits_score ON hits(day, score DESC)`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS hits_uid ON hits(uid, day)`);
+    // clubs : membres (un club par joueur), points de chaque membre par saison, total du club par saison, exclusions
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS clubs(id TEXT PRIMARY KEY, name TEXT, nk TEXT, e TEXT, c INTEGER, chief TEXT, ts INTEGER)`);
+    this.sql.exec(`CREATE UNIQUE INDEX IF NOT EXISTS clubs_nk ON clubs(nk)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS cmembers(uid TEXT PRIMARY KEY, club TEXT, ts INTEGER)`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS cmembers_club ON cmembers(club)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS cpts(club TEXT, sc TEXT, uid TEXT, pts INTEGER, PRIMARY KEY(club, sc, uid))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS cseason(club TEXT, sc TEXT, pts INTEGER, PRIMARY KEY(club, sc))`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS cseason_pts ON cseason(sc, pts DESC)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS cban(club TEXT, uid TEXT, ts INTEGER, PRIMARY KEY(club, uid))`);
     // version 1.5 : points de rang convertis une fois vers les paliers progressifs (chacun garde son rang)
     if (!this.sql.exec(`SELECT v FROM meta WHERE k = 'paliers'`).toArray().length) {
       ctx.storage.transactionSync(() => {
@@ -154,12 +185,7 @@ export class Hub extends DurableObject {
       if (song) (langFits(s, cnt, mins, n) ? take(picked, song) : spare.length < n && spare.push(song));
       else if (!r || now - r.ts > RETRY_FAIL) todo.push(s);
     }
-    // les liens Deezer expirent : lien frais pour chaque partie
-    const freshen = async songs => {
-      const res = await Promise.allSettled(songs.map(s => (s.src === 'dz' ? deezerPreview(this.getJSON, s.ext) : s.url)));
-      return songs.map((s, i) => (res[i].status === 'fulfilled' && res[i].value ? { ...s, url: res[i].value } : null)).filter(Boolean);
-    };
-    const out = await freshen(picked);
+    const out = await this.freshen(picked);
     cnt.fr = out.filter(s => s.fr).length; cnt.other = out.length - cnt.fr;
     // morceaux encore jamais cherchés : on les cherche maintenant, par petits paquets
     let tries = 0;
@@ -181,8 +207,14 @@ export class Hub extends DurableObject {
       if (Date.now() < this.paused.it && Date.now() < this.paused.dz) break;
     }
     // pas assez dans une langue : on complète avec les autres morceaux trouvés
-    if (out.length < n && spare.length) out.push(...(await freshen(spare)).slice(0, n - out.length));
+    if (out.length < n && spare.length) out.push(...(await this.freshen(spare)).slice(0, n - out.length));
     return langOrder(out);
+  }
+
+  // les liens Deezer expirent : lien frais pour chaque partie
+  async freshen(songs) {
+    const res = await Promise.allSettled(songs.map(s => (s.src === 'dz' ? deezerPreview(this.getJSON, s.ext) : s.url)));
+    return songs.map((s, i) => (res[i].status === 'fulfilled' && res[i].value ? { ...s, url: res[i].value } : null)).filter(Boolean);
   }
 
   // tests en local : un tirage de morceaux comme pour une partie (/__mock/pick)
@@ -272,13 +304,22 @@ export class Hub extends DurableObject {
 
   // rang d'un joueur qui entre dans un salon ; avec une catégorie, le salon public de son niveau à rejoindre
   rankOf(uid, cat) {
-    const r = this.rankRow(uid), tier = tierOf(r.rp);
-    return { rp: r.rp, tier, bestEver: this.bestEver(uid), win: cat ? this.pickWindow(cat, tier) : null };
+    const r = this.rankRow(uid), tier = tierOf(r.rp), c = this.clubOf(uid);
+    return { rp: r.rp, tier, bestEver: this.bestEver(uid), win: cat ? this.pickWindow(cat, tier) : null, club: c ? `${c.e} ${c.name}` : '' };
+  }
+
+  // rang de la saison sans rien créer (amis, membres d'un club) : à défaut, celui de la saison passée réduit de moitié
+  peekRank(uid) {
+    const sc = season();
+    const r = this.sql.exec(`SELECT rp FROM ranks WHERE uid = ? AND sc = ?`, uid, sc).toArray()[0]
+      || this.sql.exec(`SELECT rp FROM ranks WHERE uid = ? AND sc < ? ORDER BY sc DESC LIMIT 1`, uid, sc).toArray().map(x => ({ rp: softReset(x.rp) }))[0];
+    return r?.rp || 0;
   }
 
   // infos de rang pour l'appli ; la récompense de fin de saison n'est donnée qu'une fois
-  me(uid) {
+  me(uid, prof) {
     this.seen(uid);
+    if (prof) this.touch(uid, prof);
     const sc = season();
     const r = this.rankRow(uid);
     const pos = r.games ? this.sql.exec(`SELECT COUNT(*) AS n FROM ranks WHERE sc = ? AND games > 0 AND rp > ?`, sc, r.rp).one().n + 1 : null;
@@ -465,22 +506,31 @@ export class Hub extends DurableObject {
 
   // invitation dans un salon entre amis : 10 par heure au plus, 2 par heure à la même personne ;
   // jamais si l'invité a coupé les invitations ou bloqué l'expéditeur (réponse identique : « pas de notifications »)
-  async invite(fromUid, fromName, code, toPk) {
+  // un ami la reçoit aussi dans l'appli (défis et invitations, 10 minutes), même sans notifications
+  async invite(fromUid, fromName, code, toPk, kind = 'salon', cat = '') {
     const fromPk = publicKey(fromUid), hour = Date.now() - 3600000;
     if (toPk === fromPk || !/^[A-Z0-9]{4}$/.test(code || '')) return { ok: 0, why: 'err' };
     if (this.sql.exec(`SELECT COUNT(*) AS n FROM invites WHERE from_pk = ? AND ts > ?`, fromPk, hour).one().n >= 10) return { ok: 0, why: 'limit' };
     if (this.sql.exec(`SELECT COUNT(*) AS n FROM invites WHERE from_pk = ? AND to_pk = ? AND ts > ?`, fromPk, toPk, hour).one().n >= 2) return { ok: 0, why: 'again' };
-    const subs = this.sql.exec(`SELECT ep, uid, endpoint, prefs FROM subs WHERE pk = ?`, toPk).toArray().filter(s => {
+    const subs = this.pushSubs(toPk, fromPk), friend = this.isFriend(fromPk, toPk);
+    if (!subs.length && !friend) return { ok: 0, why: 'off' };
+    this.sql.exec(`INSERT INTO invites(from_pk, to_pk, ts) VALUES(?,?,?)`, fromPk, toPk, Date.now());
+    this.sql.exec(`DELETE FROM invites WHERE ts < ?`, Date.now() - DAY);
+    if (friend) this.sql.exec(`INSERT OR REPLACE INTO chal(dst, src, kind, code, cat, ts) VALUES(?,?,?,?,?,?)`, toPk, fromPk, kind, code, cat || '', Date.now());
+    const name = String(fromName || 'Un ami').slice(0, 20);
+    const msg = kind === 'duel'
+      ? { title: `⚔️ ${name} te défie en duel !`, body: `1 contre 1 en ${catName(cat)} : rejoins le duel dans les 10 minutes.`, url: `/?salon=${code}` }
+      : { title: `🎵 ${name} t’invite à jouer`, body: `Rejoins son salon Hitroom (code ${code}) !`, url: `/?salon=${code}` };
+    await Promise.all(subs.map(s => this.notify(s, msg)));
+    return { ok: 1 };
+  }
+
+  // appareils abonnés aux notifications d'invitation (et de demandes d'amis) de ce joueur, sauf s'il a bloqué l'expéditeur
+  pushSubs(toPk, fromPk) {
+    return this.sql.exec(`SELECT ep, uid, endpoint, prefs FROM subs WHERE pk = ?`, toPk).toArray().filter(s => {
       const p = JSON.parse(s.prefs || '{}');
       return p.invites && !(p.blocked || []).includes(fromPk);
     });
-    if (!subs.length) return { ok: 0, why: 'off' };
-    this.sql.exec(`INSERT INTO invites(from_pk, to_pk, ts) VALUES(?,?,?)`, fromPk, toPk, Date.now());
-    this.sql.exec(`DELETE FROM invites WHERE ts < ?`, Date.now() - DAY);
-    const name = String(fromName || 'Un ami').slice(0, 20);
-    const msg = { title: `🎵 ${name} t’invite à jouer`, body: `Rejoins son salon Hitroom (code ${code}) !`, url: `/?salon=${code}` };
-    await Promise.all(subs.map(s => this.notify(s, msg)));
-    return { ok: 1 };
   }
 
   devPush() { return { subs: this.sql.exec(`SELECT pk, endpoint, prefs FROM subs`).toArray(), log: this.pushLog || [] }; }
@@ -577,5 +627,325 @@ export class Hub extends DurableObject {
   failedSongs() {
     return this.sql.exec(`SELECT k FROM tracks WHERE ok = 0`).toArray().map(r => songByKey(r.k)).filter(Boolean)
       .map(s => `${s.t[0]} — ${s.a[0]}`);
+  }
+
+  // ---------- joueurs : fiche publique et présence (amis, clubs) ----------
+  // prof = { name, av, fr, lvl } venu de l'appli ; at = où il se trouve (AT_RE), donné par /api/ping seulement ;
+  // renvoie son identifiant public
+  touch(uid, prof = {}, at) {
+    const pk = publicKey(uid);
+    const old = this.sql.exec(`SELECT fc, name, av, fr, lvl, seen, at FROM players WHERE uid = ?`, uid).toArray()[0];
+    const nm = prof.name != null ? cleanText(prof.name, 16) : '';
+    const name = nm && !/\*/.test(nm) && /[\p{L}\p{N}]/u.test(nm) ? nm : old?.name || 'Joueur';
+    const av = Array.from(String(prof.av || '')).slice(0, 4).join('') || old?.av || 'A02';
+    const fr = /^[a-z0-9-]{1,12}$/.test(prof.fr || '') && !/^r[0-8]$/.test(prof.fr) ? prof.fr : old?.fr || 'def';
+    const lv = parseInt(prof.lvl, 10), lvl = lv > 0 && lv < 1000 ? lv : old?.lvl || 1;
+    const seen = at != null ? Date.now() : old?.seen || 0;
+    const where = at != null ? (AT_RE.test(at) ? at : 'menu') : old?.at || 'menu';
+    this.sql.exec(`INSERT OR REPLACE INTO players(uid, pk, fc, name, av, fr, lvl, seen, at) VALUES(?,?,?,?,?,?,?,?,?)`,
+      uid, pk, old?.fc || this.newFc(pk), name, av, fr, lvl, seen, where);
+    return pk;
+  }
+
+  // code ami de 6 caractères, unique
+  newFc(pk) {
+    for (let i = 0; i < 50; i++) {
+      const fc = friendCode(pk, i);
+      if (!this.sql.exec(`SELECT 1 FROM players WHERE fc = ?`, fc).toArray().length) return fc;
+    }
+    return friendCode(pk + Date.now());
+  }
+
+  // l'appli se signale chaque minute : amis en ligne, demandes reçues, défis et invitations en attente, son club
+  ping(uid, prof, at) {
+    const pk = this.touch(uid, prof, at || 'menu'), now = Date.now();
+    this.sql.exec(`DELETE FROM chal WHERE ts < ?`, now - CHAL_TTL);
+    const on = this.sql.exec(`SELECT p.name, p.av FROM friends f JOIN players p ON p.pk = f.b WHERE f.a = ? AND p.seen > ? ORDER BY p.seen DESC`, pk, now - ONLINE).toArray();
+    const c = this.clubOf(uid);
+    return {
+      on: on.length, onl: on.slice(0, 3), nf: this.sql.exec(`SELECT COUNT(*) AS n FROM friends WHERE a = ?`, pk).one().n,
+      rq: this.sql.exec(`SELECT COUNT(*) AS n FROM freqs WHERE dst = ?`, pk).one().n,
+      ch: this.sql.exec(`SELECT c.src AS pk, c.kind, c.code, c.cat, c.ts, p.name, p.av FROM chal c LEFT JOIN players p ON p.pk = c.src WHERE c.dst = ? ORDER BY c.ts DESC LIMIT 5`, pk).toArray(),
+      club: c ? { id: c.id, name: c.name, e: c.e, c: c.c } : null,
+    };
+  }
+
+  isFriend(a, b) { return !!this.sql.exec(`SELECT 1 FROM friends WHERE a = ? AND b = ?`, a, b).toArray().length; }
+
+  makeFriends(a, b) {
+    const now = Date.now();
+    this.sql.exec(`INSERT OR IGNORE INTO friends(a, b, ts) VALUES(?,?,?)`, a, b, now);
+    this.sql.exec(`INSERT OR IGNORE INTO friends(a, b, ts) VALUES(?,?,?)`, b, a, now);
+    this.sql.exec(`DELETE FROM freqs WHERE (src = ? AND dst = ?) OR (src = ? AND dst = ?)`, a, b, b, a);
+  }
+
+  async notifyAll(subs, msg) { await Promise.all(subs.map(s => this.notify(s, msg).catch(() => {}))); }
+
+  // mes amis (en ligne d'abord) avec leur rang, leur Hit du jour et notre bilan en duel ; demandes reçues et envoyées
+  friendList(uid) {
+    const pk = this.touch(uid), now = Date.now(), day = parisDay();
+    const list = this.sql.exec(`SELECT p.uid, p.pk, p.name, p.av, p.fr, p.lvl, p.seen, p.at FROM friends f JOIN players p ON p.pk = f.b WHERE f.a = ?`, pk).toArray()
+      .map(r => {
+        const on = now - r.seen < ONLINE, rp = this.peekRank(r.uid);
+        const hit = this.sql.exec(`SELECT score, grid FROM hits WHERE day = ? AND uid = ?`, day, r.uid).toArray()[0] || null;
+        return { pk: r.pk, name: r.name, av: r.av, fr: r.fr, lvl: r.lvl, on, at: on ? r.at : '', seen: r.seen, rp, tier: tierOf(rp), hit, duel: this.duelOf(pk, r.pk) };
+      }).sort((a, b) => b.on - a.on || b.seen - a.seen);
+    const reqs = (col, by) => this.sql.exec(`SELECT r.${col} AS pk, r.ts, p.name, p.av, p.lvl FROM freqs r LEFT JOIN players p ON p.pk = r.${col} WHERE r.${by} = ? ORDER BY r.ts DESC`, pk).toArray();
+    const rp = this.peekRank(uid);
+    return { pk, code: this.sql.exec(`SELECT fc FROM players WHERE uid = ?`, uid).one().fc, list, inq: reqs('src', 'dst'), outq: reqs('dst', 'src'),
+      max: MAX_FRIENDS, me: { rp, tier: tierOf(rp), hit: this.sql.exec(`SELECT score, grid FROM hits WHERE day = ? AND uid = ?`, day, uid).toArray()[0] || null } };
+  }
+
+  // act : add (pk ou fc = code ami), accept, decline, cancel, remove, duel (code du salon, cat), answer (yes) ;
+  // une demande à quelqu'un qui m'avait déjà demandé = amis tout de suite
+  async friendAct(uid, b = {}) {
+    const me = this.touch(uid), now = Date.now();
+    const myName = this.sql.exec(`SELECT name FROM players WHERE uid = ?`, uid).one().name;
+    let pk = String(b.pk || '');
+    if (b.fc) pk = this.sql.exec(`SELECT pk FROM players WHERE fc = ?`, String(b.fc).toUpperCase().replace(/[^A-Z0-9]/g, '')).toArray()[0]?.pk || '';
+    if (!/^[0-9a-f]{12}$/.test(pk)) return { ok: 0, why: b.fc ? 'code' : 'err' };
+    if (pk === me) return { ok: 0, why: 'self' };
+    const other = this.sql.exec(`SELECT uid, name FROM players WHERE pk = ?`, pk).toArray()[0];
+    const count = p => this.sql.exec(`SELECT COUNT(*) AS n FROM friends WHERE a = ?`, p).one().n;
+    const asked = (src, dst) => !!this.sql.exec(`SELECT 1 FROM freqs WHERE src = ? AND dst = ?`, src, dst).toArray().length;
+    switch (b.act) {
+      case 'add': {
+        if (!other) return { ok: 0, why: 'code' };
+        const name = other.name;
+        if (this.isFriend(me, pk)) return { ok: 1, state: 'friend', name };
+        if (count(me) >= MAX_FRIENDS) return { ok: 0, why: 'full' };
+        if (count(pk) >= MAX_FRIENDS) return { ok: 0, why: 'full2', name };
+        if (asked(pk, me)) { this.makeFriends(me, pk); return { ok: 1, state: 'friend', name }; }
+        if (asked(me, pk)) return { ok: 1, state: 'sent', name };
+        if (this.sql.exec(`SELECT COUNT(*) AS n FROM freqs WHERE src = ?`, me).one().n >= 30) return { ok: 0, why: 'limit' };
+        this.sql.exec(`INSERT INTO freqs(src, dst, ts) VALUES(?,?,?)`, me, pk, now);
+        await this.notifyAll(this.pushSubs(pk, me), { title: `👥 ${myName} t’a envoyé une demande d’ami`, body: 'Accepte-la pour vous voir en ligne et jouer en duel.', url: '/?go=amis' });
+        return { ok: 1, state: 'sent', name };
+      }
+      case 'accept':
+        if (!asked(pk, me)) return { ok: 0, why: 'gone' };
+        if (count(me) >= MAX_FRIENDS) return { ok: 0, why: 'full' };
+        this.makeFriends(me, pk);
+        await this.notifyAll(this.pushSubs(pk, me), { title: `✅ ${myName} a accepté ta demande d’ami`, body: 'Défie ton nouvel ami en duel !', url: '/?go=amis' });
+        return { ok: 1, state: 'friend' };
+      case 'decline': this.sql.exec(`DELETE FROM freqs WHERE src = ? AND dst = ?`, pk, me); return { ok: 1 };
+      case 'cancel': this.sql.exec(`DELETE FROM freqs WHERE src = ? AND dst = ?`, me, pk); return { ok: 1 };
+      case 'remove': this.sql.exec(`DELETE FROM friends WHERE (a = ? AND b = ?) OR (a = ? AND b = ?)`, me, pk, pk, me); return { ok: 1 };
+      case 'duel':
+        if (!this.isFriend(me, pk)) return { ok: 0, why: 'friend' };
+        return this.invite(uid, myName, String(b.code || ''), pk, 'duel', String(b.cat || '').replace(/[^a-z0-9+]/g, '').slice(0, 30));
+      case 'answer': {
+        const c = this.sql.exec(`SELECT code FROM chal WHERE dst = ? AND src = ?`, me, pk).toArray()[0];
+        this.sql.exec(`DELETE FROM chal WHERE dst = ? AND src = ?`, me, pk);
+        // refus : le salon de celui qui invite est prévenu tout de suite
+        if (c && !b.yes) await this.env.ROOMS.get(this.env.ROOMS.idFromName('priv:' + c.code)).note(`${myName} ne peut pas jouer maintenant.`).catch(() => {});
+        return { ok: 1 };
+      }
+    }
+    return { ok: 0, why: 'err' };
+  }
+
+  // bilan des duels entre deux joueurs : [mes victoires, les siennes] (null s'ils ne se sont jamais affrontés)
+  duelOf(me, other) {
+    const [x, y] = me < other ? [me, other] : [other, me];
+    const r = this.sql.exec(`SELECT wa, wb FROM duels WHERE a = ? AND b = ?`, x, y).toArray()[0];
+    return r ? (me === x ? [r.wa, r.wb] : [r.wb, r.wa]) : null;
+  }
+
+  // fin d'un duel : win = uid du gagnant ('' : égalité) ; renvoie le bilan vu par chacun
+  duelResult(uidA, uidB, win) {
+    const a = publicKey(uidA), b = publicKey(uidB), [x, y] = a < b ? [a, b] : [b, a], w = win ? publicKey(win) : '';
+    this.sql.exec(`INSERT INTO duels(a, b, wa, wb) VALUES(?,?,?,?) ON CONFLICT(a, b) DO UPDATE SET wa = wa + excluded.wa, wb = wb + excluded.wb`,
+      x, y, w === x ? 1 : 0, w === y ? 1 : 0);
+    return { [uidA]: this.duelOf(a, b), [uidB]: this.duelOf(b, a) };
+  }
+
+  // ---------- Hit du jour : les mêmes extraits pour tout le monde, un essai par jour ----------
+  // choisis au premier joueur de la journée puis gardés (hitday) ; liens Deezer frais à chaque partie
+  async hitSongs(day) {
+    let keys = JSON.parse(this.sql.exec(`SELECT keys FROM hitday WHERE day = ?`, day).toArray()[0]?.keys || 'null');
+    if (!keys) {
+      this.hitP ||= new Map(); // deux joueurs au même moment : un seul tirage
+      if (!this.hitP.has(day)) this.hitP.set(day, this.hitPick(day).finally(() => this.hitP.delete(day)));
+      keys = await this.hitP.get(day);
+    }
+    const songs = keys.map(k => {
+      const s = songByKey(k), r = this.row(k);
+      return s && r?.ok ? { ...s, url: r.url, art: r.art, link: r.link, ext: r.ext, src: r.src } : null;
+    }).filter(Boolean);
+    return this.freshen(songs);
+  }
+
+  // parmi les morceaux les plus connus (HIT_POOL par catégorie), dans un ordre tiré d'après la date : une seule
+  // catégorie par morceau, au moins 2 en français et 2 dans une autre langue, rien des 90 derniers jours
+  async hitPick(day) {
+    const recent = new Set(this.sql.exec(`SELECT keys FROM hitday WHERE day < ? ORDER BY day DESC LIMIT 90`, day).toArray().flatMap(r => JSON.parse(r.keys)));
+    const out = [], cats = new Set(), cnt = { fr: 0, other: 0 }, mins = { fr: 2, other: 2 };
+    let tries = 0;
+    for (const s of hitCandidates(day)) {
+      if (out.length >= HIT_N) break;
+      if (recent.has(s.k) || cats.has(s.cat) || !langFits(s, cnt, mins, HIT_N)) continue;
+      let r = this.row(s.k);
+      if (!r || (!r.ok && Date.now() - r.ts > RETRY_FAIL)) {
+        if (tries++ >= 25) continue;
+        try { r = await this.resolveAndStore(s); } catch { continue; }
+      }
+      if (!r.ok) continue;
+      out.push(s);
+      cats.add(s.cat);
+      cnt[s.fr ? 'fr' : 'other']++;
+    }
+    if (out.length < HIT_N) throw new Error('Hit du jour : pas assez de morceaux jouables');
+    this.sql.exec(`INSERT OR IGNORE INTO hitday(day, keys) VALUES(?,?)`, day, JSON.stringify(langOrder(out, seededRnd('ordre:' + day)).map(s => s.k)));
+    this.sql.exec(`DELETE FROM hitday WHERE day < ?`, dayAdd(day, -120));
+    return JSON.parse(this.sql.exec(`SELECT keys FROM hitday WHERE day = ?`, day).one().keys);
+  }
+
+  hitStatus(uid, day) { return this.sql.exec(`SELECT score, grid, done FROM hits WHERE day = ? AND uid = ?`, day, uid).toArray()[0] || null; }
+
+  // résultat enregistré dès le 1er extrait puis après chacun (une partie quittée en route compte telle quelle) ;
+  // grid : un chiffre par extrait (0 rien, 1 titre, 2 artiste, 3 les deux) ; à la fin : place du jour et série de jours
+  hitSave(uid, day, prof, score, grid, done) {
+    this.sql.exec(`INSERT INTO hits(day, uid, pk, name, av, score, grid, done, ts) VALUES(?,?,?,?,?,?,?,?,?)
+      ON CONFLICT(day, uid) DO UPDATE SET name = excluded.name, av = excluded.av, score = excluded.score, grid = excluded.grid, done = excluded.done`,
+      day, uid, publicKey(uid), String(prof?.name || '').slice(0, 16), String(prof?.av || ''), score, grid, done ? 1 : 0, Date.now());
+    if (this.hitPurge !== day) { this.hitPurge = day; this.sql.exec(`DELETE FROM hits WHERE day < ?`, dayAdd(day, -400)); }
+    return done ? this.hitRank(uid, day) : null;
+  }
+
+  hitRank(uid, day) {
+    const me = this.hitStatus(uid, day);
+    if (!me) return null;
+    const st = streaks(this.sql.exec(`SELECT day FROM hits WHERE uid = ? ORDER BY day DESC LIMIT 400`, uid).toArray().map(r => r.day), parisDay());
+    return { day, n: hitNumber(day), score: me.score, grid: me.grid, done: me.done,
+      rank: this.sql.exec(`SELECT COUNT(*) AS n FROM hits WHERE day = ? AND score > ?`, day, me.score).one().n + 1,
+      total: this.sql.exec(`SELECT COUNT(*) AS n FROM hits WHERE day = ?`, day).one().n, streak: st.cur, best: st.best };
+  }
+
+  // pour l'appli (/api/hit) : n° du jour, mon résultat, ma série, les meilleurs du jour et mes amis
+  hitInfo(uid) {
+    const day = parisDay(), pk = uid ? publicKey(uid) : '';
+    const st = uid ? streaks(this.sql.exec(`SELECT day FROM hits WHERE uid = ? ORDER BY day DESC LIMIT 400`, uid).toArray().map(r => r.day), day) : { cur: 0, best: 0 };
+    return {
+      day, n: hitNumber(day), songs: HIT_N, mine: uid ? this.hitRank(uid, day) : null, streak: st.cur, best: st.best,
+      total: this.sql.exec(`SELECT COUNT(*) AS n FROM hits WHERE day = ?`, day).one().n,
+      top: this.sql.exec(`SELECT pk, name, av, score, grid FROM hits WHERE day = ? ORDER BY score DESC, ts ASC LIMIT 20`, day).toArray().map(r => ({ ...r, me: r.pk === pk })),
+      friends: pk ? this.sql.exec(`SELECT h.pk, h.name, h.av, h.score, h.grid FROM friends f JOIN players p ON p.pk = f.b JOIN hits h ON h.uid = p.uid AND h.day = ? WHERE f.a = ? ORDER BY h.score DESC`, day, pk).toArray() : [],
+    };
+  }
+
+  // tests en local uniquement (MOCK_MUSIC) : un Hit du jour déjà joué un autre jour (séries de jours)
+  devHit(uid, day, score) { this.hitSave(uid, day, { name: 'Test', av: 'A01' }, score, '33333', 1); return this.hitInfo(uid); }
+
+  // ---------- clubs : une équipe par joueur, classement des clubs par saison ----------
+  clubOf(uid) {
+    return this.sql.exec(`SELECT c.id, c.name, c.e, c.c, c.chief FROM cmembers m JOIN clubs c ON c.id = m.club WHERE m.uid = ?`, uid).toArray()[0] || null;
+  }
+
+  // carte d'un club pour les listes : membres, points et place de la saison
+  clubCard(c, sc = season()) {
+    const pts = this.sql.exec(`SELECT pts FROM cseason WHERE club = ? AND sc = ?`, c.id, sc).toArray()[0]?.pts || 0;
+    return { id: c.id, name: c.name, e: c.e, c: c.c, pts, n: this.sql.exec(`SELECT COUNT(*) AS n FROM cmembers WHERE club = ?`, c.id).one().n,
+      rank: pts > 0 ? this.sql.exec(`SELECT COUNT(*) AS n FROM cseason WHERE sc = ? AND pts > ?`, sc, pts).one().n + 1 : null };
+  }
+
+  // classement des clubs de la saison, mon club, et des clubs à rejoindre (pas complets ; q = recherche par nom)
+  clubList(uid, q = '') {
+    const sc = season(), mine = uid ? this.clubOf(uid) : null, nq = norm(q);
+    const top = this.sql.exec(`SELECT c.id, c.name, c.e, c.c FROM cseason s JOIN clubs c ON c.id = s.club WHERE s.sc = ? AND s.pts > 0 ORDER BY s.pts DESC LIMIT 50`, sc).toArray();
+    const pool = nq ? this.sql.exec(`SELECT id, name, e, c FROM clubs WHERE nk LIKE ? LIMIT 40`, '%' + nq + '%').toArray()
+      : this.sql.exec(`SELECT c.id, c.name, c.e, c.c FROM clubs c LEFT JOIN cseason s ON s.club = c.id AND s.sc = ? ORDER BY COALESCE(s.pts, 0) DESC, c.ts DESC LIMIT 60`, sc).toArray();
+    return { sc, mine: mine ? this.clubCard(mine, sc) : null, top: top.map(c => this.clubCard(c, sc)), max: CLUB_MAX,
+      open: pool.map(c => this.clubCard(c, sc)).filter(c => c.n < CLUB_MAX && c.id !== mine?.id).sort((a, b) => b.pts - a.pts || b.n - a.n).slice(0, 20) };
+  }
+
+  // page d'un club : membres (sans leur uid) avec leurs points de la saison
+  clubInfo(id, uid) {
+    const c = this.sql.exec(`SELECT id, name, e, c, chief FROM clubs WHERE id = ?`, id).toArray()[0];
+    if (!c) return { error: 'Ce club n’existe plus.' };
+    const sc = season(), mine = uid ? this.clubOf(uid) : null;
+    const members = this.sql.exec(`SELECT m.uid, m.ts, p.pk, p.name, p.av, p.fr, p.lvl, (SELECT pts FROM cpts WHERE club = m.club AND sc = ? AND uid = m.uid) AS pts
+      FROM cmembers m LEFT JOIN players p ON p.uid = m.uid WHERE m.club = ?`, sc, id).toArray()
+      .map(m => ({ pk: m.pk || publicKey(m.uid), name: m.name || 'Joueur', av: m.av || 'A02', fr: m.fr || 'def', lvl: m.lvl || 1, pts: m.pts || 0,
+        tier: tierOf(this.peekRank(m.uid)), chief: m.uid === c.chief, me: m.uid === uid, since: m.ts }))
+      .sort((a, b) => b.pts - a.pts || a.since - b.since);
+    return { ...this.clubCard(c, sc), sc, max: CLUB_MAX, member: mine?.id === id, chief: !!uid && c.chief === uid, inClub: mine ? mine.name : '', members };
+  }
+
+  clubName(raw) {
+    const n = cleanText(raw, 20).trim();
+    return n.replace(/[^\p{L}\p{N}]/gu, '').length >= 3 && !/\*/.test(n) ? n : '';
+  }
+
+  // act : create (name, e, c), join (id ; move = quitter son club d'abord), leave, edit (chef), kick (chef, pk)
+  clubAct(uid, b = {}) {
+    this.touch(uid);
+    const mine = this.clubOf(uid), now = Date.now();
+    const color = Math.min(CLUB_COLORS - 1, Math.max(0, parseInt(b.c, 10) || 0)), emblem = CLUB_EMBLEMS.includes(b.e) ? b.e : null;
+    const taken = (name, except) => !!this.sql.exec(`SELECT 1 FROM clubs WHERE nk = ? AND id != ?`, norm(name), except || '').toArray().length;
+    switch (b.act) {
+      case 'create': {
+        if (mine) return { ok: 0, why: 'already', name: mine.name };
+        const name = this.clubName(b.name);
+        if (!name) return { ok: 0, why: 'name' };
+        if (taken(name)) return { ok: 0, why: 'taken' };
+        if (this.sql.exec(`SELECT COUNT(*) AS n FROM clubs WHERE chief = ? AND ts > ?`, uid, now - DAY).one().n >= 3) return { ok: 0, why: 'limit' };
+        let id;
+        do id = clubId(Math.random); while (this.sql.exec(`SELECT 1 FROM clubs WHERE id = ?`, id).toArray().length);
+        this.sql.exec(`INSERT INTO clubs(id, name, nk, e, c, chief, ts) VALUES(?,?,?,?,?,?,?)`, id, name, norm(name), emblem || CLUB_EMBLEMS[0], color, uid, now);
+        this.sql.exec(`INSERT INTO cmembers(uid, club, ts) VALUES(?,?,?)`, uid, id, now);
+        return { ok: 1, id };
+      }
+      case 'join': {
+        const id = String(b.id || '').toUpperCase();
+        if (!this.sql.exec(`SELECT 1 FROM clubs WHERE id = ?`, id).toArray().length) return { ok: 0, why: 'gone' };
+        if (mine?.id === id) return { ok: 1, id };
+        if (mine && !b.move) return { ok: 0, why: 'already', name: mine.name };
+        if (this.sql.exec(`SELECT COUNT(*) AS n FROM cmembers WHERE club = ?`, id).one().n >= CLUB_MAX) return { ok: 0, why: 'full' };
+        if (this.sql.exec(`SELECT 1 FROM cban WHERE club = ? AND uid = ? AND ts > ?`, id, uid, now - 7 * DAY).toArray().length) return { ok: 0, why: 'banned' };
+        if (mine) this.leaveClub(uid, mine);
+        this.sql.exec(`INSERT OR REPLACE INTO cmembers(uid, club, ts) VALUES(?,?,?)`, uid, id, now);
+        return { ok: 1, id };
+      }
+      case 'leave':
+        if (mine) this.leaveClub(uid, mine);
+        return { ok: 1 };
+      case 'edit': {
+        if (!mine || mine.chief !== uid) return { ok: 0, why: 'chief' };
+        const name = b.name != null ? this.clubName(b.name) : mine.name;
+        if (!name) return { ok: 0, why: 'name' };
+        if (taken(name, mine.id)) return { ok: 0, why: 'taken' };
+        this.sql.exec(`UPDATE clubs SET name = ?, nk = ?, e = ?, c = ? WHERE id = ?`, name, norm(name), emblem || mine.e, b.c != null ? color : mine.c, mine.id);
+        return { ok: 1, id: mine.id };
+      }
+      case 'kick': {
+        if (!mine || mine.chief !== uid) return { ok: 0, why: 'chief' };
+        const t = this.sql.exec(`SELECT m.uid FROM players p JOIN cmembers m ON m.uid = p.uid WHERE p.pk = ? AND m.club = ?`, String(b.pk || ''), mine.id).toArray()[0];
+        if (!t || t.uid === uid) return { ok: 0, why: 'err' };
+        this.sql.exec(`DELETE FROM cmembers WHERE uid = ?`, t.uid);
+        this.sql.exec(`INSERT OR REPLACE INTO cban(club, uid, ts) VALUES(?,?,?)`, mine.id, t.uid, now); // pas de retour avant 7 jours
+        return { ok: 1 };
+      }
+    }
+    return { ok: 0, why: 'err' };
+  }
+
+  // le chef qui part passe la main au plus ancien membre ; un club vide disparaît, avec ses points
+  leaveClub(uid, club) {
+    this.sql.exec(`DELETE FROM cmembers WHERE uid = ?`, uid);
+    const next = this.sql.exec(`SELECT uid FROM cmembers WHERE club = ? ORDER BY ts LIMIT 1`, club.id).toArray()[0];
+    if (!next) for (const t of ['clubs WHERE id', 'cpts WHERE club', 'cseason WHERE club', 'cban WHERE club']) this.sql.exec(`DELETE FROM ${t} = ?`, club.id);
+    else if (club.chief === uid) this.sql.exec(`UPDATE clubs SET chief = ? WHERE id = ?`, next.uid, club.id);
+  }
+
+  // points marqués en partie publique (classé, non classé) et au Hit du jour : ajoutés au club de chaque joueur
+  clubScore(rows) {
+    const sc = season();
+    for (const r of rows) {
+      const c = this.clubOf(r.uid);
+      if (!c || !(r.pts > 0)) continue;
+      this.sql.exec(`INSERT INTO cpts(club, sc, uid, pts) VALUES(?,?,?,?) ON CONFLICT(club, sc, uid) DO UPDATE SET pts = pts + excluded.pts`, c.id, sc, r.uid, r.pts);
+      this.sql.exec(`INSERT INTO cseason(club, sc, pts) VALUES(?,?,?) ON CONFLICT(club, sc) DO UPDATE SET pts = pts + excluded.pts`, c.id, sc, r.pts);
+    }
   }
 }

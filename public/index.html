@@ -779,6 +779,104 @@ svg.med{flex:none;overflow:visible}
 .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
 .spin{width:38px;height:38px;border-radius:50%;border:4px solid #2a2233;border-top-color:var(--pink);animation:spin 1s linear infinite;margin:0 auto 12px}
 
+/* ---------- Hit du jour, amis, clubs (version 1.15) ---------- */
+.hitb{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;border-radius:18px;border-color:rgba(47,212,255,.7);
+  background:radial-gradient(90% 120% at 100% 0%,rgba(47,212,255,.2),transparent 60%),radial-gradient(70% 120% at 0% 100%,rgba(255,46,147,.14),transparent 60%),linear-gradient(180deg,#0f1420,#0a0b12);box-shadow:0 0 18px rgba(47,212,255,.22)}
+.hitb .hb{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.hitb small{font-size:11px;font-weight:700;letter-spacing:1.5px;color:#7be7ff}
+.hitb b{font-size:15.5px;line-height:1.25}
+.hitb .hb>span{font-size:12px;color:#c9bcd8}
+.hitb .hb>span.nx{color:#7be7ff;font-weight:600}
+.hitb .go{flex:none;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;font-weight:800;font-size:14px;background:linear-gradient(180deg,#7be7ff,#2a9dff);color:#04182b;box-shadow:0 0 16px rgba(47,212,255,.5)}
+.hitb .go svg{width:16px;height:16px}
+.hitb.done .go{background:#0f0a13;color:#fff;border:1.5px solid rgba(47,212,255,.6);box-shadow:none}
+.hgrid{letter-spacing:2px;white-space:nowrap}
+.hitb b.hgrid{font-size:22px;line-height:1.2;margin:2px 0}
+.hitres{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:16px 14px 14px;border-radius:20px;margin:6px 0 12px}
+.hitres small{font-size:11px;font-weight:700;letter-spacing:1.6px;color:var(--gold2)}
+.hitres .tiles{display:flex;gap:8px;margin:4px 0;perspective:400px}
+.hitres .tiles span{width:48px;height:48px;display:grid;place-items:center;font-size:26px;border-radius:12px;background:#3b3046;border:1.5px solid #4f425c;animation:hflip .5s cubic-bezier(.2,.8,.2,1) both}
+.hitres .tiles span.s3,.hg i.s3{background:rgba(54,224,124,.3);border-color:rgba(54,224,124,.8);box-shadow:0 0 12px rgba(54,224,124,.35)}
+.hitres .tiles span.s1,.hitres .tiles span.s2,.hg i.s1,.hg i.s2{background:rgba(255,181,46,.28);border-color:rgba(255,181,46,.75)}
+.hg{display:inline-flex;gap:3px;vertical-align:middle}
+.hg i{font-style:normal;width:1.5em;height:1.5em;display:inline-grid;place-items:center;border-radius:.35em;background:#3b3046;border:1px solid #4f425c;font-size:.78em;line-height:1}
+@keyframes hflip{from{transform:rotateX(90deg);opacity:0}}
+.hitres b.sc{font-size:26px;font-weight:800}
+.hitres .sub{font-size:13px;color:var(--muted)}
+.hitres .legend{font-size:11.5px;color:var(--dim);margin:2px 0 0}
+.hitres .cta{margin-top:6px}
+.hitrow{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:12px;font-size:14px}
+.hitrow .n{width:26px;text-align:center;font-weight:800;color:var(--gold2)}
+.hitrow b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.hitrow .hg{font-size:15px}
+.hitrow em{font-style:normal;font-weight:700;color:var(--gold2);min-width:54px;text-align:right}
+.hitrow.me{border-color:var(--gold2)}
+.mode.social{border:1.5px solid rgba(54,224,124,.55);background:radial-gradient(90% 70% at 85% 15%,rgba(54,224,124,.18),transparent 60%),linear-gradient(180deg,#0f1a14,#0a0d0b);box-shadow:0 0 18px rgba(54,224,124,.15)}
+.mode.social .eb{color:#7dffb0}
+.mode.club{border:1.5px solid rgba(255,181,46,.6);background:radial-gradient(90% 70% at 85% 15%,rgba(255,181,46,.18),transparent 60%),linear-gradient(180deg,#1a140c,#0d0a07);box-shadow:0 0 18px rgba(255,181,46,.15)}
+.mode.club .eb{color:var(--gold2)}
+.mode .sav{position:absolute;right:8px;top:8px;display:flex;flex-direction:row-reverse}
+.mode.small .sav>img{position:static;width:60px;height:60px;filter:drop-shadow(0 6px 14px rgba(54,224,124,.4));animation:fl2 8s ease-in-out infinite}
+.mode .sav .fon{width:38px;height:38px;border-radius:50%;margin-left:-12px;border:2px solid var(--green);background:radial-gradient(circle at 35% 30%,#3b2b4b,#150f1c);display:grid;place-items:center;overflow:hidden;box-shadow:0 0 8px rgba(54,224,124,.5)}
+.mode.small .sav .fon img{position:static;width:100%;height:100%;animation:none;filter:none}
+.mode .cbtop{position:absolute;right:10px;top:10px}
+.mode .cbtop>img{position:static!important;width:60px;height:60px}
+.mode>.badge{position:absolute;top:12px;left:12px;width:11px;height:11px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px var(--pink)}
+.cbadge{--s:40px;--cc:#ff2e93;width:var(--s);height:var(--s);flex:none;display:inline-grid;place-items:center;font-size:calc(var(--s)*.5);line-height:1;border-radius:32% 32% 46% 46%;
+  background:radial-gradient(circle at 35% 22%,rgba(255,255,255,.4),transparent 55%),linear-gradient(160deg,var(--cc),#120a18 125%);border:2px solid rgba(255,255,255,.4);box-shadow:0 0 calc(var(--s)*.3) color-mix(in srgb,var(--cc) 55%,transparent)}
+.fri{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;width:100%;text-align:left}
+.fri .fpic{position:relative;flex:none}
+.fri .fpic .dot{position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-radius:50%;background:#5c5068;border:2.5px solid #0b080f}
+.fri .fpic .dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+.fri .ft{flex:1;min-width:0;display:flex;flex-direction:column}
+.fri .ft b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fri .ft span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fri .ft span.on{color:var(--green)}
+.fri .fa{display:flex;gap:6px;flex:none}
+.ghost.sm,.cta.sm{height:36px;min-height:36px;width:auto;padding:0 12px;font-size:13px;border-radius:11px}
+.chal{border-color:var(--pink);box-shadow:0 0 16px rgba(255,46,147,.35)}
+.fcode{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px;border-radius:18px;text-align:center}
+.fcode small{font-size:11px;font-weight:700;letter-spacing:1.6px;color:var(--gold2)}
+.fcode b{font-size:34px;letter-spacing:6px;font-weight:900}
+.fcode .two{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:4px}
+.fcode .two>*{min-height:44px;font-size:14px}
+.addrow{display:flex;gap:8px}
+.addrow .txtin{flex:1;min-width:0;margin:0;text-transform:uppercase;letter-spacing:3px;font-weight:700}
+.addrow .cta{width:auto;padding:0 18px;min-height:52px;font-size:15px}
+.fst{margin:0 0 8px!important;font-size:13px}
+.fst.on{color:var(--green)!important}
+.pclub{margin:0 0 6px!important;font-size:13px;font-weight:600;color:var(--gold2)!important}
+.pc-friend{width:100%;margin-bottom:8px;min-height:42px;font-size:14px}
+.chead{--cc:#ff2e93;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:18px 14px 14px;border-radius:22px;overflow:hidden;margin-bottom:10px}
+.chead::before{content:'';position:absolute;inset:-40% -20% auto;height:80%;background:radial-gradient(closest-side,color-mix(in srgb,var(--cc) 35%,transparent),transparent);pointer-events:none}
+.chead h3{margin:2px 0 0;font-size:22px;position:relative}
+.cstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;position:relative}
+.cstats div{display:flex;flex-direction:column;padding:8px 4px;border-radius:12px;background:rgba(255,255,255,.05)}
+.cstats b{font-size:17px}
+.cstats small{font-size:11px;color:var(--muted)}
+.cacts{display:flex;gap:8px;width:100%;position:relative}
+.cacts>*{flex:1;min-height:44px;font-size:14px}
+.crow{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;width:100%;text-align:left}
+.crow>div{flex:1;min-width:0;display:flex;flex-direction:column}
+.crow b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow span{font-size:12px;color:var(--muted)}
+.cintro{display:flex;gap:12px;align-items:center;padding:14px;border-radius:18px;margin-bottom:10px}
+.cintro .cbig{font-size:38px;flex:none}
+.cintro b{display:block;font-size:16px}
+.cintro span{font-size:12.5px;color:var(--muted);line-height:1.4}
+.cprev{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cprev b{font-size:18px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cems{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:6px 0 12px}
+.cems button{aspect-ratio:1;border-radius:10px;border:1.5px solid rgba(var(--glow),.25);background:#0f0a13;font-size:20px}
+.cems button.on{border-color:var(--gold2);box-shadow:0 0 10px rgba(var(--glow),.45)}
+.ccols{display:flex;gap:8px;margin:6px 0 14px}
+.ccols button{flex:1;height:34px;border-radius:10px;border:2px solid transparent}
+.ccols button.on{border-color:#fff;box-shadow:0 0 10px rgba(255,255,255,.5)}
+.duelres{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px;margin-bottom:12px;text-align:center}
+.duelres b{font-size:19px}
+.duelres span{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.hitres .tiles span,.mode.small .sav>img{animation:none}}
+
 /* ---------- thème clair (Paramètres → Thème clair) : fond clair, cartes blanches, texte foncé ;
    les couleurs d'accent restent celles du thème acheté ; avatars et pochettes gardent leur fond sombre ---------- */
 :root[data-light]{--bg:#f6f1f9;--cardA:#ffffff;--cardB:#fbf7fd;--ink:#1d1424;--muted:#665775;--dim:#9a8ca8;--gold:#b46400;--gold2:#9a5600;--green:#0d9a4f;--red:#d42a3f;--pink:#e0127a;--line:#e4d9ec}
@@ -840,6 +938,17 @@ svg.med{flex:none;overflow:visible}
 :root[data-light] #toast{background:#fff;box-shadow:0 6px 24px rgba(60,30,80,.2)}
 :root[data-light] .codebox .code b{text-shadow:none}
 :root[data-light] .av .rk{border-color:#fff}
+:root[data-light] .hitb{background:radial-gradient(90% 120% at 100% 0%,rgba(47,212,255,.16),transparent 60%),linear-gradient(180deg,#fff,#f1f9fd);box-shadow:0 2px 14px rgba(47,212,255,.16)}
+:root[data-light] .hitb small,:root[data-light] .hitb .hb>span.nx{color:#0b7fa8}
+:root[data-light] .hitb .hb>span{color:var(--muted)}
+:root[data-light] .hitb.done .go{background:#fff;color:var(--ink)}
+:root[data-light] .mode.social{background:radial-gradient(90% 70% at 85% 15%,rgba(54,224,124,.16),transparent 60%),linear-gradient(180deg,#fff,#f0fbf4)}
+:root[data-light] .mode.social .eb{color:#0b7d3f}
+:root[data-light] .mode.club{background:radial-gradient(90% 70% at 85% 15%,rgba(255,181,46,.18),transparent 60%),linear-gradient(180deg,#fff,#fff8ea)}
+:root[data-light] .cems button,:root[data-light] .cstats div{background:#fff;border-color:var(--line)}
+:root[data-light] .hitres .tiles span.s0,:root[data-light] .hg i.s0{background:#e6dcec;border-color:#d4c6de}
+:root[data-light] .fri .fpic .dot{border-color:#fff}
+:root[data-light] .mode .sav .fon{border-color:var(--green)}
 @media(min-width:520px){:root[data-light] #app{border-color:#ddd2e6}}
 </style>
 </head>
@@ -889,6 +998,7 @@ svg.med{flex:none;overflow:visible}
   </div>
   <div class="scroll"><div class="home">
     <button class="card seasonb" id="homeRoad"></button>
+    <button class="card hitb" id="homeHit"></button>
     <button class="mode ranked" id="bPlay"></button>
     <div class="mode-row">
       <button class="mode small open" id="bOpen"><img src="/av/A12.webp" alt=""><span class="eb">MULTIJOUEUR</span><b>Non classé</b><span class="d">Tout le monde mélangé, sans rang</span><span class="live off" id="openLive"><i></i>Ouvert 24h/24</span></button>
@@ -897,6 +1007,10 @@ svg.med{flex:none;overflow:visible}
     <div class="card mode friends">
       <div class="fh"><img src="/av/A02.webp" alt=""><div><b>Entre amis</b><span class="d">Salon privé avec un code, sans points de rang</span></div></div>
       <div class="fb"><button class="cta lux" id="bCreate"><span data-i="plus"></span>Créer</button><button class="ghost" id="bJoin"><span data-i="link"></span>Rejoindre</button></div>
+    </div>
+    <div class="mode-row">
+      <button class="mode small social" id="bFriends"><span class="sav" id="friAvs"></span><i class="badge hide" id="friDot"></i><span class="eb">SOCIAL</span><b>Mes amis</b><span class="d" id="friLine">Ajoute tes amis et défie-les en duel</span><span class="live off" id="friLive"><i></i>Personne en ligne</span></button>
+      <button class="mode small club" id="bClub"><span class="cbtop" id="clubPic"></span><span class="eb">ÉQUIPE</span><b id="clubTile">Clubs</b><span class="d" id="clubLine">Rejoins une équipe et grimpez ensemble</span></button>
     </div>
   </div></div>
 </section>
@@ -962,6 +1076,7 @@ svg.med{flex:none;overflow:visible}
 <section class="view hide" id="v-end">
   <div class="top"><div style="width:40px"></div><h2 style="color:var(--gold2)">Partie terminée !<small id="endSub" style="color:var(--muted)"></small></h2><div style="width:40px"></div></div>
   <div class="scroll">
+    <div id="hitBox"></div>
     <div class="podium" id="podium"></div>
     <div class="reacts" id="endReacts"></div>
     <div class="card myrow" id="myrow"></div>
@@ -983,7 +1098,7 @@ svg.med{flex:none;overflow:visible}
 <!-- ===== 7. Classements ===== -->
 <section class="view hide" id="v-board">
   <div class="ttop"><h2><small>LES MEILLEURS JOUEURS</small>Classement</h2></div>
-  <div class="tabs"><button class="on" data-bt="season">Saison actuelle</button><button data-bt="all">Tous les temps</button></div>
+  <div class="tabs"><button class="on" data-bt="season">Saison actuelle</button><button data-bt="all">Tous les temps</button><button data-bt="clubs">Clubs</button></div>
   <div class="scroll"><div class="ranklist" id="boardList"></div></div>
 </section>
 
@@ -1007,6 +1122,19 @@ svg.med{flex:none;overflow:visible}
   <div class="top"><button class="ibtn back" data-i="back"></button><h2>Route de saison<small id="roadSub"></small></h2><div style="width:40px"></div></div>
   <div class="card roadhead" id="roadHead"></div>
   <div class="scroll"><div class="road" id="roadList"></div></div>
+</section>
+
+<!-- ===== Amis (version 1.15) ===== -->
+<section class="view hide" id="v-friends">
+  <div class="top"><button class="ibtn back" data-i="back"></button><h2>Mes amis<small id="friSub"></small></h2><div style="width:40px"></div></div>
+  <div class="tabs"><button class="on" data-ft="list">Amis</button><button data-ft="req">Demandes</button><button data-ft="add">Ajouter</button></div>
+  <div class="scroll"><div id="friBody"></div></div>
+</section>
+
+<!-- ===== Clubs (version 1.15) ===== -->
+<section class="view hide" id="v-club">
+  <div class="top"><button class="ibtn back" data-i="back"></button><h2 id="clubTitle">Clubs</h2><div style="width:40px"></div></div>
+  <div class="scroll"><div id="clubBody"></div></div>
 </section>
 
 <!-- ===== 10. Réglages ===== -->
@@ -1456,7 +1584,7 @@ function toggleMusic() {
   ambUpdate();
   toast(S.set.music ? '🎵 Musique d’ambiance activée' : '🔇 Musique coupée', 1600);
 }
-document.addEventListener('visibilitychange', () => { bgVideos(); ambUpdate(); });
+document.addEventListener('visibilitychange', () => { bgVideos(); ambUpdate(); if (document.visibilityState === 'visible') presence(true); });
 const ROOM_VIEWS = ['lobby', 'game', 'end'];
 function show(v) {
   if (v !== 'shop' && previewTheme) endPreview();
@@ -1475,6 +1603,8 @@ function show(v) {
   if (v === 'shop') renderShop();
   if (v === 'settings') renderSettings();
   if (v === 'road') renderRoad();
+  if (v === 'friends') { renderFriends(); refreshFriends(); }
+  if (v === 'club') renderClub();
 }
 function go(v, replace) {
   if (!ROOM_VIEWS.includes(v) || !ROOM_VIEWS.includes(curView)) history[replace ? 'replaceState' : 'pushState']({ v }, '');
@@ -1586,7 +1716,7 @@ function wsURL(path, params) {
 function connect(path, params = {}) {
   if (!navigator.onLine) { toast('📡 Pas de connexion internet : les parties reviennent dès que le réseau est là.', 3500); return; }
   closeWs();
-  Object.assign(R, { path, params, st: null, me: null, chat: [], unread: 0, feed: [], closing: false, sameLobby: null });
+  Object.assign(R, { path, params, st: null, me: null, chat: [], unread: 0, feed: [], closing: false, sameLobby: null, duelVs: null, duelRec: null, hitRes: null, hitTop: 0 });
   openWs();
 }
 function openWs() {
@@ -1619,6 +1749,7 @@ function leaveRoom(silent) {
   $('#reactLayer').innerHTML = '';
   if (new URLSearchParams(location.search).has('salon')) history.replaceState(history.state, '', location.pathname);
   if (ROOM_VIEWS.includes(curView)) { go('home', true); }
+  presence(true);
 }
 
 function onMsg(m) {
@@ -1639,6 +1770,8 @@ function onMsg(m) {
     case 'chat': case 'sys': return onChat(m);
     case 'react': return onReact(m);
     case 'invited': return onInvited(m);
+    case 'hit': return onHitResult(m);
+    case 'duel': R.duelRec = m; if (curView === 'end') renderEnd(); return;
     case 'reported': toast(m.ok ? '⚠️ Merci, ton signalement a bien été envoyé.' : 'Signalement impossible pour le moment (10 par jour au plus).', 3200); return;
     case 'preload': if (m.url) { pre.src = m.url; } return;
     case 'ends': if (R.st?.cur) { R.st.cur.end = m.end; R.st.ends = m.end; } return;
@@ -1646,7 +1779,7 @@ function onMsg(m) {
 }
 
 function roomView(st) {
-  if (st.pub || st.solo) return st.phase === 'end' && R.sameLobby !== st.gameId ? 'end' : 'game';
+  if (st.pub || st.solo || st.kind === 'daily') return st.phase === 'end' && R.sameLobby !== st.gameId ? 'end' : 'game';
   if (st.phase === 'end') return R.sameLobby === st.gameId ? 'lobby' : 'end';
   return ['countdown', 'play', 'reveal'].includes(st.phase) ? 'game' : 'lobby';
 }
@@ -1671,6 +1804,7 @@ function onState(st) {
   if ((st.phase === 'play' || st.phase === 'reveal') && st.cur) setTrack(st.cur);
   else stopAudio();
   noteMates(st);
+  if (whereAmI() !== lastAt) presence(true); // les amis voient où l'on joue
   const v = roomView(st);
   const pickingCat = curView === 'cats' && catsMode === 'change' && !['countdown', 'play', 'reveal'].includes(st.phase);
   if (curView !== v && !pickingCat) {
@@ -1714,8 +1848,14 @@ function onYou(m) {
 }
 function setHint(t) { $('#hint').textContent = t; }
 function onHint(k) {
-  const inp = $('#guessIn');
-  if (k === 'near') setHint('🔥 Tu brûles… vérifie l’orthographe, c’est presque ça');
+  const inp = $('#guessIn'), typed = sentEnter;
+  // réponse fausse (ou déjà trouvée) validée avec Entrée : la case se vide toute seule pour retaper tout de suite,
+  // sauf si le joueur a déjà commencé à taper autre chose
+  if (['miss', 'near', 'already'].includes(k)) {
+    if (typed != null && inp.value === typed) inp.value = '';
+    sentEnter = null;
+  }
+  if (k === 'near') setHint(typed ? `🔥 Tu brûles avec « ${typed.trim().slice(0, 30)} » : c’est presque ça, vérifie l’orthographe` : '🔥 Tu brûles… vérifie l’orthographe, c’est presque ça');
   else if (k === 'already') setHint('✓ Déjà trouvé');
   else if (k === 'chat') setHint('Bien vu ! La prochaine fois, tape-le dans la case du jeu 😉');
   else if (k === 'masked') toast('Message masqué : il contenait la réponse 😉');
@@ -1770,7 +1910,7 @@ function sendChat(inp) {
 // ---------- rendu du salon ----------
 function renderRoom() {
   if (!R.st) return;
-  $$('.reacts').forEach(el => el.classList.toggle('hide', !!R.st.solo)); // pas de réactions en solo (que des bots)
+  $$('.reacts').forEach(el => el.classList.toggle('hide', !!R.st.solo || R.st.kind === 'daily')); // pas de réactions en solo ni au Hit du jour
   if (curView === 'lobby') renderLobby();
   else if (curView === 'game') renderGame();
   else if (curView === 'end') renderEnd();
@@ -1802,22 +1942,25 @@ function winFx(kind) {
 }
 
 function renderLobby() {
-  const st = R.st, c = catOf(st.cat);
-  $('#lobbyTitle').innerHTML = `Salon : ${esc(c.name)}<small>${esc(c.sub)} • ${st.opts.rounds} manches • ${st.opts.dur} s</small>`;
+  const st = R.st, c = catOf(st.cat), duel = !!st.opts.duel, nh = humansOf(st).length;
+  $('#lobbyTitle').innerHTML = duel ? `⚔️ Duel : ${esc(c.name)}<small>1 contre 1 • ${st.opts.rounds} manches • ${st.opts.dur} s</small>`
+    : `Salon : ${esc(c.name)}<small>${esc(c.sub)} • ${st.opts.rounds} manches • ${st.opts.dur} s</small>`;
   $('#lobbyCode').textContent = st.code || '';
-  $('#lobbyCount').innerHTML = `${icon('user', 16)} ${humansOf(st).length}/12`;
-  $('#lobbyNote').textContent = `🤝 Partie amicale, sans points de rang${st.opts.bots ? ` • Bots : ${BOT_LVLS[st.opts.botlvl || 0]}` : ''}`;
+  $('#lobbyCount').innerHTML = `${icon('user', 16)} ${nh}/${duel ? 2 : 12}`;
+  $('#lobbyNote').textContent = duel ? (nh < 2 ? `⚔️ Duel amical, sans points de rang. En attente de ${R.duelVs ? R.duelVs.name : 'ton adversaire'}… La partie démarre dès son arrivée.` : '⚔️ Duel amical : que le meilleur gagne !')
+    : `🤝 Partie amicale, sans points de rang${st.opts.bots ? ` • Bots : ${BOT_LVLS[st.opts.botlvl || 0]}` : ''}`;
   const host = isHost();
   $('#lobbyGear').style.visibility = host ? '' : 'hidden';
   $('#lobbyParams').classList.toggle('hide', !host);
   const btn = $('#lobbyStart');
   if (st.phase === 'loading') { btn.disabled = true; btn.innerHTML = 'Préparation des extraits…'; }
+  else if (duel && nh < 2) { btn.disabled = true; btn.innerHTML = 'En attente de ton adversaire…'; }
   else if (host) { btn.disabled = false; btn.innerHTML = icon('playf') + 'Lancer la partie'; }
   else { btn.disabled = true; btn.innerHTML = 'En attente de l’hôte…'; }
   const players = [...st.players].sort((a, b) => (b.id === st.host) - (a.id === st.host) || a.bot - b.bot);
   $('#lobbyPlayers').innerHTML = players.map(p => `<div class="card prow ${p.on ? '' : 'off'}" data-pid="${p.id}">
     ${avHTML(p.av, p.fr, 44, p.id === st.host ? '<span class="crown">👑</span>' : '')}
-    <div class="nm"><b>${nameHTML(p)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b>${titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}<span>${p.tier != null ? `${tierBadge(p.tier, 14)} ${TIERS[p.tier].name} • ` : ''}Niv. ${p.lvl}${p.on ? '' : ' • hors ligne'}</span></div>
+    <div class="nm"><b>${nameHTML(p)}${p.id === R.me ? ' <span class="muted" style="font-weight:500">(toi)</span>' : ''}</b>${titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}<span>${p.tier != null ? `${tierBadge(p.tier, 14)} ${TIERS[p.tier].name} • ` : ''}Niv. ${p.lvl}${p.club ? ` • ${esc(p.club)}` : ''}${p.on ? '' : ' • hors ligne'}</span></div>
     ${p.id === st.host ? '<span class="tag">Hôte</span>' : p.bot ? '<span class="tag bot">BOT</span>' : ''}
     ${p.on ? '<div class="eqi"><i></i><i></i><i></i><i></i></div>' : ''}</div>`).join('');
   $$('#lobbyPlayers [data-pid]').forEach(el => el.onclick = () => { const p = R.st.players.find(x => x.id === el.dataset.pid); if (p) playerCard(p); });
@@ -1831,8 +1974,8 @@ function renderGame() {
   if (!st) return;
   const c = catOf(st.cat);
   const total = st.players.length;
-  $('#gameTitle').innerHTML = `${esc(c.name)}<small>${st.round ? `Manche ${st.round}/${st.rounds}` : st.pub ? 'Salon public' : 'Salon ' + esc(st.code)}</small>`;
-  $('#gameCount').innerHTML = `${icon('user', 16)} ${total}/12`;
+  $('#gameTitle').innerHTML = `${st.hit ? `🎯 Hit du jour #${st.hit.n}` : st.opts?.duel ? '⚔️ ' + esc(c.name) : esc(c.name)}<small>${st.round ? `Manche ${st.round}/${st.rounds}` : st.pub ? 'Salon public' : st.hit ? 'Un seul essai' : 'Salon ' + esc(st.code)}</small>`;
+  $('#gameCount').innerHTML = `${icon('user', 16)} ${total}/${st.opts?.duel ? 2 : st.hit ? 1 : 12}`;
   const me = st.players.find(p => p.id === R.me);
   // pochette
   const art = st.cur?.art || '';
@@ -1881,11 +2024,11 @@ function renderGame() {
   let html = '';
   if (st.phase === 'lobby' && st.msg) html = `<div style="font-size:54px">🎧</div><h3>Petit souci de musique</h3><p>${esc(st.msg)}</p><p class="muted">${humansOf(st).length} joueur${humansOf(st).length > 1 ? 's' : ''} dans le salon ${esc(c.name)}</p>`;
   else if (st.phase === 'lobby' || st.phase === 'loading') html = `<div class="spin"></div><h3>Préparation de la partie…</h3><p>${st.phase === 'loading' ? 'Chargement des extraits musicaux' : 'Ça commence dans un instant'}</p><p class="muted">${humansOf(st).length} joueur${humansOf(st).length > 1 ? 's' : ''} dans le salon ${esc(c.name)}</p>`;
-  else if (st.phase === 'countdown') html = `<p style="font-weight:600">${esc(c.name)} • ${st.rounds} extraits</p><div class="huge" id="cdN">3</div><h3>Prépare-toi !</h3><p>Tape l’artiste ou le titre dès que tu reconnais le morceau.</p>`;
+  else if (st.phase === 'countdown') html = `<p style="font-weight:600">${st.hit ? `🎯 Hit du jour #${st.hit.n} • les mêmes extraits pour tout le monde` : `${esc(c.name)} • ${st.rounds} extraits`}</p><div class="huge" id="cdN">3</div><h3>Prépare-toi !</h3><p>Tape l’artiste ou le titre dès que tu reconnais le morceau.</p>`;
   else if (st.phase === 'end') html = `<h3>Prochaine partie</h3><div class="huge" id="cdN">…</div><p>Reste dans le salon pour enchaîner !</p>`;
   ov.innerHTML = html;
   ov.classList.toggle('hide', !html);
-  $('#chatFab').classList.toggle('hide', !S.set.chat);
+  $('#chatFab').classList.toggle('hide', !S.set.chat || st.kind === 'daily');
   renderBadge();
   $('#stage').classList.toggle('live', st.phase === 'play' && !audio.paused);
   if (!raf) raf = requestAnimationFrame(tick);
@@ -1933,6 +2076,7 @@ function applyGame(st) {
   const xp = (20 + Math.round(r.score / 2) + ({ 1: 25, 2: 15, 3: 10 }[pod] || 0)) * (boost ? 2 : 1);
   let coins = 5 + Math.floor(r.score / 10) + ({ 1: 30, 2: 20, 3: 10 }[pod] || 0);
   if (st.solo) coins = Math.round(coins / 2);
+  if (st.kind === 'daily') coins += 25; // bonus du Hit du jour (un seul essai par jour)
   const before = level().l;
   rollPeriods();
   S.xp += xp; S.coins += coins;
@@ -2050,8 +2194,11 @@ function discSheet() {
 function renderEnd() {
   const st = R.st;
   if (!st?.results) return;
-  const res = st.results, c = catOf(st.cat);
-  $('#endSub').textContent = `${c.name} • ${st.rounds} extraits`;
+  const res = st.results, c = catOf(st.cat), daily = st.kind === 'daily';
+  $('#endSub').textContent = daily ? `Hit du jour #${st.hit.n} • ${st.rounds} extraits` : `${st.opts?.duel ? 'Duel • ' : ''}${c.name} • ${st.rounds} extraits`;
+  $('#hitBox').innerHTML = daily ? hitResHTML(R.hitRes?.day === st.hit.day ? R.hitRes : null) : '';
+  if (daily && $('#hitShare')) $('#hitShare').onclick = () => hitShare(R.hitRes);
+  $('#podium').classList.toggle('hide', daily);
   const top = [res[1], res[0], res[2]];
   $('#podium').innerHTML = top.map((p, i) => {
     if (!p) return '<div></div>';
@@ -2060,9 +2207,12 @@ function renderEnd() {
       <b>${nameHTML(p, p.id === R.me ? 'Toi' : p.name)}</b>${titleName(p.title) ? `<i class="ttl" style="max-width:100%">${esc(titleName(p.title))}</i>` : ''}<span>${p.score} pts</span><div class="ped"></div></div>`;
   }).join('');
   const r = res.find(x => x.id === R.me);
+  $('#myrow').classList.toggle('hide', daily);
   $('#myrow').innerHTML = r ? `<span class="r">${r.rank}</span>${avHTML(S.av, S.fr, 36)}<b>Toi</b><em>${r.score} pts</em>` : '<span class="muted" style="padding:6px 0">Tu as rejoint le salon après le début de cette partie.</span>';
   const rb = $('#rankBox');
-  if (!st.ranked) rb.innerHTML = `<p class="note" style="margin-top:-4px">${st.solo ? '🤖 Partie solo : pièces réduites, pas de points de rang' : st.pub ? '🎮 Partie non classée : pas de points de rang' : '🤝 Partie amicale : pas de points de rang'}</p>`;
+  const dr = st.opts?.duel && R.duelRec?.gameId === st.gameId ? R.duelRec : null;
+  if (dr) rb.innerHTML = `<div class="card duelres"><b>${dr.res === 'win' ? '🏆 Victoire en duel !' : dr.res === 'loss' ? '⚔️ Défaite… revanche ?' : '🤝 Égalité parfaite !'}</b><span>Vos duels : Toi ${dr.rec?.[0] || 0} – ${dr.rec?.[1] || 0} ${esc(dr.vs)}</span></div>`;
+  else if (!st.ranked) rb.innerHTML = `<p class="note" style="margin-top:-4px">${daily ? `🎯 Un seul essai par jour : prochain Hit dans ${untilParis()} (+25 pièces bonus)` : st.solo ? '🤖 Partie solo : pièces réduites, pas de points de rang' : st.opts?.duel ? '⚔️ Duel amical : pas de points de rang' : st.pub ? '🎮 Partie non classée : pas de points de rang' : '🤝 Partie amicale : pas de points de rang'}</p>`;
   else if (r && lastRank?.gameId === st.gameId) {
     const pr = tierProgress(lastRank.rp), d = lastRank.delta;
     rb.innerHTML = `<div class="card rankres">${tierBadge(lastRank.tier, 46)}<div><small>Partie classée</small>
@@ -2078,7 +2228,7 @@ function renderEnd() {
     <div class="card st"><span class="e">🔥</span><div><small>Meilleure série</small><b>x${r.best}</b></div></div>
     <div class="card st"><span class="e">⚡</span><div><small>Bonus rapidité</small><b>+${r.speed} pts</b></div></div>
   </div>${g ? `<p style="text-align:center;margin:12px 0 0;font-weight:600"><span class="coin">$</span> +${g.coins} pièces${st.solo ? ' <span class="muted" style="font-weight:500">(solo : réduites)</span>' : ''}</p>` : ''}` : '';
-  $('#endFull').innerHTML = res.map(p => `<div class="card rr click ${p.id === R.me ? 'me' : ''}" data-rid="${p.id}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${p.tier != null ? tierBadge(p.tier, 16) + ' ' : ''}${nameHTML(p)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
+  $('#endFull').innerHTML = daily ? hitTopHTML(HIT?.day === st.hit.day ? HIT : null) : res.map(p => `<div class="card rr click ${p.id === R.me ? 'me' : ''}" data-rid="${p.id}"><span class="n">${p.rank}</span>${avHTML(p.av, p.fr, 32)}<b>${p.tier != null ? tierBadge(p.tier, 16) + ' ' : ''}${nameHTML(p)}${p.bot ? ' 🤖' : ''}</b><em>${p.score} pts${p.drp != null ? `<small class="${p.drp >= 0 ? 'up' : 'down'}">${p.drp >= 0 ? '+' : ''}${p.drp} PR</small>` : ''}</em></div>`).join('');
   $$('#v-end [data-rid]').forEach(el => el.onclick = () => { const p = res.find(x => x.id === el.dataset.rid); if (p) playerCard(p); });
   $('#endRecap').classList.toggle('hide', endTab !== 'recap');
   $('#endFull').classList.toggle('hide', endTab !== 'full');
@@ -2086,13 +2236,15 @@ function renderEnd() {
   fillSongs($('#endSongs'), played, 'Les morceaux de la partie s’affichent ici.');
   $('#endSongs').classList.toggle('hide', endTab !== 'songs');
   $$('[data-et]').forEach(b => b.classList.toggle('on', b.dataset.et === endTab));
+  if (daily && endTab === 'full' && !R.hitTop) { R.hitTop = 1; loadHit(true).then(() => { if (curView === 'end') renderEnd(); }); }
   const same = $('#endSame'), nw = $('#endNew');
-  if (st.pub) { same.textContent = 'Changer de salon'; nw.disabled = true; }
+  if (daily) { same.textContent = '🏆 Classement'; nw.disabled = false; nw.innerHTML = icon('share') + 'Partager'; }
+  else if (st.pub) { same.textContent = 'Changer de salon'; nw.disabled = true; }
   else if (st.solo) { same.textContent = 'Changer'; nw.disabled = false; nw.innerHTML = icon('playf') + 'Rejouer'; }
   else {
     same.textContent = 'Même salon';
     nw.disabled = !isHost();
-    nw.innerHTML = isHost() ? icon('playf') + 'Nouvelle partie' : 'En attente de l’hôte…';
+    nw.innerHTML = isHost() ? (st.opts?.duel ? '⚔️ Revanche' : icon('playf') + 'Nouvelle partie') : 'En attente de l’hôte…';
   }
   if (!raf) raf = requestAnimationFrame(tick);
 }
@@ -2125,7 +2277,7 @@ async function loadMe(force) {
   if (curView === 'cats' && catsMode === 'public') setTimeout(renderCats, 0);
   meLoaded = Date.now();
   let d;
-  try { d = await (await fetch(`/api/me?uid=${S.uid}`)).json(); } catch (e) { return; }
+  try { d = await (await fetch(`/api/me?${new URLSearchParams({ uid: S.uid, name: S.name, av: S.av, fr: S.fr, lvl: level().l })}`)).json(); } catch (e) { return; }
   if (!d || d.error) return;
   S.rank = { sc: d.sc, rp: d.rp, tier: d.tier, best: d.best, bestEver: d.bestEver || 0, games: d.games, pos: d.pos };
   if (d.rcats) S.rcats = { sc: d.sc, cats: d.rcats };
@@ -2172,21 +2324,28 @@ function rankSheet() {
 }
 $('#endHome').onclick = () => { leaveRoom(); };
 $('#endSame').onclick = () => {
+  if (R.st.kind === 'daily') { endTab = 'full'; R.hitTop = 0; renderEnd(); return; }
   if (R.st.pub || R.st.solo) { const mode = R.st.solo ? 'solo' : R.st.ranked ? 'public' : 'open'; leaveRoom(); setTimeout(() => openCats(mode), 50); return; }
   R.sameLobby = R.st.gameId; show('lobby'); renderLobby();
 };
-$('#endNew').onclick = () => { if (isHost()) send({ t: 'start' }); };
+$('#endNew').onclick = () => { if (R.st?.kind === 'daily') hitShare(R.hitRes || HIT?.mine); else if (isHost()) send({ t: 'start' }); };
 
 // ---------- actions en partie ----------
 const gin = $('#guessIn');
-let gT = null;
+let gT = null, sentEnter = null; // dernière réponse validée avec Entrée : effacée si elle est fausse (onHint)
 gin.addEventListener('input', () => {
   clearTimeout(gT);
   const v = gin.value;
   if (v.trim().length >= 2) gT = setTimeout(() => send({ t: 'guess', text: v }), 220);
 });
-gin.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(gT); if (gin.value.trim()) send({ t: 'guess', text: gin.value, enter: true }); } });
-$('#guessSend').onclick = () => { clearTimeout(gT); if (gin.value.trim()) send({ t: 'guess', text: gin.value, enter: true }); gin.focus(); };
+function sendEnter() {
+  clearTimeout(gT);
+  if (!gin.value.trim()) return;
+  sentEnter = gin.value;
+  send({ t: 'guess', text: gin.value, enter: true });
+}
+gin.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendEnter(); } });
+$('#guessSend').onclick = () => { sendEnter(); gin.focus(); };
 $('#muteBtn').onclick = () => { muted = !muted; audio.muted = muted; renderGame(); };
 $('#gameBack').onclick = () => history.back();
 $('#lobbyBack').onclick = () => history.back();
@@ -2208,12 +2367,15 @@ $('#lobbyGear').onclick = $('#lobbyParams').onclick = () => hostSettings();
 function copy(text, msg) {
   navigator.clipboard?.writeText(text).then(() => toast(msg), () => toast(text));
 }
-function invite() {
+async function invite() {
   const code = R.st?.code;
   if (!code) return;
+  if (!FR) await loadFriends();
   const here = new Set(R.st.players.map(p => p.pk).filter(Boolean));
-  const mates = (S.mates || []).filter(m => !here.has(m.pk) && !isBlocked(m.pk)).slice(0, 15);
-  if (mates.length) return inviteSheet(mates);
+  const friends = (FR?.list || []).filter(f => !here.has(f.pk) && !isBlocked(f.pk));
+  const fpk = new Set((FR?.list || []).map(f => f.pk));
+  const mates = (S.mates || []).filter(m => !here.has(m.pk) && !isBlocked(m.pk) && !fpk.has(m.pk)).slice(0, 15);
+  if (friends.length || mates.length) return inviteSheet(mates, friends);
   shareLink();
 }
 function shareLink() {
@@ -2231,8 +2393,8 @@ function hostSettings() {
     <div class="opt"><label>Catégorie</label><button class="ghost" style="width:100%" id="optCat">${catOf(R.st.cat).e} ${esc(catOf(R.st.cat).name)} — changer</button></div>
     <div class="opt"><label>Nombre de manches${hasPerk('premium') ? ' (Premium : jusqu’à 30)' : ''}</label>${seg('rounds', hasPerk('premium') ? [5, 10, 15, 20, 30] : [5, 10, 15, 20])}</div>
     <div class="opt"><label>Durée de chaque extrait</label>${seg('dur', [15, 20, 30], ' s')}</div>
-    <div class="opt"><label>Bots (joueurs virtuels pour compléter)</label>${seg('bots', [0, 1, 2, 3, 4])}</div>
-    <div class="opt"><label>Niveau des bots</label><div class="seg" data-k="botlvl">${BOT_LVLS.map((l, i) => `<button data-v="${i}" class="${(o.botlvl || 0) === i ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+    ${o.duel ? '' : `<div class="opt"><label>Bots (joueurs virtuels pour compléter)</label>${seg('bots', [0, 1, 2, 3, 4])}</div>
+    <div class="opt"><label>Niveau des bots</label><div class="seg" data-k="botlvl">${BOT_LVLS.map((l, i) => `<button data-v="${i}" class="${(o.botlvl || 0) === i ? 'on' : ''}">${l}</button>`).join('')}</div></div>`}
     <button class="cta" data-close>OK</button>`);
   $$('#sheetBox .seg button').forEach(b => b.onclick = () => {
     const k = b.parentElement.dataset.k;
@@ -2249,13 +2411,14 @@ function openCats(mode) {
   catsMode = mode;
   catSel = mode === 'change' ? R.st.cat : (S.cat || 'mix');
   if (!multiCats()) catSel = catSel.split('+')[0];
-  $('#catsTitle').textContent = { public: 'Classé', open: 'Non classé', solo: 'Solo' }[mode] || (multiCats() ? 'Choisir jusqu’à 3 catégories' : 'Choisir une catégorie');
+  $('#catsTitle').textContent = mode === 'duel' ? `⚔️ Duel contre ${duelVs?.name || 'un ami'}` : { public: 'Classé', open: 'Non classé', solo: 'Solo' }[mode] || (multiCats() ? 'Choisir jusqu’à 3 catégories' : 'Choisir une catégorie');
   $('#catsSub').innerHTML = mode === 'public' ? `${tierBadge(S.rank.tier, 16)} Avec ton rang, un en dessous ou un au-dessus (${rangeName(S.rank.tier)}).${allRanked() ? '' : ` ${rankedCatsNow().length} catégories classées ce mois-ci.`}`
     : mode === 'open' ? 'Tout le monde mélangé, sans points de rang. On ne voit pas le rang des autres.'
+    : mode === 'duel' ? '1 contre 1 : 10 extraits de 20 s, sans bots ni points de rang. Ton ami reçoit le défi (10 minutes pour répondre).'
     : mode === 'solo' ? `Contre 3 bots, à ton rythme. Pièces réduites, pas de points de rang.<div class="segs" id="soloLvl" style="margin-top:10px">${BOT_LVLS.map((l, i) => `<button data-l="${i}" class="${(S.soloLvl ?? 1) === i ? 'on' : ''}">${l}</button>`).join('')}</div>`
     : multiCats() ? '🎛️ Salon Premium : touche plusieurs catégories pour les mélanger.' : mode === 'create' ? 'La musique de ton salon privé (modifiable ensuite).' : '';
   $$('#soloLvl button').forEach(b => b.onclick = () => { S.soloLvl = +b.dataset.l; save(); $$('#soloLvl button').forEach(x => x.classList.toggle('on', x === b)); });
-  $('#catsOk').textContent = mode === 'change' ? 'Valider la catégorie' : mode === 'public' || mode === 'open' ? 'Entrer dans le salon' : mode === 'solo' ? 'Lancer la partie' : 'Créer le salon';
+  $('#catsOk').textContent = mode === 'change' ? 'Valider la catégorie' : mode === 'public' || mode === 'open' ? 'Entrer dans le salon' : mode === 'solo' ? 'Lancer la partie' : mode === 'duel' ? '⚔️ Envoyer le défi' : 'Créer le salon';
   if (mode === 'change') { history.pushState({ v: 'room' }, ''); show('cats'); } else go('cats');
   renderCats();
   if (mode === 'public') loadMe(true);
@@ -2292,14 +2455,15 @@ $('#catsOk').onclick = async () => {
   if (catsMode === 'public') { connect(`/api/public/${catSel}/ws`); return; }
   if (catsMode === 'open') { connect(`/api/open/${catSel}/ws`); return; }
   if (catsMode === 'solo') { connect(`/api/solo/${rid(10)}/ws`, { create: 1, cat: catSel, botlvl: S.soloLvl ?? 1 }); return; }
-  const b = $('#catsOk');
+  const b = $('#catsOk'), duel = catsMode === 'duel' && duelVs;
   b.disabled = true;
   try {
     const r = await (await fetch('/api/salon', { method: 'POST' })).json();
     if (!r.code) throw new Error(r.error);
     history.replaceState(history.state, '', `?salon=${r.code}`);
-    connect(`/api/salon/${r.code}/ws`, { create: 1, cat: catSel, rounds: 10, dur: 30, bots: 0 });
-  } catch (e) { toast('Impossible de créer le salon. Vérifie ta connexion.'); }
+    connect(`/api/salon/${r.code}/ws`, duel ? { create: 1, cat: catSel, rounds: 10, dur: 20, bots: 0, duel: 1 } : { create: 1, cat: catSel, rounds: 10, dur: 30, bots: 0 });
+    if (duel) sendDuel(duel, r.code, catSel);
+  } catch (e) { toast(duel ? 'Impossible de créer le duel. Vérifie ta connexion.' : 'Impossible de créer le salon. Vérifie ta connexion.'); }
   b.disabled = false;
 };
 
@@ -2364,6 +2528,9 @@ function renderHome() {
     <span class="mf">${framedAvatar(S.av, 'r' + t, 120, 112, 56)}</span>`;
   renderOnline();
   loadCounts();
+  renderHitCard();
+  loadHit();
+  renderSocial();
 }
 // joueurs en ligne sur les tuiles Classé (salons de son niveau) et Non classé
 function renderOnline() {
@@ -2377,6 +2544,9 @@ $('#bOpen').onclick = () => openCats('open');
 $('#bSolo').onclick = () => openCats('solo');
 $('#bCreate').onclick = () => openCats('create');
 $('#bJoin').onclick = () => joinSheet();
+$('#homeHit').onclick = () => hitIntro();
+$('#bFriends').onclick = () => go('friends');
+$('#bClub').onclick = () => openClub();
 $('#profSet').onclick = () => go('settings');
 $('#homeAv').onclick = () => tabGo('profile');
 $('#homeCoins').onclick = () => go('defis');
@@ -2419,6 +2589,8 @@ function renderProfile() {
     }).join('')}</div></div>
     <h4 class="psec">Collection</h4>
     <div class="list">
+      <button class="card li" id="profFriends"><span class="e">👥</span><span>Mes amis</span><span class="muted">${PRES.nf ? `${PRES.nf} • ${PRES.on || 0} en ligne` : ''}</span><span class="chev">›</span></button>
+      <button class="card li" id="profClub"><span class="e">🛡️</span><span>Mon club</span><span class="muted">${esc(S.club?.name || 'aucun')}</span><span class="chev">›</span></button>
       <button class="card li" id="profDisc"><span class="e">🎵</span><span>Mes découvertes</span><span class="muted">${DISC.length} morceau${DISC.length > 1 ? 'x' : ''} • ${(S.favs || []).length} ❤️</span><span class="chev">›</span></button>
       <button class="card li" id="profShow"><span class="e">🖼️</span><span>Ma vitrine</span><span class="muted">${showIds().map(id => medalSVG(MEDALS.find(m => m.id === id), S.medals[id] || 1, 26)).join('') || 'vide'}</span><span class="chev">›</span></button>
       <button class="card li" id="profCard"><span class="e">🪪</span><span>Voir ma carte de joueur</span><span class="chev">›</span></button>
@@ -2436,6 +2608,8 @@ function renderProfile() {
   $('#profMeds').onclick = () => $('#profMedSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('#profShow').onclick = () => showcaseSheet();
   $('#profDisc').onclick = () => discSheet();
+  $('#profFriends').onclick = () => go('friends');
+  $('#profClub').onclick = () => openClub();
   $('#profCard').onclick = () => playerCard({ name: S.name, av: S.av, fr: S.fr, lvl: level().l, tier: S.rank.tier, title: S.title, nc: S.nc, show: showStr().split(',').filter(Boolean) });
   $$('#profBody [data-med]').forEach(b => b.onclick = () => medalSheet(MEDALS.find(m => m.id === b.dataset.med)));
   loadMe();
@@ -2482,12 +2656,15 @@ function playerCard(p) {
   }).join('');
   openSheet(`<div class="pcard">${isRankFrame(p.fr) ? framedAvatar(p.av, p.fr, 320, 196, 104) : avHTML(p.av, p.fr, 96)}<h3>${nameHTML(p)}${p.bot ? ' 🤖' : ''}</h3>${p.title && titleName(p.title) ? `<i class="ttl">${esc(titleName(p.title))}</i>` : ''}
     <div class="pc-rank">${p.tier != null ? `${tierBadge(p.tier, 30)} <b>${TIERS[p.tier].name}</b> • ` : ''}Niveau ${p.lvl || 1}</div>
+    ${p.club ? `<p class="pclub">${esc(p.club)}</p>` : ''}
     <div class="pc-show">${show || '<p class="muted" style="grid-column:1/-1">Pas encore de médaille en vitrine.</p>'}</div>
     ${p.bot ? '<p class="note">Joueur virtuel qui complète les salons quand il manque du monde.</p>' : ''}
+    ${friendBtn(p)}
     ${!p.bot && p.pk && p.id !== R.me ? `<div class="pc-acts"><button class="ghost" id="pcBlock">${isBlocked(p.pk) ? '✅ Débloquer' : '🚫 Bloquer'}</button>${R.ws && !R.st?.solo ? '<button class="ghost" id="pcReport">⚠️ Signaler</button>' : ''}</div>` : ''}
     <button class="cta" data-close>Fermer</button></div>`);
   if ($('#pcBlock')) $('#pcBlock').onclick = () => { setBlocked(p, !isBlocked(p.pk)); playerCard(p); };
   if ($('#pcReport')) $('#pcReport').onclick = () => reportSheet(p);
+  if ($('#pcFriend')) $('#pcFriend').onclick = async () => { $('#pcFriend').disabled = true; await addFriend({ pk: p.pk }); playerCard(p); };
 }
 
 // ---------- partenaires de jeu et invitations ----------
@@ -2503,29 +2680,513 @@ function noteMates(st) {
   }
   if (changed) save();
 }
-function inviteSheet(mates) {
+function inviteSheet(mates, friends = []) {
+  const row = (m, i) => `<div class="card li"><span class="fri" style="padding:0;flex:none;width:auto"><span class="fpic">${avHTML(m.av, 'def', 34)}${m.on != null ? `<i class="dot ${m.on ? 'on' : ''}"></i>` : ''}</span></span><span>${esc(m.name)}</span><button class="ghost sm" data-inv="${i}" data-pk="${esc(m.pk)}">Inviter</button></div>`;
+  const all = [...friends, ...mates];
   openSheet(`<h3>Inviter des amis <button data-close data-i="x"></button></h3>
     <button class="cta" id="invShare"><span data-i="share"></span>Partager le lien du salon</button>
-    <h4 class="psec" style="margin:18px 0 8px">Tes partenaires de jeu</h4>
+    ${friends.length ? `<h4 class="psec" style="margin:18px 0 8px">Mes amis</h4><p style="margin-top:0">Ils voient l’invitation dans Hitroom (et en notification s’ils l’ont activée).</p>
+    <div class="list">${friends.map((m, i) => row(m, i)).join('')}</div>` : ''}
+    ${mates.length ? `<h4 class="psec" style="margin:18px 0 8px">Tes partenaires de jeu</h4>
     <p style="margin-top:0">Ils reçoivent une notification s’ils l’ont activée.</p>
-    <div class="list">${mates.map((m, i) => `<div class="card li">${avHTML(m.av, 'def', 34)}<span>${esc(m.name)}</span><button class="ghost" data-inv="${i}" data-pk="${esc(m.pk)}" style="height:36px;min-height:36px;padding:0 12px">Inviter</button></div>`).join('')}</div>`);
+    <div class="list">${mates.map((m, i) => row(m, friends.length + i)).join('')}</div>` : ''}`);
   $('#invShare').onclick = () => { closeSheet(); shareLink(); };
   $$('#sheetBox [data-inv]').forEach(b => b.onclick = () => {
-    send({ t: 'invite', pk: mates[+b.dataset.inv].pk });
+    send({ t: 'invite', pk: all[+b.dataset.inv].pk });
     b.disabled = true; b.textContent = '…';
   });
 }
 function onInvited(m) {
-  const who = esc((S.mates || []).find(x => x.pk === m.pk)?.name || 'Ce joueur');
+  const who = esc((FR?.list || []).find(x => x.pk === m.pk)?.name || (S.mates || []).find(x => x.pk === m.pk)?.name || 'Ce joueur');
   const b = $$('#sheetBox [data-pk]').find(x => x.dataset.pk === m.pk);
   if (b) { b.textContent = m.ok ? 'Envoyée ✓' : 'Inviter'; b.disabled = !!m.ok; }
   toast(m.ok ? `📨 Invitation envoyée à ${who} !` : m.why === 'off' ? `${who} n’a pas activé les notifications : partage-lui plutôt le lien.`
     : m.why === 'again' ? `Tu as déjà invité ${who} : laisse-lui un peu de temps 🙂` : m.why === 'limit' ? 'Beaucoup d’invitations envoyées : réessaie dans un moment.' : 'Invitation impossible pour le moment.', 3600);
 }
 
+// ---------- Hit du jour (version 1.15) : les 5 mêmes extraits pour tout le monde chaque jour, un seul essai ----------
+// le jour change à minuit heure de Paris (src/social.js) ; résultat à partager façon Wordle : « Hitroom #42 🎵🎵⬛🎤🎵 »
+const HIT_EMO = ['⬛', '💿', '🎤', '🎵']; // par extrait : raté, titre seul, artiste seul, titre et artiste
+const hitGrid = (grid, n = 5) => Array.from({ length: n }, (_, i) => HIT_EMO[+String(grid || '')[i] || 0]).join('');
+// dans l'appli : chaque case sur un fond de couleur (vert : tout trouvé, orange : à moitié), le 🎵 se voit mieux
+const hitChips = (grid, n = 5) => `<span class="hg">${Array.from({ length: n }, (_, i) => { const v = +String(grid || '')[i] || 0; return `<i class="s${v}">${HIT_EMO[v]}</i>`; }).join('')}</span>`;
+const parisDay = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
+const hitNo = day => Math.round((Date.parse(day + 'T12:00:00Z') - Date.parse('2026-10-21T12:00:00Z')) / 86400000); // 22/10/2026 = n° 1
+const rankTxt = n => `${fmt(n)}${n === 1 ? 'er' : 'e'}`;
+// temps restant avant le prochain Hit (minuit à Paris)
+function untilParis() {
+  const [h, m] = new Date().toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour12: false }).split(':').map(Number);
+  const left = Math.max(1, 24 * 60 - ((h % 24) * 60 + m));
+  return left >= 60 ? `${Math.floor(left / 60)} h ${String(left % 60).padStart(2, '0')}` : `${left} min`;
+}
+let HIT = null, hitLoaded = 0; // réponse de /api/hit (mon résultat, ma série, meilleurs du jour, amis)
+const hitToday = () => (HIT?.day === parisDay() ? HIT : S.hit?.day === parisDay() ? S.hit : null);
+async function loadHit(force) {
+  if (!S.name || !navigator.onLine || (!force && Date.now() - hitLoaded < 60000)) return HIT;
+  hitLoaded = Date.now();
+  try {
+    const d = await (await fetch(`/api/hit?uid=${S.uid}`)).json();
+    if (d?.day) {
+      HIT = d;
+      const keep = { day: d.day, n: d.n, mine: d.mine, streak: d.streak, total: d.total };
+      if (JSON.stringify(keep) !== JSON.stringify(S.hit)) { S.hit = keep; save(); }
+    }
+  } catch (e) { /* hors ligne : on garde le dernier résultat connu */ }
+  if (curView === 'home') renderHitCard();
+  return HIT;
+}
+function renderHitCard() {
+  const el = $('#homeHit');
+  if (!el) return;
+  const h = hitToday(), n = h?.n || hitNo(parisDay()), mine = h?.mine;
+  el.classList.toggle('done', !!mine);
+  el.innerHTML = mine
+    ? `<span class="hb"><small>🎯 HIT DU JOUR #${n} · JOUÉ</small><b class="hgrid">${hitChips(mine.grid)}</b>
+      <span>${fmt(mine.score)} pts · ${rankTxt(mine.rank)} sur ${fmt(mine.total)}${mine.streak > 1 ? ` · 🔥 ${mine.streak} jours` : ''}</span><span class="nx">Prochain Hit dans ${untilParis()}</span></span>
+      <span class="go">${icon('share', 16)}Voir</span>`
+    : `<span class="hb"><small>🎯 HIT DU JOUR #${n}</small><b>5 extraits, les mêmes pour tout le monde</b>
+      <span>Un seul essai par jour${h?.total ? ` · ${fmt(h.total)} joueur${h.total > 1 ? 's' : ''} aujourd’hui` : ''}${h?.streak ? ` · 🔥 série de ${h.streak} jour${h.streak > 1 ? 's' : ''}` : ''}</span></span>
+      <span class="go">${icon('playf', 16)}Jouer</span>`;
+}
+// avant de jouer : la règle (un seul essai) ; déjà joué : le résultat, à partager
+async function hitIntro() {
+  const h = hitToday();
+  if (h?.mine) return hitSheet();
+  const n = h?.n || hitNo(parisDay());
+  openSheet(`<div class="pcard"><div style="font-size:54px;line-height:1">🎯</div><h3>Hit du jour #${n}</h3>
+    <p style="margin:4px 0">5 extraits, <b style="color:var(--ink)">les mêmes pour tout le monde</b> aujourd’hui. Tape le titre ou l’artiste le plus vite possible.</p>
+    <p style="margin:4px 0 14px"><b style="color:var(--ink)">Un seul essai</b> : ensuite, partage ta grille et compare-toi à tes amis ! ${hitChips('3210', 4)}</p>
+    <button class="cta" id="hitGo">${icon('playf')}C’est parti !</button></div>`);
+  $('#hitGo').onclick = async () => {
+    unlock();
+    closeSheet();
+    const d = await loadHit(true);
+    if (d?.mine) return hitSheet();
+    connect('/api/hit/ws', { create: 1, day: d?.day || parisDay() });
+  };
+}
+// fin de la partie : place du jour, série (envoyés par le salon après le dernier extrait)
+function onHitResult(m) {
+  R.hitRes = m;
+  R.hitTop = 0;
+  HIT = { ...(HIT || {}), day: m.day, n: m.n, mine: m, streak: m.streak, total: m.total };
+  S.hit = { day: m.day, n: m.n, mine: m, streak: m.streak, total: m.total };
+  save();
+  if (curView === 'end') renderEnd();
+}
+function hitResHTML(h) {
+  if (!h) return '<div class="card hitres"><div class="spin"></div><span class="sub">Calcul de ton résultat…</span></div>';
+  return `<div class="card hitres"><small>HIT DU JOUR #${h.n}</small>
+    <div class="tiles">${Array.from({ length: 5 }, (_, i) => { const v = +String(h.grid || '')[i] || 0; return `<span class="s${v}" style="animation-delay:${(0.15 + i * 0.18).toFixed(2)}s">${HIT_EMO[v]}</span>`; }).join('')}</div>
+    <b class="sc">${fmt(h.score)} pts</b>
+    <span class="sub">${rankTxt(h.rank)} sur ${fmt(h.total)} joueur${h.total > 1 ? 's' : ''} aujourd’hui${h.streak > 1 ? ` · 🔥 ${h.streak} jours de suite` : ''}</span>
+    <button class="cta" id="hitShare">${icon('share')}Partager mon résultat</button>
+    <p class="legend">🎵 titre et artiste · 🎤 artiste · 💿 titre · ⬛ raté</p></div>`;
+}
+function hitTopHTML(d) {
+  if (!d?.top) return '<div class="empty"><div class="spin"></div>Chargement…</div>';
+  const row = (p, n) => `<div class="card hitrow ${p.me ? 'me' : ''}"><span class="n">${n}</span>${avHTML(p.av, 'def', 30)}<b>${esc(p.me ? 'Toi' : p.name)}</b>${hitChips(p.grid)}<em>${fmt(p.score)}</em></div>`;
+  const mine = d.mine && !d.top.some(p => p.me) ? `<div class="rsep">•••</div>${row({ ...d.mine, me: true, av: S.av, name: S.name }, d.mine.rank)}` : '';
+  return `<p class="bnote">Hit du jour #${d.n} • ${fmt(d.total)} joueur${d.total > 1 ? 's' : ''} aujourd’hui • nouveau dans ${untilParis()}</p>`
+    + (d.top.length ? d.top.map((p, i) => row(p, i + 1)).join('') + mine : '<p class="empty">Personne n’a encore joué aujourd’hui.</p>')
+    + (d.friends?.length ? `<h4 class="psec">👥 Mes amis aujourd’hui</h4>${d.friends.map(p => row(p, '·')).join('')}` : '');
+}
+// déjà joué : résultat, partage, classement du jour
+async function hitSheet() {
+  const draw = () => {
+    const h = hitToday();
+    openSheet(`<h3>Hit du jour <button data-close data-i="x"></button></h3>${hitResHTML(h?.mine ? { ...h.mine, n: h.n } : null)}<div class="list">${hitTopHTML(HIT)}</div>`);
+    if ($('#hitShare')) $('#hitShare').onclick = () => hitShare(hitToday()?.mine);
+  };
+  draw();
+  await loadHit(true);
+  if ($('#sheetBox .hitres')) draw();
+}
+function hitShare(h) {
+  if (!h) return;
+  const text = `Hitroom #${h.n} ${hitGrid(h.grid)}\n🏆 ${h.score} pts${h.streak > 1 ? ` · 🔥 ${h.streak} jours de suite` : ''}\n${location.origin}/?hit`;
+  if (navigator.share) navigator.share({ text }).catch(() => {});
+  else copy(text, '📋 Résultat copié : colle-le dans tes messages !');
+}
+
+// ---------- amis (version 1.15) : présence, demandes, défis en duel (1 contre 1) ----------
+// l'appli se signale chaque minute (/api/ping) : ses amis la voient en ligne et savent où elle joue
+let PRES = { on: 0, onl: [], rq: 0, ch: [], club: null, nf: 0 }, FR = null, lastAt = '', presQ = null, duelVs = null, friTab = 'list';
+const seenCh = new Set();
+function whereAmI() {
+  const st = R.st;
+  if (!R.ws || !st) return 'menu';
+  if (st.kind === 'priv') return (st.opts?.duel ? 'duel:' : 'priv:') + st.code;
+  if (st.kind === 'ranked' || st.kind === 'open') return `${st.kind}:${st.cat.split('+')[0]}`;
+  return st.kind === 'daily' ? 'hit' : 'solo';
+}
+// soon : bientôt (plusieurs demandes rapprochées = un seul envoi)
+async function presence(soon) {
+  clearTimeout(presQ);
+  if (soon) { presQ = setTimeout(presence, 800); return; }
+  if (!S.name || !S.acct || !navigator.onLine) return;
+  lastAt = whereAmI();
+  let d;
+  try { d = await pushPost('/api/ping', { uid: S.uid, name: S.name, av: S.av, fr: S.fr, lvl: level().l, at: lastAt }); } catch (e) { return; }
+  if (!d || d.error) return;
+  if (curView === 'friends' && FR && (d.rq !== FR.inq.length || d.nf !== FR.list.length)) refreshFriends();
+  PRES = d;
+  if (JSON.stringify(d.club || null) !== JSON.stringify(S.club || null)) { S.club = d.club || null; save(); }
+  renderSocial();
+  onChallenges(d.ch || []);
+}
+setInterval(() => { if (document.visibilityState === 'visible') presence(); }, 60000);
+setInterval(() => { if (curView === 'friends' && document.visibilityState === 'visible') refreshFriends(); }, 20000);
+function renderSocial() {
+  if (!$('#bFriends')) return;
+  const n = PRES.on || 0, rq = PRES.rq || 0, nf = PRES.nf ?? FR?.list?.length ?? 0;
+  $('#friAvs').innerHTML = (PRES.onl || []).length ? PRES.onl.map(f => `<span class="fon">${avImg(f.av)}</span>`).join('') : '<img src="/av/A13.webp" alt="">';
+  $('#friLine').textContent = rq ? `${rq} demande${rq > 1 ? 's' : ''} d’ami à voir` : (PRES.ch || []).length ? 'Un ami t’attend pour jouer !' : nf ? `${nf} ami${nf > 1 ? 's' : ''} · défie-les en duel` : 'Ajoute tes amis et défie-les en duel';
+  const live = $('#friLive');
+  live.classList.toggle('off', !n);
+  live.innerHTML = `<i></i>${n ? `${n} en ligne` : 'Personne en ligne'}`;
+  $('#friDot').classList.toggle('hide', !rq && !(PRES.ch || []).length);
+  const c = S.club;
+  $('#clubPic').innerHTML = c ? clubBadge(c, 58) : '<img src="/av/A18.webp" alt="">';
+  $('#clubTile').textContent = c ? c.name : 'Clubs';
+  $('#clubLine').textContent = c ? 'Mon club · classement des clubs' : 'Rejoins une équipe et grimpez ensemble';
+}
+// défi en duel ou invitation d'un ami : fenêtre tout de suite (ou petit message pendant une partie)
+function onChallenges(list) {
+  for (const c of list) {
+    const k = `${c.pk}:${c.code}:${c.ts}`;
+    if (seenCh.has(k) || isBlocked(c.pk) || R.st?.code === c.code) continue;
+    seenCh.add(k);
+    const what = c.kind === 'duel' ? '⚔️ te défie en duel' : '📨 t’invite dans son salon';
+    if (ROOM_VIEWS.includes(curView) || !$('#sheet').classList.contains('hide')) { toast(`${esc(c.name || 'Un ami')} ${what} : réponds dans « Mes amis »`, 4500); continue; }
+    challengeSheet(c);
+    break;
+  }
+}
+function challengeSheet(c) {
+  const duel = c.kind === 'duel';
+  openSheet(`<div class="pcard">${avHTML(c.av, 'def', 84)}<h3>${duel ? '⚔️ Défi en duel !' : '📨 Invitation'}</h3>
+    <p style="margin:0 0 6px"><b style="color:var(--ink)">${esc(c.name || 'Un ami')}</b> ${duel ? `te défie en 1 contre 1 en <b style="color:var(--ink)">${esc(catOf(c.cat || 'mix').name)}</b>.` : 't’invite dans son salon entre amis.'}</p>
+    <p class="muted" style="font-size:12.5px;margin:0 0 12px">Valable 10 minutes · code ${esc(c.code)}</p>
+    <div class="pc-acts"><button class="ghost" id="chNo">Pas maintenant</button><button class="cta" id="chYes">${duel ? '⚔️ Accepter' : 'Rejoindre'}</button></div></div>`);
+  $('#chYes').onclick = () => { closeSheet(); answerChallenge(c, true); };
+  $('#chNo').onclick = () => { closeSheet(); answerChallenge(c, false); };
+}
+function answerChallenge(c, yes) {
+  PRES.ch = (PRES.ch || []).filter(x => x.pk !== c.pk);
+  pushPost('/api/friends', { uid: S.uid, act: 'answer', pk: c.pk, yes }).catch(() => {});
+  renderSocial();
+  if (curView === 'friends') renderFriends();
+  if (yes) { if (R.ws) leaveRoom(); unlock(); joinCode(c.code); }
+}
+async function loadFriends() {
+  try {
+    const d = await (await fetch(`/api/friends?uid=${S.uid}`)).json();
+    if (d && !d.error) {
+      FR = d;
+      PRES.nf = d.list.length;
+      const fpk = d.list.map(f => f.pk), sent = d.outq.map(f => f.pk);
+      if (JSON.stringify([fpk, sent]) !== JSON.stringify([S.fpk, S.fsent])) { S.fpk = fpk; S.fsent = sent; save(); }
+    }
+  } catch (e) { /* hors ligne */ }
+  return FR;
+}
+async function refreshFriends() {
+  await loadFriends();
+  if (curView === 'friends') renderFriends();
+  renderSocial();
+}
+const FRI_ERR = { code: 'Code ami introuvable. Vérifie-le !', self: 'C’est ton propre code 🙂', full: 'Tu as déjà 100 amis : retires-en un pour en ajouter.', full2: 'Ce joueur a déjà 100 amis.',
+  limit: 'Beaucoup de demandes en attente : attends qu’on te réponde.', gone: 'Cette demande n’existe plus.', friend: 'Vous devez être amis pour vous défier.',
+  again: 'Tu l’as déjà défié : laisse-lui un peu de temps 🙂', off: 'Défi impossible pour le moment.', err: 'Impossible pour le moment.' };
+async function friendAct(act, data) {
+  let r;
+  try { r = await pushPost('/api/friends', { uid: S.uid, act, ...data }); } catch (e) { toast('Pas de connexion internet ?'); return null; }
+  if (!r.ok) toast(FRI_ERR[r.why] || FRI_ERR.err, 3200);
+  refreshFriends();
+  return r;
+}
+// demande d'ami (pk depuis une carte de joueur, fc = code ami) ; s'il m'avait déjà demandé, nous voilà amis
+async function addFriend(data) {
+  const r = await friendAct('add', data);
+  if (r?.ok) {
+    if (r.state === 'friend') toast(`👥 ${esc(r.name)} et toi êtes maintenant amis !`, 3200);
+    else toast(`📨 Demande d’ami envoyée à ${esc(r.name)}`, 3000);
+    if (data.pk && !(S.fsent || []).includes(data.pk)) S.fsent = [...(S.fsent || []), data.pk];
+  }
+  return r;
+}
+const friendBtn = p => {
+  if (!p.pk || p.bot || p.id === R.me || !p.id) return '';
+  const st = (S.fpk || []).includes(p.pk) ? 'friend' : (S.fsent || []).includes(p.pk) ? 'sent' : '';
+  return `<button class="ghost pc-friend" id="pcFriend" ${st ? 'disabled' : ''}>${st === 'friend' ? '✓ Vous êtes amis' : st === 'sent' ? '📨 Demande d’ami envoyée' : '➕ Ajouter en ami'}</button>`;
+};
+const agoText = ts => { const m = Math.round((Date.now() - ts) / 60000); return m < 60 ? `il y a ${Math.max(1, m)} min` : m < 1440 ? `il y a ${Math.round(m / 60)} h` : `il y a ${Math.round(m / 1440)} j`; };
+function friStatus(f) {
+  if (!f.on) return f.seen ? `Vu ${agoText(f.seen)}` : 'Hors ligne';
+  const [k, v] = (f.at || 'menu').split(':');
+  return { hit: 'Joue au Hit du jour', solo: 'En partie solo', ranked: `En partie classée · ${catOf(v).name}`, open: `En partie non classée · ${catOf(v).name}`,
+    priv: 'Dans un salon entre amis', duel: 'En duel' }[k] || 'En ligne';
+}
+const friCode = f => (f.on && /^priv:/.test(f.at || '') ? f.at.slice(5) : '');
+function friRow(f) {
+  const code = friCode(f);
+  return `<div class="card fri" data-fp="${esc(f.pk)}"><span class="fpic">${avHTML(f.av, f.fr, 44)}<i class="dot ${f.on ? 'on' : ''}"></i></span>
+    <span class="ft"><b>${esc(f.name)}</b><span class="${f.on ? 'on' : ''}">${f.on ? '● ' : ''}${esc(friStatus(f))}</span></span>
+    <span class="fa">${code ? `<button class="ghost sm" data-join="${esc(code)}">Rejoindre</button>` : ''}<button class="ghost sm" data-duel="${esc(f.pk)}" aria-label="Défier en duel">⚔️</button></span></div>`;
+}
+function renderFriends() {
+  $$('[data-ft]').forEach(b => b.classList.toggle('on', b.dataset.ft === friTab));
+  const rq = FR?.inq?.length || 0;
+  $('[data-ft="req"]').textContent = `Demandes${rq ? ` (${rq})` : ''}`;
+  $('#friSub').textContent = FR ? `${FR.list.length} ami${FR.list.length > 1 ? 's' : ''} · ${FR.list.filter(f => f.on).length} en ligne` : '';
+  const el = $('#friBody');
+  if (!FR) { el.innerHTML = '<div class="empty"><div class="spin"></div>Chargement…</div>'; return; }
+  if (friTab === 'req') {
+    el.innerHTML = `<h4 class="psec">Demandes reçues <span>${rq}</span></h4>`
+      + (rq ? FR.inq.filter(r => !isBlocked(r.pk)).map(r => `<div class="card fri">${avHTML(r.av, 'def', 40)}<span class="ft"><b>${esc(r.name || 'Joueur')}</b><span>Niveau ${r.lvl || 1} · ${agoText(r.ts)}</span></span>
+        <span class="fa"><button class="ghost sm" data-dec="${esc(r.pk)}">Refuser</button><button class="cta sm" data-acc="${esc(r.pk)}">Accepter</button></span></div>`).join('') : '<p class="empty">Aucune demande pour le moment.</p>')
+      + `<h4 class="psec">Demandes envoyées <span>${FR.outq.length}</span></h4>`
+      + (FR.outq.length ? FR.outq.map(r => `<div class="card fri">${avHTML(r.av, 'def', 40)}<span class="ft"><b>${esc(r.name || 'Joueur')}</b><span>En attente de réponse</span></span>
+        <span class="fa"><button class="ghost sm" data-can="${esc(r.pk)}">Annuler</button></span></div>`).join('') : '<p class="empty">Aucune demande en attente.</p>');
+  } else if (friTab === 'add') {
+    const fpk = new Set([...FR.list.map(f => f.pk), ...FR.outq.map(f => f.pk)]);
+    const mates = (S.mates || []).filter(m => !fpk.has(m.pk) && !isBlocked(m.pk)).slice(0, 15);
+    el.innerHTML = `<div class="card fcode"><small>TON CODE AMI</small><b>${esc(FR.code)}</b><span class="muted" style="font-size:12.5px">Donne-le à tes amis pour qu’ils t’ajoutent.</span>
+        <div class="two"><button class="ghost" id="fcCopy">${icon('copy', 18)}Copier</button><button class="cta" id="fcShare">${icon('share', 18)}Partager</button></div></div>
+      <h4 class="psec">Ajouter avec un code</h4>
+      <div class="addrow"><input class="txtin" id="fcIn" maxlength="6" placeholder="Code ami" autocomplete="off" autocapitalize="characters"><button class="cta" id="fcGo">Ajouter</button></div>
+      <h4 class="psec">Tes partenaires de jeu récents</h4>
+      ${mates.length ? mates.map((m, i) => `<div class="card fri">${avHTML(m.av, 'def', 40)}<span class="ft"><b>${esc(m.name)}</b><span>Croisé ${agoText(m.ts)}</span></span>
+        <span class="fa"><button class="ghost sm" data-mate="${i}">➕ Ajouter</button></span></div>`).join('') : '<p class="empty">Les joueurs croisés dans les salons apparaîtront ici.</p>'}`;
+    const inp = $('#fcIn');
+    inp.oninput = () => { inp.value = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); };
+    inp.onkeydown = e => { if (e.key === 'Enter') $('#fcGo').click(); };
+    $('#fcGo').onclick = async () => { if (inp.value.length !== 6) return toast('Le code ami fait 6 caractères.'); if ((await addFriend({ fc: inp.value }))?.ok) inp.value = ''; };
+    $('#fcCopy').onclick = () => copy(FR.code, 'Code ami copié !');
+    $('#fcShare').onclick = () => {
+      const text = `Ajoute-moi en ami sur Hitroom 🎵 Mon code ami : ${FR.code}`, url = `${location.origin}/?ami=${FR.code}`;
+      if (navigator.share) navigator.share({ title: 'Hitroom', text, url }).catch(() => {}); else copy(`${text}\n${url}`, 'Lien copié !');
+    };
+    $$('#friBody [data-mate]').forEach(b => b.onclick = async () => { b.disabled = true; await addFriend({ pk: mates[+b.dataset.mate].pk }); });
+  } else {
+    const on = FR.list.filter(f => f.on), off = FR.list.filter(f => !f.on), ch = (PRES.ch || []).filter(c => !isBlocked(c.pk));
+    const ranking = [...FR.list.map(f => ({ name: f.name, av: f.av, rp: f.rp, tier: f.tier })), { name: 'Toi', av: S.av, rp: S.rank.rp, tier: S.rank.tier, me: true }].sort((a, b) => b.rp - a.rp);
+    const hits = FR.list.filter(f => f.hit).sort((a, b) => b.hit.score - a.hit.score);
+    el.innerHTML = (ch.length ? `<h4 class="psec">Ils t’attendent</h4>${ch.map((c, i) => `<div class="card fri chal">${avHTML(c.av, 'def', 40)}<span class="ft"><b>${esc(c.name || 'Un ami')}</b><span>${c.kind === 'duel' ? `⚔️ Duel en ${esc(catOf(c.cat || 'mix').name)}` : '📨 Invitation dans son salon'}</span></span>
+        <span class="fa"><button class="ghost sm" data-chno="${i}">Non</button><button class="cta sm" data-chyes="${i}">${c.kind === 'duel' ? 'Accepter' : 'Rejoindre'}</button></span></div>`).join('')}` : '')
+      + (FR.list.length ? `<h4 class="psec">En ligne <span>${on.length}</span></h4>${on.length ? on.map(friRow).join('') : '<p class="empty" style="padding:10px">Aucun ami en ligne pour le moment.</p>'}
+        ${off.length ? `<h4 class="psec">Hors ligne <span>${off.length}</span></h4>${off.map(friRow).join('')}` : ''}
+        <h4 class="psec">🏆 Entre amis cette saison</h4>${ranking.map((r, i) => `<div class="card rr ${r.me ? 'me' : ''}"><span class="n">${i + 1}</span>${avHTML(r.av, 'r' + r.tier, 32)}<b>${esc(r.name)}<span class="sub">${tierBadge(r.tier, 12)} ${TIERS[r.tier].name}</span></b><em>${fmt(r.rp)} PR</em></div>`).join('')}
+        <h4 class="psec">🎯 Hit du jour de mes amis</h4>${hits.length ? hits.map(f => `<div class="card hitrow">${avHTML(f.av, 'def', 30)}<b>${esc(f.name)}</b>${hitChips(f.hit.grid)}<em>${fmt(f.hit.score)}</em></div>`).join('') : '<p class="empty" style="padding:10px">Aucun ami n’a encore joué aujourd’hui.</p>'}`
+        : `<div class="empty"><div style="font-size:46px">👥</div>Pas encore d’amis ici.<br>Ajoute tes partenaires de jeu ou partage ton code ami : vous verrez qui est en ligne et pourrez vous défier en duel.</div>
+          <button class="cta" id="friFirst">${icon('plus')}Ajouter des amis</button>`);
+    if ($('#friFirst')) $('#friFirst').onclick = () => { friTab = 'add'; renderFriends(); };
+    $$('#friBody [data-chyes]').forEach(b => b.onclick = () => answerChallenge(ch[+b.dataset.chyes], true));
+    $$('#friBody [data-chno]').forEach(b => b.onclick = () => answerChallenge(ch[+b.dataset.chno], false));
+  }
+  const byPk = pk => FR.list.find(f => f.pk === pk);
+  $$('#friBody [data-fp]').forEach(b => b.onclick = e => { if (!e.target.closest('button')) friendSheet(byPk(b.dataset.fp)); });
+  $$('#friBody [data-duel]').forEach(b => b.onclick = () => startDuel(byPk(b.dataset.duel)));
+  $$('#friBody [data-join]').forEach(b => b.onclick = () => { unlock(); joinCode(b.dataset.join); });
+  $$('#friBody [data-acc]').forEach(b => b.onclick = async () => { b.disabled = true; if ((await friendAct('accept', { pk: b.dataset.acc }))?.ok) toast('👥 Nouvel ami ajouté !'); });
+  $$('#friBody [data-dec]').forEach(b => b.onclick = () => { b.disabled = true; friendAct('decline', { pk: b.dataset.dec }); });
+  $$('#friBody [data-can]').forEach(b => b.onclick = () => { b.disabled = true; friendAct('cancel', { pk: b.dataset.can }).then(() => { S.fsent = (S.fsent || []).filter(x => x !== b.dataset.can); }); });
+}
+$$('[data-ft]').forEach(b => b.onclick = () => { friTab = b.dataset.ft; renderFriends(); refreshFriends(); });
+function friendSheet(f) {
+  if (!f) return;
+  const code = friCode(f);
+  openSheet(`<div class="pcard">${avHTML(f.av, f.fr, 96)}<h3>${esc(f.name)}</h3>
+    <div class="pc-rank">${tierBadge(f.tier, 30)} <b>${TIERS[f.tier].name}</b> • Niveau ${f.lvl || 1}</div>
+    <p class="fst ${f.on ? 'on' : ''}">${f.on ? '● ' : ''}${esc(friStatus(f))}</p>
+    ${f.hit ? `<p style="margin:0 0 6px">🎯 Hit du jour : ${hitChips(f.hit.grid)} <b style="color:var(--ink)">${fmt(f.hit.score)} pts</b></p>` : ''}
+    <p style="margin:0 0 12px">${f.duel ? `⚔️ Vos duels : <b style="color:var(--ink)">Toi ${f.duel[0]} – ${f.duel[1]} ${esc(f.name)}</b>` : '⚔️ Vous ne vous êtes jamais affrontés en duel.'}</p>
+    <div class="pc-acts">${code ? '<button class="ghost" id="fsJoin">🎮 Rejoindre</button>' : ''}<button class="cta" id="fsDuel" style="min-height:40px;font-size:14px">⚔️ Défier en duel</button></div>
+    <button class="ghost" id="fsDel" style="width:100%;margin-bottom:8px;min-height:42px;font-size:14px">Retirer de mes amis</button>
+    <button class="ghost" data-close style="width:100%;min-height:42px;font-size:14px">Fermer</button></div>`);
+  $('#fsDuel').onclick = () => startDuel(f);
+  if ($('#fsJoin')) $('#fsJoin').onclick = () => { closeSheet(); unlock(); joinCode(code); };
+  $('#fsDel').onclick = async () => {
+    if (!confirm(`Retirer ${f.name} de tes amis ?`)) return;
+    closeSheet();
+    if ((await friendAct('remove', { pk: f.pk }))?.ok) toast(`${esc(f.name)} ne fait plus partie de tes amis.`);
+  };
+}
+// lien ?ami=CODE reçu d'un ami
+function addCodeSheet(fc) {
+  if (fc.length !== 6) return;
+  openSheet(`<div class="pcard"><div style="font-size:50px;line-height:1">👥</div><h3>Ajouter un ami</h3>
+    <p style="margin:4px 0 12px">Code ami <b style="color:var(--ink);letter-spacing:2px">${esc(fc)}</b> : envoyer une demande d’ami ?</p>
+    <div class="pc-acts"><button class="ghost" data-close>Non merci</button><button class="cta" id="acGo" style="min-height:40px;font-size:14px">Envoyer la demande</button></div></div>`);
+  $('#acGo').onclick = async () => { closeSheet(); await addFriend({ fc }); };
+}
+// défier un ami : choix de la catégorie, salon privé en duel (2 joueurs, sans bots), défi envoyé à l'ami
+function startDuel(f) {
+  if (!f) return;
+  closeSheet();
+  duelVs = { pk: f.pk, name: f.name };
+  openCats('duel');
+}
+async function sendDuel(vs, code, cat) {
+  R.duelVs = vs;
+  const r = await pushPost('/api/friends', { uid: S.uid, act: 'duel', pk: vs.pk, code, cat }).catch(() => null);
+  toast(r?.ok ? `⚔️ Défi envoyé à ${esc(vs.name)} ! La partie démarre dès son arrivée.` : `${FRI_ERR[r?.why] || FRI_ERR.off} Partage-lui le lien du salon.`, 4200);
+}
+
+// ---------- clubs (version 1.15) : une équipe par joueur, points des parties publiques et du Hit du jour ----------
+const CLUB_EMBLEMS = ['🎸', '🎤', '🎧', '🎹', '🥁', '🎷', '🎺', '🎻', '💿', '📻', '🔥', '⚡', '👑', '💎', '🌙', '⭐', '🦊', '🐺', '🦁', '🐉', '🚀', '🌈', '🍀', '🎯']; // comme src/social.js
+const CLUB_COLORS = ['#ff2e93', '#ffb21e', '#2fd4ff', '#36e07c', '#a34dff', '#ff5a3d', '#3d7bff', '#ffd85c'];
+const clubBadge = (c, size = 40) => `<span class="cbadge" style="--cc:${CLUB_COLORS[c?.c] || CLUB_COLORS[0]};--s:${size}px">${esc(c?.e || '🛡️')}</span>`;
+const CLUB_ERR = { name: 'Nom refusé : 3 caractères minimum, sans grossièreté.', taken: 'Ce nom de club est déjà pris.', full: 'Ce club est complet (30 membres).',
+  banned: 'Tu as été exclu de ce club : réessaie dans quelques jours.', limit: 'Tu as déjà créé plusieurs clubs aujourd’hui.', gone: 'Ce club n’existe plus.',
+  chief: 'Seul le chef du club peut faire ça.', err: 'Impossible pour le moment.' };
+let clubShown = null; // club affiché (null : le mien, ou la liste des clubs)
+function openClub(id = null) { clubShown = id; go('club'); }
+async function clubAct(act, data = {}) {
+  let r;
+  try { r = await (await fetch('/api/club', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ uid: S.uid, act, ...data }) })).json(); } catch (e) { toast('Pas de connexion internet ?'); return null; }
+  if (!r.ok && r.why !== 'already') toast(CLUB_ERR[r.why] || CLUB_ERR.err, 3200);
+  return r;
+}
+async function joinClub(id, name) {
+  let r = await clubAct('join', { id });
+  if (r && !r.ok && r.why === 'already') {
+    if (!confirm(`Quitter « ${r.name} » pour rejoindre « ${name} » ? Tes points de la saison restent à ton ancien club.`)) return;
+    r = await clubAct('join', { id, move: true });
+  }
+  if (!r?.ok) return;
+  toast(`🛡️ Bienvenue dans « ${esc(name)} » !`, 3000);
+  clubShown = null;
+  await presence();
+  renderClub();
+}
+async function renderClub() {
+  const el = $('#clubBody'), id = clubShown || S.club?.id;
+  el.innerHTML = '<div class="empty"><div class="spin"></div>Chargement…</div>';
+  let d;
+  try { d = await (await fetch(id ? `/api/club/${id}?uid=${S.uid}` : `/api/clubs?uid=${S.uid}&q=${encodeURIComponent($('#clubQ')?.value || '')}`)).json(); }
+  catch (e) { el.innerHTML = '<div class="empty">Pas de connexion internet ?</div>'; return; }
+  if (curView !== 'club') return;
+  if (d.error) { // club disparu
+    if (!clubShown) { S.club = null; save(); }
+    clubShown = null;
+    toast(esc(d.error));
+    return renderClub();
+  }
+  if (id) clubPage(d); else clubDiscover(d);
+}
+function clubPage(d) {
+  $('#clubTitle').textContent = d.name;
+  $('#clubBody').innerHTML = `<div class="card chead" style="--cc:${CLUB_COLORS[d.c] || CLUB_COLORS[0]}">${clubBadge(d, 84)}<h3>${esc(d.name)}</h3>
+      <div class="cstats"><div><b>${d.rank ? '#' + d.rank : '—'}</b><small>Classement</small></div><div><b>${fmt(d.pts)}</b><small>Points de saison</small></div><div><b>${d.n}/${d.max}</b><small>Membres</small></div></div>
+      <div class="cacts">${d.member ? `<button class="cta" id="clubInv">${icon('share', 18)}Inviter</button>${d.chief ? '<button class="ghost" id="clubEdit">Modifier</button>' : ''}<button class="ghost" id="clubLeave">Quitter</button>`
+        : `<button class="cta" id="clubJoin" ${d.n >= d.max ? 'disabled' : ''}>${d.n >= d.max ? 'Club complet' : '🛡️ Rejoindre ce club'}</button>`}</div></div>
+    <p class="note">Les points marqués par chaque membre en Classé, en Non classé et au Hit du jour s’additionnent. Nouveau classement chaque saison (fin le ${seasonEnd()}).</p>
+    <h4 class="psec">Membres <span>${d.n}</span></h4>
+    ${d.members.map((m, i) => `<div class="card rr ${m.me ? 'me' : ''} ${d.chief && !m.me ? 'click' : ''}" data-mk="${esc(m.pk)}"><span class="n">${i + 1}</span>${avHTML(m.av, m.fr, 32)}<b>${esc(m.name)}${m.chief ? ' 👑' : ''}${m.me ? ' (toi)' : ''}<span class="sub">${tierBadge(m.tier, 12)} ${TIERS[m.tier].name} · Niv. ${m.lvl}</span></b><em>${fmt(m.pts)} pts</em></div>`).join('')}
+    <button class="ghost" id="clubRank" style="width:100%;margin-top:12px">🏆 Classement des clubs</button>
+    ${!d.member ? '<button class="ghost" id="clubAll" style="width:100%;margin-top:8px">Voir les autres clubs</button>' : ''}`;
+  $('#clubRank').onclick = () => { boardTab = 'clubs'; $$('[data-bt]').forEach(x => x.classList.toggle('on', x.dataset.bt === 'clubs')); tabGo('board'); };
+  if ($('#clubAll')) $('#clubAll').onclick = () => { clubShown = null; if (S.club) clubDiscover(null); else renderClub(); };
+  if ($('#clubJoin')) $('#clubJoin').onclick = () => joinClub(d.id, d.name);
+  if ($('#clubInv')) $('#clubInv').onclick = () => {
+    const text = `Rejoins mon club « ${d.name} » sur Hitroom ! 🛡️🎵`, url = `${location.origin}/?club=${d.id}`;
+    if (navigator.share) navigator.share({ title: 'Hitroom', text, url }).catch(() => {}); else copy(`${text}\n${url}`, 'Lien d’invitation copié !');
+  };
+  if ($('#clubEdit')) $('#clubEdit').onclick = () => clubEditSheet(d);
+  if ($('#clubLeave')) $('#clubLeave').onclick = async () => {
+    if (!confirm(`Quitter le club « ${d.name} » ? Tes points de la saison restent au club.${d.chief && d.n > 1 ? ' Le membre le plus ancien deviendra le chef.' : ''}`)) return;
+    if (!(await clubAct('leave'))?.ok) return;
+    S.club = null; save(); clubShown = null;
+    toast('Tu as quitté le club.');
+    presence(); renderClub();
+  };
+  if (d.chief) $$('#clubBody [data-mk]').forEach(b => b.onclick = async () => {
+    const m = d.members.find(x => x.pk === b.dataset.mk);
+    if (!m || m.me || !confirm(`Exclure ${m.name} du club ? Il ne pourra pas revenir avant 7 jours.`)) return;
+    if ((await clubAct('kick', { pk: m.pk }))?.ok) { toast(`${esc(m.name)} a été exclu du club.`); renderClub(); }
+  });
+}
+// pas de club (ou « Voir les autres clubs ») : créer, chercher, rejoindre
+let clubQT = null;
+async function clubDiscover(d) {
+  if (!d) {
+    try { d = await (await fetch(`/api/clubs?uid=${S.uid}&q=${encodeURIComponent($('#clubQ')?.value || '')}`)).json(); } catch (e) { return; }
+  }
+  const q = $('#clubQ')?.value || '';
+  $('#clubTitle').textContent = 'Clubs';
+  $('#clubBody').innerHTML = `${d.mine ? `<button class="card crow" id="clubMine">${clubBadge(d.mine, 44)}<div><b>Mon club : ${esc(d.mine.name)}</b><span>${d.mine.n}/${d.max} membres · ${fmt(d.mine.pts)} pts</span></div><span class="chev">›</span></button>`
+      : `<div class="card cintro"><span class="cbig">🛡️</span><div><b>Rejoins un club</b><span>Jouez ensemble : les points de chaque membre en Classé, en Non classé et au Hit du jour s’additionnent pour le classement des clubs, chaque saison.</span></div></div>
+      <button class="cta" id="clubNew">${icon('plus')}Créer mon club</button>`}
+    <h4 class="psec">Clubs à rejoindre</h4>
+    <input class="txtin" id="clubQ" maxlength="30" placeholder="🔍 Chercher un club par son nom" value="${esc(q)}" autocomplete="off">
+    <div class="list">${d.open.length ? d.open.map(c => `<div class="card crow" data-club="${esc(c.id)}">${clubBadge(c, 44)}<div><b>${esc(c.name)}</b><span>${c.n}/${d.max} membres · ${fmt(c.pts)} pts${c.rank ? ` · #${c.rank}` : ''}</span></div><button class="ghost sm" data-cjoin="${esc(c.id)}">Rejoindre</button></div>`).join('')
+      : `<p class="empty">${q ? 'Aucun club ne porte ce nom.' : 'Aucun club pour le moment : crée le premier !'}</p>`}</div>`;
+  const inp = $('#clubQ');
+  if (q) { inp.focus(); inp.setSelectionRange(q.length, q.length); }
+  inp.oninput = () => { clearTimeout(clubQT); clubQT = setTimeout(() => clubDiscover(null), 350); };
+  if ($('#clubNew')) $('#clubNew').onclick = () => clubEditSheet(null);
+  if ($('#clubMine')) $('#clubMine').onclick = () => { clubShown = null; renderClub(); };
+  $$('#clubBody [data-club]').forEach(b => b.onclick = e => { if (!e.target.closest('button')) { clubShown = b.dataset.club; renderClub(); } });
+  $$('#clubBody [data-cjoin]').forEach(b => b.onclick = () => joinClub(b.dataset.cjoin, d.open.find(c => c.id === b.dataset.cjoin)?.name || 'ce club'));
+}
+// créer (cur = null) ou modifier son club : nom, emblème, couleur
+function clubEditSheet(cur) {
+  let e = cur?.e || CLUB_EMBLEMS[Math.floor(Math.random() * CLUB_EMBLEMS.length)], c = cur?.c ?? Math.floor(Math.random() * CLUB_COLORS.length);
+  openSheet(`<h3>${cur ? 'Modifier le club' : 'Créer mon club'} <button data-close data-i="x"></button></h3>
+    <div class="cprev" id="cPrev"></div>
+    <input class="txtin" id="cName" maxlength="20" placeholder="Nom du club (3 à 20 caractères)" value="${esc(cur?.name || '')}" autocomplete="off">
+    <label class="muted" style="font-size:13px">Emblème</label><div class="cems">${CLUB_EMBLEMS.map(x => `<button data-ce="${x}">${x}</button>`).join('')}</div>
+    <label class="muted" style="font-size:13px">Couleur</label><div class="ccols">${CLUB_COLORS.map((x, i) => `<button data-cc="${i}" style="background:${x}" aria-label="Couleur ${i + 1}"></button>`).join('')}</div>
+    <button class="cta" id="cGo">${cur ? 'Enregistrer' : '🛡️ Créer le club'}</button>`);
+  const draw = () => {
+    $('#cPrev').innerHTML = clubBadge({ e, c }, 64) + `<b>${esc($('#cName').value.trim() || 'Mon club')}</b>`;
+    $$('#sheetBox [data-ce]').forEach(b => b.classList.toggle('on', b.dataset.ce === e));
+    $$('#sheetBox [data-cc]').forEach(b => b.classList.toggle('on', +b.dataset.cc === c));
+  };
+  draw();
+  $('#cName').oninput = draw;
+  $$('#sheetBox [data-ce]').forEach(b => b.onclick = () => { e = b.dataset.ce; draw(); });
+  $$('#sheetBox [data-cc]').forEach(b => b.onclick = () => { c = +b.dataset.cc; draw(); });
+  $('#cGo').onclick = async () => {
+    const name = $('#cName').value.trim();
+    if (name.length < 3) return toast('Le nom du club fait 3 caractères minimum.');
+    $('#cGo').disabled = true;
+    const r = await clubAct(cur ? 'edit' : 'create', { name, e, c });
+    $('#cGo') && ($('#cGo').disabled = false);
+    if (r && !r.ok && r.why === 'already') return toast(`Tu es déjà dans le club « ${esc(r.name)} » : quitte-le d’abord.`, 3500);
+    if (!r?.ok) return;
+    closeSheet();
+    toast(cur ? 'Club modifié !' : `🛡️ Club « ${esc(name)} » créé ! Invite tes amis à le rejoindre.`, 3500);
+    clubShown = null;
+    await presence();
+    renderClub();
+  };
+}
+// onglet Clubs du classement : podium des clubs, puis la suite et mon club
+async function loadClubBoard() {
+  const list = $('#boardList');
+  list.innerHTML = '<div class="empty"><div class="spin"></div>Chargement…</div>';
+  let d;
+  try { d = await (await fetch(`/api/clubs?uid=${S.uid}`)).json(); } catch (e) { list.innerHTML = '<div class="empty">Pas de connexion internet ?</div>'; return; }
+  if (boardTab !== 'clubs') return;
+  const note = `<p class="bnote">Saison de ${seasonName(d.sc)} • points des membres en Classé, Non classé et Hit du jour • fin le ${seasonEnd()}</p>`;
+  const row = (c, n) => `<div class="card rr click ${c.id === d.mine?.id ? 'me' : ''}" data-club="${esc(c.id)}"><span class="n">${n}</span>${clubBadge(c, 32)}<b>${esc(c.name)}<span class="sub">${c.n} membre${c.n > 1 ? 's' : ''}</span></b><em>${fmt(c.pts)} pts</em></div>`;
+  const pod = (c, k) => !c ? `<div class="pd p${k} empty"><div class="pdav">${clubBadge(null, k === 1 ? 70 : 56)}</div><b>—</b><em>&nbsp;</em><div class="ped">${k}</div></div>`
+    : `<div class="pd p${k} ${c.id === d.mine?.id ? 'me' : ''}" data-club="${esc(c.id)}"><div class="pdav">${k === 1 ? '<span class="crown">👑</span>' : ''}${clubBadge(c, k === 1 ? 70 : 56)}</div><b>${esc(c.name)}</b><em>${fmt(c.pts)} pts</em><div class="ped">${k}</div></div>`;
+  const t = d.top, mineFar = d.mine && !t.some(c => c.id === d.mine.id);
+  list.innerHTML = note + (t.length ? `<div class="podium3">${pod(t[1], 2)}${pod(t[0], 1)}${pod(t[2], 3)}</div>` + t.slice(3).map((c, i) => row(c, i + 4)).join('')
+      + (mineFar ? `<div class="rsep">•••</div>${row(d.mine, d.mine.rank || '–')}` : '')
+    : `<div class="empty">Aucun club n’a encore marqué de points cette saison.<br>${d.mine ? 'Jouez en public avec ton club pour prendre la tête !' : 'Rejoins ou crée un club !'}</div>`)
+    + `<button class="cta" id="bClubGo" style="margin-top:12px">🛡️ ${d.mine ? 'Mon club' : 'Rejoindre ou créer un club'}</button>`;
+  $('#bClubGo').onclick = () => openClub();
+  $$('#boardList [data-club]').forEach(b => b.onclick = () => openClub(b.dataset.club));
+}
+
 // ---------- notifications (service worker : public/sw.js ; serveur : Hub, push.js) ----------
 const PUSH_PREFS = [['daily', '🎯', 'Rappel des défis du jour', 'en fin de journée, seulement si tu n’as pas encore joué'],
-  ['season', '🏆', 'Nouvelle saison', 'le 1er du mois, avec ta récompense'], ['invites', '📨', 'Invitations de tes partenaires de jeu', 'pour rejoindre leur salon']];
+  ['season', '🏆', 'Nouvelle saison', 'le 1er du mois, avec ta récompense'], ['invites', '📨', 'Invitations, défis et demandes d’amis', 'de tes amis et partenaires de jeu']];
 const pushPrefs = () => ({ daily: true, season: true, invites: true, ...(S.push?.prefs || {}), blocked: (S.blocked || []).map(b => b.pk) });
 const pushReady = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -2678,6 +3339,7 @@ const showStr = () => showIds().map(id => `${id}:${medalLevel(MEDALS.find(m => m
 let boardTab = 'season';
 $$('[data-bt]').forEach(b => b.onclick = () => { boardTab = b.dataset.bt; $$('[data-bt]').forEach(x => x.classList.toggle('on', x === b)); loadBoard(); });
 async function loadBoard() {
+  if (boardTab === 'clubs') return loadClubBoard();
   const list = $('#boardList');
   list.innerHTML = '<div class="empty"><div class="spin"></div>Chargement…</div>';
   let d;
@@ -3107,6 +3769,8 @@ function rules() {
     <p>⌨️ Tape <b>l’artiste</b> ou <b>le titre en entier</b> (ou les deux d’un coup). La bonne réponse est reconnue pendant que tu tapes ; les accents, majuscules et la ponctuation ne comptent pas. Si tu as fait une petite faute, appuie sur <b>Entrée</b> : quelques fautes sont tolérées.</p>
     <p>🏆 <b>Titre : +15 pts</b>, <b>artiste : +10 pts</b>, plus un <b>bonus de rapidité</b> (jusqu’à +5) et un <b>bonus de série</b> si tu trouves plusieurs manches d’affilée.</p>
     <p>👥 <b>Classé</b> : contre des joueurs de ton niveau ; ton rang monte ou descend (de Bronze à Grand Maître). <b>Non classé</b> : tout le monde mélangé, sans rang. <b>Solo</b> : contre des bots, pièces réduites. <b>Entre amis</b> : salon privé avec un code.</p>
+    <p>🎯 <b>Hit du jour</b> : chaque jour, les 5 mêmes extraits pour tout le monde et un seul essai. Partage ta grille (🎵 titre et artiste, 🎤 artiste, 💿 titre, ⬛ raté) et garde ta série de jours !</p>
+    <p>👥 <b>Amis</b> : ajoute-les avec leur code ami ou depuis leur carte de joueur, vois qui est en ligne et défie-les en <b>duel</b> (1 contre 1). 🛡️ <b>Clubs</b> : rejoins une équipe ; vos points en Classé, Non classé et au Hit du jour s’additionnent pour le classement des clubs, chaque saison.</p>
     <p>🏅 Gagne des <b>médailles</b> (4 niveaux), des <b>titres</b> à afficher sous ton pseudo, des <b>cadres exclusifs</b> en montant de rang et des cadeaux sur la <b>route de saison</b>. Touche un joueur pour voir sa carte.</p>
     <p>🤖 Les joueurs marqués « BOT » sont des joueurs virtuels qui complètent les salons quand il y a peu de monde.</p>
     <button class="cta" data-close>J’ai compris</button>`);
@@ -3134,14 +3798,20 @@ function onboarding() {
     S.name = v; save(); unlock();
     go('home', true);
     loadMe(true);
+    presence(true);
     startDeepLink();
   };
   show('onb');
 }
 function startDeepLink() {
   const q = new URLSearchParams(location.search), code = q.get('salon');
+  const clean = () => history.replaceState(history.state, '', '/');
   if (code) joinCode(code);
-  else if (q.get('go') === 'defis') { history.replaceState(history.state, '', '/'); tabGo('defis'); }
+  else if (q.get('go') === 'defis') { clean(); tabGo('defis'); }
+  else if (q.get('go') === 'amis') { clean(); go('friends'); }
+  else if (q.has('hit')) { clean(); hitIntro(); }
+  else if (q.get('ami')) { const fc = q.get('ami').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); clean(); friTab = 'add'; go('friends'); addCodeSheet(fc); }
+  else if (q.get('club')) { const id = q.get('club').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); clean(); openClub(id); }
 }
 
 // ---------- hors connexion et chargement rapide (service worker, public/sw.js) ----------
@@ -3163,7 +3833,7 @@ applyTheme();
 history.replaceState({ v: 'home' }, '');
 if (S.name && !S.acct) { S.acct = 'guest'; save(); } // joueurs d'avant la version 1.8 : invités
 paintMusic();
-if (!S.acct) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); pushSync(); }
+if (!S.acct) show('login'); else if (!S.name) onboarding(); else { checkUnlocks(); show('home'); startDeepLink(); syncSave(); pushSync(); presence(true); }
 })();
 </script>
 </body>

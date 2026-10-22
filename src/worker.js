@@ -2,6 +2,8 @@
 import { Room } from './room.js';
 import { Hub, season } from './hub.js';
 import { CAT_IDS, rankedCats } from './catalog.js';
+import { publicKey } from './ids.js';
+import { parisDay, dayAdd } from './social.js';
 
 export { Room, Hub };
 
@@ -15,6 +17,7 @@ const room = (env, name) => env.ROOMS.get(env.ROOMS.idFromName(name));
 const hub = env => env.HUB.get(env.HUB.idFromName('hub'));
 
 const cleanUid = s => (s || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+async function body(req) { try { return await req.json(); } catch { return null; } }
 
 // le rang vient toujours du serveur (jamais de l'appli) : en classé, il choisit le salon du bon niveau
 // (pub:<catégorie>:<fenêtre>, 2 rangs voisins, voir ranks.js) ; les autres salons : open:<cat>, priv:<CODE>, solo:<id>
@@ -23,11 +26,12 @@ async function toRoom(req, env, name, ranked) {
   const u = new URL(req.url);
   const uid = cleanUid(u.searchParams.get('uid'));
   const cat = ranked ? name.slice(4) : null;
-  const { tier, bestEver, win } = uid.length >= 8 ? await hub(env).rankOf(uid, cat) : { tier: 0, bestEver: 0, win: 0 };
+  const { tier, bestEver, win, club } = uid.length >= 8 ? await hub(env).rankOf(uid, cat) : { tier: 0, bestEver: 0, win: 0, club: '' };
   if (ranked) name += ':' + win;
   u.searchParams.set('room', name);
   u.searchParams.set('tier', tier);
   u.searchParams.set('best', bestEver);
+  u.searchParams.set('club', club || '');
   return room(env, name).fetch(new Request(u, req));
 }
 
@@ -51,6 +55,14 @@ export default {
       return toRoom(req, env, 'open:' + m[1], false);
     }
     if ((m = path.match(/^\/api\/solo\/([A-Za-z0-9]{6,16})\/ws$/))) return toRoom(req, env, 'solo:' + m[1], false);
+    // Hit du jour : un salon par joueur et par jour ; une reconnexion juste après minuit garde la partie de la veille
+    if (path === '/api/hit/ws') {
+      const uid = cleanUid(url.searchParams.get('uid')), asked = url.searchParams.get('day');
+      let day = parisDay();
+      if (asked === dayAdd(day, -1) && url.searchParams.get('create') !== '1') day = asked;
+      return toRoom(req, env, `hit:${day}:${publicKey(uid)}`, false);
+    }
+    if (path === '/api/hit') { const uid = cleanUid(url.searchParams.get('uid')); return json(await hub(env).hitInfo(uid.length >= 8 ? uid : '')); }
     if ((m = path.match(/^\/api\/salon\/([A-Z0-9]{4})\/ws$/))) return toRoom(req, env, 'priv:' + m[1], false);
     if ((m = path.match(/^\/api\/salon\/([A-Z0-9]{4})$/))) return json(await room(env, 'priv:' + m[1]).info());
     if (path === '/api/salon' && req.method === 'POST') {
@@ -66,8 +78,28 @@ export default {
     }
     if (path === '/api/board') return json(await hub(env).board(url.searchParams.get('sc'), cleanUid(url.searchParams.get('uid'))));
     if (path === '/api/me') {
-      const uid = cleanUid(url.searchParams.get('uid'));
-      return uid.length >= 8 ? json(await hub(env).me(uid)) : json({ error: 'identifiant invalide' }, 400);
+      const uid = cleanUid(url.searchParams.get('uid')), q = url.searchParams;
+      const prof = q.has('name') ? { name: q.get('name'), av: q.get('av'), fr: q.get('fr'), lvl: q.get('lvl') } : null;
+      return uid.length >= 8 ? json(await hub(env).me(uid, prof)) : json({ error: 'identifiant invalide' }, 400);
+    }
+    // amis : présence (chaque minute), liste, demandes, défis en duel
+    if (path === '/api/ping' && req.method === 'POST') {
+      const b = await body(req), uid = cleanUid(b?.uid);
+      if (uid.length < 8) return json({ error: 'identifiant invalide' }, 400);
+      return json(await hub(env).ping(uid, { name: b.name, av: b.av, fr: b.fr, lvl: b.lvl }, String(b.at || 'menu')));
+    }
+    if (path === '/api/friends') {
+      const b = req.method === 'POST' ? await body(req) : null, uid = cleanUid(b ? b.uid : url.searchParams.get('uid'));
+      if (uid.length < 8) return json({ error: 'identifiant invalide' }, 400);
+      return json(b ? await hub(env).friendAct(uid, b) : await hub(env).friendList(uid));
+    }
+    // clubs : classement et clubs à rejoindre, page d'un club, créer / rejoindre / quitter / modifier / exclure
+    if (path === '/api/clubs') return json(await hub(env).clubList(cleanUid(url.searchParams.get('uid')), (url.searchParams.get('q') || '').slice(0, 30)));
+    if ((m = path.match(/^\/api\/club\/([A-Z0-9]{6})$/))) return json(await hub(env).clubInfo(m[1], cleanUid(url.searchParams.get('uid'))));
+    if (path === '/api/club' && req.method === 'POST') {
+      const b = await body(req), uid = cleanUid(b?.uid);
+      if (uid.length < 8) return json({ error: 'identifiant invalide' }, 400);
+      return json(await hub(env).clubAct(uid, b));
     }
     if (path === '/api/save') {
       const code = (url.searchParams.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -103,6 +135,7 @@ export default {
       if (path === '/api/push/inbox') return json(await hub(env).inboxFor(endpoint));
     }
     if (env.MOCK_MUSIC && path === '/__mock/push') return json(await hub(env).devPush());
+    if (env.MOCK_MUSIC && path === '/__mock/hit') return json(await hub(env).devHit(cleanUid(url.searchParams.get('uid')), url.searchParams.get('day'), +url.searchParams.get('score') || 50));
     if (env.MOCK_MUSIC && path === '/__mock/pick') return json(await hub(env).devPick(url.searchParams.get('cat') || 'mix', +url.searchParams.get('n') || 10));
     if (env.MOCK_MUSIC && path === '/__mock/cron') return json(await hub(env).cronDaily(url.searchParams.has('first')));
     if (env.MOCK_MUSIC && path === '/__mock/saison') {

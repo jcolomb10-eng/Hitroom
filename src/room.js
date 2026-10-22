@@ -1,8 +1,9 @@
-// Room : un salon de jeu. Quatre sortes (préfixe du nom) :
+// Room : un salon de jeu. Cinq sortes (préfixe du nom) :
 // - pub:<cat>:<fenêtre>  classé (points de rang), 2 rangs voisins, contour = rang actuel
 // - open:<cat>           non classé, tout le monde mélangé, rang caché
-// - priv:<CODE>          entre amis (code de 4 caractères), partie amicale
+// - priv:<CODE>          entre amis (code de 4 caractères), partie amicale ; duel = 1 contre 1 entre amis (opts.duel)
 // - solo:<id>            un joueur contre des bots (pièces réduites côté appli, pas de classement)
+// - hit:<jour>:<pk>      Hit du jour : un joueur, les 5 mêmes extraits pour tout le monde, un seul essai par jour
 // Hors classé, chacun montre le contour qu'il a choisi (jamais un contour de rang) et le rang n'est pas affiché.
 // C'est le « maître du jeu » : il choisit les extraits, donne le top départ à tout le monde en même temps,
 // vérifie les réponses (jamais envoyées aux joueurs avant la fin de la manche), compte les points et relaie le chat.
@@ -12,6 +13,7 @@ import { CAT_IDS } from './catalog.js';
 import { cleanText, cleanName } from './filter.js';
 import { publicKey } from './ids.js';
 import { bracketOf, rpDelta, BOT_SKILL, TIERS_OF_BRACKET, WINDOWS, windowTiers, windowSkill, inWindow } from './ranks.js';
+import { HIT_N, hitNumber } from './social.js';
 
 const MAX_HUMANS = 12;
 const COUNTDOWN = 4000;     // 3, 2, 1 avant la première manche
@@ -65,7 +67,7 @@ export class Room extends DurableObject {
     this.players = new Map();
     this.host = null;
     this.cat = this.pub ? this.cat : 'mix';
-    this.opts = { rounds: 10, dur: 30, bots: 0, botlvl: 0 };
+    this.opts = { rounds: 10, dur: 30, bots: 0, botlvl: 0, duel: 0 };
     this.phase = 'lobby';
     this.ends = 0;
     this.round = 0;
@@ -102,6 +104,7 @@ export class Room extends DurableObject {
     const data = JSON.stringify(msg);
     for (const p of this.players.values()) if (p.ws) { try { p.ws.send(data); } catch { /* socket fermée */ } }
   }
+  maxHumans() { return this.opts.duel ? 2 : MAX_HUMANS; }
   report() {
     if (this.pub) this.hub().report(this.name, this.cat, this.win, this.humans().length, this.kind).catch(() => {});
   }
@@ -119,9 +122,10 @@ export class Room extends DurableObject {
     const c = this.cur;
     return {
       t: 'state', now: Date.now(), kind: this.kind, pub: this.pub, ranked: this.ranked, solo: this.solo, win: this.win, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
+      hit: this.kind === 'daily' ? { day: this.day, n: hitNumber(this.day) } : null,
       phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
-        id: p.id, pk: p.pk || '', name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, on: !!p.on,
+        id: p.id, pk: p.pk || '', name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, on: !!p.on, club: p.club || '',
         nc: p.nc || '', vfx: p.vfx || '', score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
       })),
       cur: this.phase === 'play' || this.phase === 'reveal' ? { url: c.s.url, art: c.s.art, start: c.start, end: c.end } : null,
@@ -138,9 +142,11 @@ export class Room extends DurableObject {
     if (!this.name) {
       this.name = q.get('room') || 'priv:????';
       const [prefix, a, w] = this.name.split(':');
-      this.kind = { pub: 'ranked', open: 'open', solo: 'solo' }[prefix] || 'priv';
+      this.kind = { pub: 'ranked', open: 'open', solo: 'solo', hit: 'daily' }[prefix] || 'priv';
       this.ranked = this.kind === 'ranked';
       this.solo = this.kind === 'solo';
+      this.alone = this.solo || this.kind === 'daily'; // un seul joueur humain : pas de réactions, de signalements ni d'invitations
+      this.day = this.kind === 'daily' ? a : null;
       this.pub = this.ranked || this.kind === 'open';
       this.code = this.kind === 'priv' ? a : null;
       this.win = 0;
@@ -152,6 +158,14 @@ export class Room extends DurableObject {
     }
     const [client, server] = Object.values(new WebSocketPair());
     server.accept();
+    // Hit du jour : un seul essai par jour (une partie quittée en route compte)
+    if (this.kind === 'daily' && !this.humans(false).length) {
+      const uid = (q.get('uid') || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+      if (uid.length >= 8 && (await this.hub().hitStatus(uid, this.day).catch(() => null))) {
+        this.reject(server, 'Tu as déjà joué le Hit du jour. Reviens demain pour le suivant !');
+        return new Response(null, { status: 101, webSocket: client });
+      }
+    }
     this.connect(server, q);
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -166,16 +180,21 @@ export class Room extends DurableObject {
     if (uid.length < 8) return this.reject(ws, 'Identifiant invalide, recharge la page.');
     let p = [...this.players.values()].find(x => x.uid === uid);
     let soloStart = false;
-    if (this.solo && !p && this.humans(false).length) return this.reject(ws, 'Cette partie solo est déjà en cours.');
+    if (this.alone && !p && this.humans(false).length) return this.reject(ws, 'Cette partie solo est déjà en cours.');
     if (!this.pub && !this.humans(false).length) {
-      if (q.get('create') !== '1') return this.reject(ws, this.solo ? 'Cette partie solo est terminée.' : "Ce salon n'existe pas ou est terminé. Vérifie le code !");
+      if (q.get('create') !== '1') return this.reject(ws, this.alone ? 'Cette partie solo est terminée.' : "Ce salon n'existe pas ou est terminé. Vérifie le code !");
       this.reset();
       this.opts.botlvl = bracketOf(parseInt(q.get('tier'), 10) || 0);
       if (this.solo) this.opts = { ...this.opts, bots: 3, ...(this.env.MOCK_MUSIC ? { rounds: 5, dur: 15 } : {}) };
-      this.setOpts(q);
-      soloStart = this.solo;
+      // Hit du jour : réglages fixes, les mêmes pour tout le monde
+      if (this.kind === 'daily') this.opts = { ...this.opts, rounds: HIT_N, dur: this.env.MOCK_MUSIC ? 15 : 20, bots: 0 };
+      else {
+        this.setOpts(q);
+        if (this.kind === 'priv' && q.get('duel') === '1') this.opts = { ...this.opts, duel: 1, bots: 0 };
+      }
+      soloStart = this.alone;
     }
-    if (!p && this.humans(false).length >= MAX_HUMANS) return this.reject(ws, 'Ce salon est complet (12 joueurs maximum).');
+    if (!p && this.humans(false).length >= this.maxHumans()) return this.reject(ws, this.opts.duel ? 'Ce duel est complet : c’est un 1 contre 1.' : 'Ce salon est complet (12 joueurs maximum).');
     const isNew = !p;
     if (p) {
       if (p.ws && p.ws !== ws) { try { p.ws.close(4000, 'remplacé'); } catch { /* déjà fermée */ } }
@@ -184,13 +203,14 @@ export class Room extends DurableObject {
       if (this.phase === 'play') { p.rt = { title: 0, artist: 0 }; p.rounds = 1; }
       this.players.set(p.id, p);
       // chat suspendu 24 h après plusieurs signalements (les réponses tapées dans le chat comptent toujours)
-      if (!this.solo) this.hub().isMuted(uid).then(m => { p.muted = m; }).catch(() => {});
+      if (!this.alone) this.hub().isMuted(uid).then(m => { p.muted = m; }).catch(() => {});
     }
     p.ws = ws;
     p.on = true;
     p.off = 0;
     p.tier = Math.min(8, Math.max(0, parseInt(q.get('tier'), 10) || 0)); // fourni par le serveur, pas par l'appli
     p.rbest = Math.min(8, Math.max(0, parseInt(q.get('best'), 10) || 0)); // meilleur rang toutes saisons (≠ p.best = meilleure série)
+    p.club = cleanText(q.get('club') || '', 24); // « 🎸 Les Rockeurs », fourni par le serveur comme le rang
     this.profile(p, q);
     if (!this.pub && !this.players.get(this.host)?.on) this.host = p.id;
     ws.addEventListener('message', e => this.onMessage(p, ws, e.data));
@@ -204,7 +224,15 @@ export class Room extends DurableObject {
       if (this.phase === 'lobby' && !this.starting) { this.ends = Date.now() + 2000; this.later(2000, () => this.startGame()); }
     }
     if (soloStart) this.later(1200, () => this.startGame()); // solo : la partie démarre tout de suite
+    // duel : la partie démarre dès que l'adversaire arrive
+    if (this.opts.duel && isNew && this.phase === 'lobby' && !this.starting && this.humans().length === 2) {
+      this.sys('⚔️ Les deux joueurs sont là : le duel commence !');
+      this.later(2500, () => { if (this.phase === 'lobby' && this.humans().length === 2) this.startGame(); });
+    }
   }
+
+  // message du serveur pour tout le salon (ex. : l'ami invité ne peut pas jouer)
+  note(text) { if (this.humans(false).length) this.sys(cleanText(text, 120)); }
 
   profile(p, src) {
     const get = k => (src.get ? src.get(k) : src[k]);
@@ -235,6 +263,7 @@ export class Room extends DurableObject {
     if (DURS.includes(d)) this.opts.dur = d;
     if (b >= 0 && b <= 4) this.opts.bots = b;
     if (l >= 0 && l <= 3) this.opts.botlvl = l;
+    if (this.opts.duel) this.opts.bots = 0;
   }
 
   onMessage(p, ws, data) {
@@ -373,7 +402,9 @@ export class Room extends DurableObject {
     this.cur = this.reveal = this.results = null;
     this.broadcastState();
     let songs = [];
-    try { songs = await this.hub().pickSongs(this.cat, this.opts.rounds, this.played); } catch (e) { console.log('pickSongs', e); }
+    try {
+      songs = this.kind === 'daily' ? await this.hub().hitSongs(this.day) : await this.hub().pickSongs(this.cat, this.opts.rounds, this.played);
+    } catch (e) { console.log('pickSongs', e); }
     this.starting = false;
     if (g !== this.gen) return;
     if (!this.humans().length) return this.stop();
@@ -392,7 +423,7 @@ export class Room extends DurableObject {
     this.rounds = Math.min(this.opts.rounds, songs.length);
     this.round = 0;
     this.gameId = rid(10);
-    for (const p of this.players.values()) Object.assign(p, { score: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, rounds: 0, rt: null });
+    for (const p of this.players.values()) Object.assign(p, { score: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, rounds: 0, rt: null, grid: '' });
     this.played = [...this.played.filter(k => !songs.some(s => s.k === k)), ...songs.map(s => s.k)].slice(-300);
     this.phase = 'countdown';
     this.ends = Date.now() + COUNTDOWN;
@@ -418,6 +449,16 @@ export class Room extends DurableObject {
     this.broadcastState();
     for (const b of this.bots()) this.planBot(b, dur);
     this.later(this.cur.end - now, () => this.endRound());
+    if (this.kind === 'daily' && i === 0) this.saveHit(false); // l'essai du jour est utilisé dès le 1er extrait
+  }
+
+  // Hit du jour : résultat enregistré après chaque extrait ; à la fin, place du jour et série envoyées au joueur
+  saveHit(done) {
+    const p = this.humans(false)[0];
+    if (!p) return;
+    this.hub().hitSave(p.uid, this.day, { name: p.name, av: p.av }, p.score, p.grid || '', done)
+      .then(r => { if (r) this.send(p.ws, { t: 'hit', ...r }); })
+      .catch(e => console.log('hitSave', e));
   }
 
   planBot(b, dur) {
@@ -432,8 +473,11 @@ export class Room extends DurableObject {
   guess(p, text, enter) {
     if (this.phase !== 'play' || !p.rt) return;
     const now = Date.now();
-    if (now < this.cur.start - 300 || now - p.lastG < 60) return;
-    p.lastG = now;
+    // Entrée a sa propre limite : sinon une réponse validée juste après l'envoi automatique de la frappe serait ignorée
+    // (et l'appli ne saurait pas qu'il faut effacer une réponse fausse)
+    const k = enter ? 'lastE' : 'lastG';
+    if (now < this.cur.start - 300 || now - (p[k] || 0) < (enter ? 150 : 60)) return;
+    p[k] = now;
     const r = judge(text, this.cur.s, enter);
     const newT = r.title && !p.rt.title, newA = r.artist && !p.rt.artist;
     if (newT || newA) return this.award(p, newT, newA);
@@ -485,11 +529,15 @@ export class Room extends DurableObject {
     if (this.phase !== 'play') return;
     this.clearTimers();
     const c = this.cur, s = c.s;
-    for (const p of this.players.values()) if (p.rt && !p.rt.title && !p.rt.artist) p.streak = 0;
+    for (const p of this.players.values()) {
+      if (p.rt && !p.rt.title && !p.rt.artist) p.streak = 0;
+      if (!p.bot) p.grid = (p.grid || '') + ((p.rt?.title ? 1 : 0) | (p.rt?.artist ? 2 : 0));
+    }
     this.phase = 'reveal';
     this.ends = Date.now() + REVEAL;
     this.reveal = { t: s.t[0], a: s.a[0], art: s.art, link: s.link, found: c.found };
     this.broadcastState();
+    if (this.kind === 'daily') this.saveHit(this.round >= this.rounds);
     const next = this.songs[this.round];
     if (this.round < this.rounds && next) this.broadcast({ t: 'preload', url: next.url });
     const bots = this.bots();
@@ -513,10 +561,24 @@ export class Room extends DurableObject {
     this.hub().countGame(this.kind, this.cat, list.filter(p => !p.bot && p.rounds).length).catch(() => {});
     const rows = list.filter(p => !p.bot && p.score > 0)
       .map(p => ({ uid: p.uid, name: p.name, av: p.av, fr: p.fr, pts: p.score, win: list[0] === p && list.length > 1 }));
-    if (rows.length && !this.solo) this.hub().addResults(rows).catch(() => {}); // le solo ne compte pas au classement
+    if (rows.length && !this.alone) this.hub().addResults(rows).catch(() => {}); // le solo ne compte pas au classement
+    // clubs : points des parties publiques et du Hit du jour
+    if (rows.length && (this.pub || this.kind === 'daily')) this.hub().clubScore(rows.map(r => ({ uid: r.uid, pts: r.pts }))).catch(() => {});
+    if (this.opts.duel) this.duelEnd(list);
     if (this.pub) this.later(PUBLIC_NEXT, () => (this.humans().length ? this.startGame() : this.stop()));
     if (this.ranked) this.rankGame(list).catch(e => console.log('rangs', e));
     setTimeout(() => this.sweep(), 500);
+  }
+
+  // duel : le gagnant (ou l'égalité) est noté, chacun reçoit le bilan de leurs duels
+  duelEnd(list) {
+    const [a, b] = list.filter(p => !p.bot && p.rounds > 0);
+    if (!a || !b) return;
+    this.hub().duelResult(a.uid, b.uid, a.score > b.score ? a.uid : b.score > a.score ? b.uid : '')
+      .then(rec => {
+        for (const [p, o] of [[a, b], [b, a]]) this.send(p.ws, { t: 'duel', gameId: this.gameId, rec: rec[p.uid], vs: o.name, res: p.score > o.score ? 'win' : p.score < o.score ? 'loss' : 'tie' });
+      })
+      .catch(e => console.log('duel', e));
   }
 
   // partie classée : points de rang selon la place (bots compris), envoyés à chaque joueur
@@ -577,7 +639,7 @@ export class Room extends DurableObject {
   // relayées tout de suite à tout le salon, jamais gardées (pas dans l'historique du chat) ;
   // pas en solo, jamais de la part d'un bot, au plus 5 toutes les 3 secondes par joueur
   onReact(p, e) {
-    if (this.solo || p.bot || !REACTS.has(e)) return;
+    if (this.alone || p.bot || !REACTS.has(e)) return;
     const now = Date.now();
     p.rq = (p.rq || []).filter(t => now - t < 3000);
     if (p.rq.length >= 5) return;
@@ -589,7 +651,7 @@ export class Room extends DurableObject {
   onInvite(p, m) {
     const pk = String(m.pk || '');
     if (this.kind !== 'priv' || p.bot || !/^[0-9a-f]{12}$/.test(pk)) return;
-    this.hub().invite(p.uid, p.name, this.code, pk)
+    this.hub().invite(p.uid, p.name, this.code, pk, this.opts.duel ? 'duel' : 'salon', this.cat)
       .then(r => this.send(p.ws, { t: 'invited', pk, ...r }))
       .catch(() => this.send(p.ws, { t: 'invited', pk, ok: 0, why: 'err' }));
   }
@@ -598,7 +660,7 @@ export class Room extends DurableObject {
   // gardés par le Hub avec les derniers messages du joueur signalé ; 3 personnes différentes en 24 h = chat suspendu 24 h
   onReport(p, m) {
     const target = this.players.get(String(m.id || ''));
-    if (this.solo || p.bot || !target || target.bot || target === p) return;
+    if (this.alone || p.bot || !target || target.bot || target === p) return;
     const why = REPORT_WHY.has(m.why) ? m.why : 'autre';
     const msgs = this.chat.filter(c => c.id === target.id).slice(-5).map(c => c.text);
     this.hub().addReport({ reporter: p.uid, target: target.uid, pk: target.pk, name: target.name, why, msgs, room: this.name })
