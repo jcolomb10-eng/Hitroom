@@ -1076,6 +1076,9 @@ svg.med{flex:none;overflow:visible}
 :root[data-hw="1"] #v-home{background:radial-gradient(70% 40% at 50% 0%,rgba(122,44,255,.28),transparent 70%),radial-gradient(60% 30% at 50% 100%,rgba(255,122,31,.2),transparent 70%)}
 :root[data-hw="1"] #homeTk{filter:hue-rotate(-60deg) saturate(1.3)}
 @media (prefers-reduced-motion:reduce){.hwfx span,.evb.hw .em,.av.f-citrouille{animation:none}}
+.dsc{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border-color:rgba(88,101,242,.8);text-decoration:none;color:inherit;margin-top:10px;background:linear-gradient(135deg,rgba(88,101,242,.28),rgba(15,12,24,.9))}
+.dsc .e{font-size:26px}.dsc span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.dsc small{font-size:11.5px;color:#c9bcd8}
+:root[data-light] .dsc{background:linear-gradient(135deg,#e8eaff,#f5f5ff)}:root[data-light] .dsc small{color:#4a4a6a}
 </style>
 </head>
 <body>
@@ -1142,6 +1145,7 @@ svg.med{flex:none;overflow:visible}
       <button class="mode small social" id="bFriends"><span class="sav" id="friAvs"></span><i class="badge hide" id="friDot"></i><span class="eb">SOCIAL</span><b>Mes amis</b><span class="d" id="friLine">Ajoute tes amis et défie-les en duel</span><span class="live off" id="friLive"><i></i>Personne en ligne</span></button>
       <button class="mode small club" id="bClub"><span class="cbtop" id="clubPic"></span><span class="eb">ÉQUIPE</span><b id="clubTile">Clubs</b><span class="d" id="clubLine">Rejoins une équipe et grimpez ensemble</span></button>
     </div>
+    <a class="card dsc" id="homeDiscord" href="https://discord.gg/B7UfPwan5j" target="_blank" rel="noopener"><span class="e">💬</span><span><b>Rejoins la communauté Hitroom</b><small>Discord : retours, idées, événements et joueurs</small></span><span class="chev">›</span></a>
   </div></div>
 </section>
 
@@ -4172,6 +4176,7 @@ function renderSettings() {
     <button class="card li" id="notifBtn"><span class="e">🔔</span><span>Notifications</span><span class="muted">${S.push?.on ? 'activées' : 'désactivées'}</span><span class="chev">›</span></button>
     <button class="card li" id="blockBtn"><span class="e">🚫</span><span>Joueurs bloqués</span><span class="muted">${(S.blocked || []).length}</span><span class="chev">›</span></button>
     <button class="card li" id="saveBtn"><span class="e">💾</span><span>Code de sauvegarde</span><span class="muted">changer de téléphone</span><span class="chev">›</span></button>
+    <a class="card li" href="https://discord.gg/B7UfPwan5j" target="_blank" rel="noopener" style="color:inherit;text-decoration:none"><span class="e">💬</span><span>Communauté Discord</span><span class="chev">›</span></a>
     <button class="card li" id="legalBtn"><span class="e">⚖️</span><span>Mentions légales</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
     <button class="card li" id="resetBtn"><span class="e">🗑️</span><span>Effacer mes données</span><span class="chev">›</span></button>
