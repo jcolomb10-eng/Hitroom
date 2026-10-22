@@ -3,7 +3,7 @@
 // - compte les joueurs présents dans chaque salon public
 // - tient les rangs (points de rang par saison mensuelle) et le classement « tous les temps »
 import { DurableObject } from 'cloudflare:workers';
-import { songsOf, songByKey } from './catalog.js';
+import { songsOf, songByKey, rankedCats } from './catalog.js';
 import { itunesFind, deezerFind, deezerPreview } from './sources.js';
 import { tierOf, softReset, fromOldScale, windowsOf } from './ranks.js';
 
@@ -47,7 +47,7 @@ export class Hub extends DurableObject {
         this.sql.exec(`INSERT INTO meta(k, v) VALUES('paliers', '2')`);
       });
     }
-    this.rooms = new Map(); // nom du salon -> { cat, win, n, ts } (salons publics)
+    this.rooms = new Map(); // nom du salon -> { cat, win, n, ts, kind } (salons publics : ranked = classé, open = non classé)
     this.paused = { it: 0, dz: 0 }; // source qui nous limite : on attend
     this.diag = { it: { ok: 0, ko: 0, last: '' }, dz: { ok: 0, ko: 0, last: '' } };
     this.getJSON = this.getJSON.bind(this);
@@ -163,24 +163,26 @@ export class Hub extends DurableObject {
   }
 
   // ---------- salons publics ----------
-  report(room, cat, win, n) {
-    this.rooms.set(room, { cat, win, n, ts: Date.now() });
+  report(room, cat, win, n, kind = 'ranked') {
+    this.rooms.set(room, { cat, win, n, ts: Date.now(), kind });
   }
 
-  // joueurs présents dans le salon public d'une catégorie et d'une fenêtre de rangs
+  // joueurs présents dans le salon classé d'une catégorie et d'une fenêtre de rangs
   humansIn(cat, win) {
-    const r = [...this.rooms.values()].find(x => x.cat === cat && x.win === win);
+    const r = [...this.rooms.values()].find(x => x.kind === 'ranked' && x.cat === cat && x.win === win);
     return r && Date.now() - r.ts < 20 * 60000 ? r.n : 0;
   }
 
-  // joueurs par catégorie ; avec un rang, seulement ceux qu'il peut rejoindre (le salon le plus rempli de ses 2 fenêtres)
+  // joueurs par catégorie : r = classé (avec un rang, seulement les salons qu'il peut rejoindre : le plus rempli de
+  // ses 2 fenêtres), o = non classé (tout le monde mélangé)
   counts(tier) {
-    const out = {};
+    const out = { r: {}, o: {} };
     const now = Date.now();
-    for (const { cat, win, n, ts } of this.rooms.values()) {
+    for (const { cat, win, n, ts, kind } of this.rooms.values()) {
       if (n <= 0 || now - ts >= 20 * 60000) continue;
-      if (tier == null) out[cat] = (out[cat] || 0) + n;
-      else if (windowsOf(tier).includes(win)) out[cat] = Math.max(out[cat] || 0, n);
+      if (kind === 'open') out.o[cat] = (out.o[cat] || 0) + n;
+      else if (tier == null) out.r[cat] = (out.r[cat] || 0) + n;
+      else if (windowsOf(tier).includes(win)) out.r[cat] = Math.max(out.r[cat] || 0, n);
     }
     return out;
   }
@@ -226,7 +228,8 @@ export class Hub extends DurableObject {
     const pos = r.games ? this.sql.exec(`SELECT COUNT(*) AS n FROM ranks WHERE sc = ? AND games > 0 AND rp > ?`, sc, r.rp).one().n + 1 : null;
     const rw = this.sql.exec(`SELECT sc, tier FROM rewards WHERE uid = ? AND claimed = 0 ORDER BY sc DESC LIMIT 1`, uid).toArray()[0];
     if (rw) this.sql.exec(`UPDATE rewards SET claimed = 1 WHERE uid = ? AND sc = ?`, uid, rw.sc);
-    return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), bestEver: this.bestEver(uid), games: r.games, wins: r.wins, pos, reward: rw || null };
+    return { sc, rp: r.rp, tier: tierOf(r.rp), best: tierOf(r.best), bestEver: this.bestEver(uid), games: r.games, wins: r.wins, pos, reward: rw || null,
+      rcats: rankedCats(sc, this.env.RANKED_CATS) };
   }
 
   // fin d'une partie classée : rows = [{ uid, name, av, fr, delta, win, shield }]

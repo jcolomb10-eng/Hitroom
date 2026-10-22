@@ -16,6 +16,7 @@ async function player(browser, name, url = BASE + '/') {
   page.on('pageerror', e => { errors.push(`${name}: ${e.message}`); log('PAGEERROR', name, e.message); });
   page.on('console', m => { if (m.type() === 'error') { errors.push(`${name} console: ${m.text()}`); log('CONSOLE', name, m.text()); } });
   await page.goto(url);
+  await page.click('#loginGuest');
   await page.fill('#onbName', name);
   await page.click('#onbAv button:nth-child(3)');
   await page.click('#onbGo');
@@ -151,7 +152,8 @@ const phase = page => page.evaluate(() => document.querySelector('#v-game').clas
     await A.page.goBack();
     await sleep(200);
   }
-  await A.page.click('#homeSet');
+  await A.page.click('[data-go="profile"]');
+  await A.page.click('#profSet');
   await sleep(300);
   await A.page.screenshot({ path: OUT + '/10_parametres.png' });
   await A.page.goBack();

@@ -18,6 +18,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   const state = () => page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')));
   const patch = async fn => { await page.evaluate(`(() => { const S = JSON.parse(localStorage.getItem('hitroom.v1')); (${fn})(S); localStorage.setItem('hitroom.v1', JSON.stringify(S)); })()`); await page.reload(); await page.waitForSelector('#v-home:not(.hide)'); };
   await page.goto(BASE + '/');
+  await page.click('#loginGuest');
   await page.fill('#onbName', 'Lena');
   await page.click('#onbGo');
   await page.waitForSelector('#v-home:not(.hide)');

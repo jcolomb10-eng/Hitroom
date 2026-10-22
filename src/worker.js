@@ -1,7 +1,7 @@
 // Point d'entrée : sert le site (dossier public/) et les routes /api/.
 import { Room } from './room.js';
-import { Hub } from './hub.js';
-import { CAT_IDS } from './catalog.js';
+import { Hub, season } from './hub.js';
+import { CAT_IDS, rankedCats } from './catalog.js';
 
 export { Room, Hub };
 
@@ -16,15 +16,15 @@ const hub = env => env.HUB.get(env.HUB.idFromName('hub'));
 
 const cleanUid = s => (s || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
 
-// le rang vient toujours du serveur (jamais de l'appli) : il choisit le salon public du bon niveau
-// (pub:<catégorie>:<fenêtre>, 2 rangs voisins, voir ranks.js)
-async function toRoom(req, env, name, pub) {
+// le rang vient toujours du serveur (jamais de l'appli) : en classé, il choisit le salon du bon niveau
+// (pub:<catégorie>:<fenêtre>, 2 rangs voisins, voir ranks.js) ; les autres salons : open:<cat>, priv:<CODE>, solo:<id>
+async function toRoom(req, env, name, ranked) {
   if (req.headers.get('Upgrade') !== 'websocket') return new Response('websocket attendu', { status: 426 });
   const u = new URL(req.url);
   const uid = cleanUid(u.searchParams.get('uid'));
-  const cat = pub ? name.slice(4) : null;
+  const cat = ranked ? name.slice(4) : null;
   const { tier, bestEver, win } = uid.length >= 8 ? await hub(env).rankOf(uid, cat) : { tier: 0, bestEver: 0, win: 0 };
-  if (pub) name += ':' + win;
+  if (ranked) name += ':' + win;
   u.searchParams.set('room', name);
   u.searchParams.set('tier', tier);
   u.searchParams.set('best', bestEver);
@@ -38,9 +38,14 @@ export default {
     let m;
 
     if ((m = path.match(/^\/api\/public\/([a-z0-9]+)\/ws$/))) {
-      if (!CAT_IDS.has(m[1])) return json({ error: 'catégorie inconnue' }, 404);
+      if (!rankedCats(season(), env.RANKED_CATS).includes(m[1])) return json({ error: 'catégorie pas classée cette saison' }, 404);
       return toRoom(req, env, 'pub:' + m[1], true);
     }
+    if ((m = path.match(/^\/api\/open\/([a-z0-9]+)\/ws$/))) {
+      if (!CAT_IDS.has(m[1])) return json({ error: 'catégorie inconnue' }, 404);
+      return toRoom(req, env, 'open:' + m[1], false);
+    }
+    if ((m = path.match(/^\/api\/solo\/([A-Za-z0-9]{6,16})\/ws$/))) return toRoom(req, env, 'solo:' + m[1], false);
     if ((m = path.match(/^\/api\/salon\/([A-Z0-9]{4})\/ws$/))) return toRoom(req, env, 'priv:' + m[1], false);
     if ((m = path.match(/^\/api\/salon\/([A-Z0-9]{4})$/))) return json(await room(env, 'priv:' + m[1]).info());
     if (path === '/api/salon' && req.method === 'POST') {

@@ -74,6 +74,6 @@ while (h2.last.phase !== 'play') await sleep(300);
 const late = await client(`/api/salon/${code2}/ws`, { uid: emeraude, name: 'Retard', fr: 'r6' });
 while (!h2.last.results) await sleep(1000);
 const lr = h2.last.results.find(x => x.name === 'Retard');
-ok(lr?.best === 0 && lr?.fr === 'r6', `rang et meilleure série séparés (série ${lr?.best}, cadre ${lr?.fr})`);
+ok(lr?.best === 0 && lr?.fr === 'def' && lr?.tier == null, `rang et meilleure série séparés (série ${lr?.best}) ; hors classé ni contour ni rang (cadre ${lr?.fr}, rang ${lr?.tier})`);
 late.ws.close();
 process.exit(0);

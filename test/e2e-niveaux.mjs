@@ -35,7 +35,7 @@ ok(!names(o).includes('Bronzy') && !names(b).includes('Orly'), 'un Or ne joue ja
 ok([0, 1].includes(a.last.win) && (names(a).includes('Bronzy') || names(a).includes('Orly')), `l’Argent rejoint un salon déjà occupé (fenêtre ${a.last.win})`);
 ok([b, o, a].every(c => spread(c) <= 1), 'dans chaque salon, bots compris : jamais plus d’un rang d’écart');
 const cnt = await (await fetch(`${HTTP}/api/counts?t=2`)).json();
-ok(cnt.cine === 1, `compteur pour un Or : seulement les salons qu’il peut rejoindre (${cnt.cine})`);
+ok(cnt.r?.cine === 1, `compteur pour un Or : seulement les salons qu’il peut rejoindre (${cnt.r?.cine})`);
 for (const c of [b, o, a]) c.ws.close();
 
 // 2. Argent à 240 PR qui gagne une partie : passe Or (250 PR) et change de salon avant la partie suivante

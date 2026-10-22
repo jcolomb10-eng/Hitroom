@@ -78,3 +78,14 @@ test('salons publics : jamais plus d’un rang d’écart', () => {
   const top = windowSkill(WINDOWS - 1);
   assert.ok(Math.abs(top[0] - 0.7) < 1e-9 && Math.abs(top[1] - 0.92) < 1e-9);
 });
+
+test('mode Classé : 4 catégories par saison, les mêmes toute la saison, qui changent d’un mois à l’autre', async () => {
+  const { rankedCats, CAT_IDS } = await import('../src/catalog.js');
+  const a = rankedCats('2026-11'), b = rankedCats('2026-11');
+  assert.deepEqual(a, b);
+  assert.equal(new Set(a).size, 4);
+  assert.ok(a.every(x => CAT_IDS.has(x) && x !== 'mix'));
+  const months = Array.from({ length: 12 }, (_, i) => rankedCats(`2027-${String(i + 1).padStart(2, '0')}`).join());
+  assert.ok(new Set(months).size >= 10, 'le tirage varie selon le mois');
+  assert.deepEqual(rankedCats('2026-11', 'rock, rapfr ,inconnue'), ['rock', 'rapfr'], 'liste fixée pour les tests');
+});

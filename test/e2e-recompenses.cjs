@@ -17,6 +17,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   page.on('pageerror', e => errors.push(e.message));
   page.on('dialog', d => d.accept());
   await page.goto(BASE + '/');
+  await page.click('#loginGuest');
   await page.fill('#onbName', 'Sarah');
   await page.click('#onbGo');
   await page.waitForSelector('#v-home:not(.hide)');
@@ -74,18 +75,20 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   ok(S2.avs.length === 1 && /^R\d\d$/.test(S2.avs[0]) && S2.titles.includes('fidele'), `route : avatar rare ${S2.avs[0]} et titre « Fidèle au poste » obtenus`);
   await page.goBack();
 
-  // boutique : cadres de rang débloqués jusqu'à Maître
+  // boutique : cadres de rang débloqués jusqu'à Maître, affichés tout seuls en classé (version 1.8 : plus à choisir)
   await page.click('[data-go="shop"]');
   await sleep(400);
   await page.click('[data-it="r8"]');
-  ok((await page.textContent('#toast')).includes('Grand Maître'), 'cadre Grand Maître refusé (rang pas atteint)');
+  ok((await page.textContent('#toast')).includes('Grand Maître'), 'cadre Grand Maître : rang pas atteint');
   await page.click('[data-it="r7"]');
-  await sleep(300);
+  const t7 = await page.textContent('#toast'); // lu tout de suite : les messages de déblocage en file peuvent le remplacer
   await shot(page, 'r06_boutique_cadres');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')).fr)) === 'r7', 'cadre Maître équipé');
+  const fr7 = await page.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')).fr);
+  ok(t7.includes('partie classée') && fr7 === 'def', `cadre Maître débloqué, pas à équiper : il s’affiche tout seul en classé (${fr7} : ${t7})`);
+  await page.click('[data-kind="buy"][data-it="def"]');
   await page.goBack();
 
-  // salon privé : le serveur accepte le cadre Maître, le titre et la vitrine
+  // salon privé : pas de contour ni de titre de rang (parties amicales), titre de catégorie et vitrine acceptés
   await page.click('#bCreate');
   await page.click('#catsOk');
   await page.waitForSelector('#v-lobby:not(.hide)');
@@ -98,9 +101,9 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   const me = await page.evaluate(() => 0);
   const players = await page.$$eval('#lobbyPlayers .prow', r => r.map(x => x.outerHTML));
   const cheat = players.find(h => h.includes('Tricheur')) || '';
-  ok(cheat && !cheat.includes('f-r8'), 'serveur : cadre Grand Maître refusé au tricheur');
+  ok(cheat && !cheat.includes('f-r8') && !cheat.includes('Grand'), 'serveur : ni cadre ni titre Grand Maître pour le tricheur');
   const mine = players.find(h => h.includes('Sarah')) || '';
-  ok(mine.includes('f-r7') && mine.includes('Roi du Rap FR'), 'serveur : cadre Maître et titre acceptés pour Sarah');
+  ok(!/f-r\d/.test(mine) && !mine.includes('Maître') && mine.includes('Roi du Rap FR'), 'salon privé : pas de contour ni de rang, titre « Roi du Rap FR » affiché');
   await page.click('#lobbyPlayers [data-pid]');
   await sleep(300);
   await shot(page, 'r08_carte_dans_salon');
@@ -110,7 +113,8 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
 
   // code de sauvegarde : récupération sur un autre téléphone
   await page.waitForSelector('#v-home:not(.hide)');
-  await page.click('#homeSet');
+  await page.click('[data-go="profile"]');
+  await page.click('#profSet');
   await page.click('#saveBtn');
   await sleep(4500); // laisse partir la sauvegarde
   const saveCode = (await page.textContent('#sheetBox .codein')).trim();
@@ -119,17 +123,19 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   const other = await (await browser.newContext({ ...devices['Pixel 7'] })).newPage();
   other.on('dialog', d => d.accept());
   await other.goto(BASE + '/');
+  await other.click('#loginGuest');
   await other.fill('#onbName', 'Nouveau');
   await other.click('#onbGo');
   await other.waitForSelector('#v-home:not(.hide)');
-  await other.click('#homeSet');
+  await other.click('[data-go="profile"]');
+  await other.click('#profSet');
   await other.click('#saveBtn');
   await other.fill('#restoreIn', saveCode);
   await other.click('#restoreGo');
   await other.waitForTimeout(2500);
   await other.waitForSelector('#v-home:not(.hide)');
   const S3 = await other.evaluate(() => JSON.parse(localStorage.getItem('hitroom.v1')));
-  ok(S3.name === 'Sarah' && S3.uid === uid && S3.fr === 'r7' && S3.avs.length === 1, 'progression récupérée sur l’autre téléphone (même joueur, cadre, avatar rare)');
+  ok(S3.name === 'Sarah' && S3.uid === uid && S3.fr === 'def' && S3.avs.length === 1 && S3.knownTitles.includes('r-maitre'), 'progression récupérée sur l’autre téléphone (même joueur, titres, avatar rare)');
 
   ok(!errors.length, 'aucune erreur JavaScript' + (errors.length ? ' : ' + errors.join(' | ') : ''));
   await browser.close();

@@ -434,6 +434,24 @@ export const CATS = [
 
 export const CAT_IDS = new Set(CATS.map(c => c.id));
 
+// mode Classé : 4 catégories tirées au sort pour chaque saison (mois), les mêmes pour tout le monde pendant la saison.
+// override (variable RANKED_CATS, pour les tests en local) : liste fixe « rapfr,rock,… »
+const RANKED_POOL = ['80', '90', '2000', '2010', '2020', 'variete', 'rapfr', 'rapus', 'rock', 'electro', 'kpop', 'cine'];
+export function rankedCats(sc, override) {
+  if (override) {
+    const list = String(override).split(',').map(c => c.trim()).filter(c => CAT_IDS.has(c));
+    if (list.length) return list;
+  }
+  let h = 2166136261;
+  for (const c of 'hitroom:' + sc) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+  const pool = RANKED_POOL.slice(), out = [];
+  while (out.length < 4) {
+    h = (Math.imul(h, 1103515245) + 12345) >>> 0;
+    out.push(pool.splice((h >>> 8) % pool.length, 1)[0]);
+  }
+  return out;
+}
+
 function parse(block) {
   return block.trim().split('\n').map(line => {
     const [tt, aa] = line.split(' | ');

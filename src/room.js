@@ -1,5 +1,9 @@
-// Room : un salon de jeu (public par catégorie, ou privé avec un code de 4 caractères).
-// Les salons publics sont classés (points de rang) et réunissent 2 rangs voisins ; les salons privés sont des parties amicales.
+// Room : un salon de jeu. Quatre sortes (préfixe du nom) :
+// - pub:<cat>:<fenêtre>  classé (points de rang), 2 rangs voisins, contour = rang actuel
+// - open:<cat>           non classé, tout le monde mélangé, rang caché
+// - priv:<CODE>          entre amis (code de 4 caractères), partie amicale
+// - solo:<id>            un joueur contre des bots (pièces réduites côté appli, pas de classement)
+// Hors classé, chacun montre le contour qu'il a choisi (jamais un contour de rang) et le rang n'est pas affiché.
 // C'est le « maître du jeu » : il choisit les extraits, donne le top départ à tout le monde en même temps,
 // vérifie les réponses (jamais envoyées aux joueurs avant la fin de la manche), compte les points et relaie le chat.
 import { DurableObject } from 'cloudflare:workers';
@@ -29,6 +33,7 @@ const cleanCat = c => {
 };
 // cadres de rang (r0 = Bronze … r8 = Grand Maître) : seulement si le rang a été atteint ; cadres de saison : s2026-10
 const frameOk = (fr, best) => FRAMES.has(fr) || /^s\d{4}-\d{2}$/.test(fr) || (/^r[0-8]$/.test(fr) && +fr[1] <= best);
+const isRankFrame = fr => /^r[0-8]$/.test(fr || '');
 
 const BOT_NAMES = ['DJ_Lila', 'MarieFan90', 'TonyRock', 'ZazieZouk', 'MelodyLover', 'VinylBoy', 'KikiKaraoke',
   'Sophie78', 'BeatMax', 'LunaStar', 'ZikMaster', 'ClaraMusic', 'Flow', 'Niko', 'SamPlay', 'Melody'];
@@ -94,19 +99,25 @@ export class Room extends DurableObject {
     for (const p of this.players.values()) if (p.ws) { try { p.ws.send(data); } catch { /* socket fermée */ } }
   }
   report() {
-    if (this.pub) this.hub().report(this.name, this.cat, this.win, this.humans().length).catch(() => {});
+    if (this.pub) this.hub().report(this.name, this.cat, this.win, this.humans().length, this.kind).catch(() => {});
   }
   info() {
     return { humans: this.humans(false).length, cat: this.cat, phase: this.phase, opts: this.opts };
   }
 
+  // ce que les autres voient : en classé le contour du rang actuel, ailleurs le contour choisi (sauf contour de rang)
+  // et ni rang ni titre de rang
+  frameOf(p) { return this.ranked ? 'r' + (p.tier || 0) : isRankFrame(p.fr) ? 'def' : p.fr || 'def'; }
+  tierOf(p) { return this.ranked ? p.tier || 0 : null; }
+  titleOf(p) { return !this.ranked && /^r-/.test(p.title || '') ? '' : p.title || ''; }
+
   snapshot() {
     const c = this.cur;
     return {
-      t: 'state', now: Date.now(), pub: this.pub, ranked: this.pub, win: this.win, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
+      t: 'state', now: Date.now(), kind: this.kind, pub: this.pub, ranked: this.ranked, solo: this.solo, win: this.win, code: this.code, cat: this.cat, opts: this.opts, host: this.host,
       phase: this.phase, ends: this.ends, round: this.round, rounds: this.rounds, gameId: this.gameId, msg: this.msg,
       players: [...this.players.values()].map(p => ({
-        id: p.id, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, title: p.title || '', show: p.show || [], bot: !!p.bot, on: !!p.on,
+        id: p.id, name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, on: !!p.on,
         nc: p.nc || '', vfx: p.vfx || '', score: p.score, streak: p.streak, ft: p.rt ? (p.rt.title ? 1 : 0) | (p.rt.artist ? 2 : 0) : 0,
       })),
       cur: this.phase === 'play' || this.phase === 'reveal' ? { url: c.s.url, art: c.s.art, start: c.start, end: c.end } : null,
@@ -122,13 +133,16 @@ export class Room extends DurableObject {
     const q = new URL(req.url).searchParams;
     if (!this.name) {
       this.name = q.get('room') || 'priv:????';
-      this.pub = this.name.startsWith('pub:');
-      this.code = this.pub ? null : this.name.slice(5);
+      const [prefix, a, w] = this.name.split(':');
+      this.kind = { pub: 'ranked', open: 'open', solo: 'solo' }[prefix] || 'priv';
+      this.ranked = this.kind === 'ranked';
+      this.solo = this.kind === 'solo';
+      this.pub = this.ranked || this.kind === 'open';
+      this.code = this.kind === 'priv' ? a : null;
       this.win = 0;
       if (this.pub) {
-        const [, cat, w] = this.name.split(':');
-        this.cat = cat;
-        this.win = Math.min(WINDOWS - 1, Math.max(0, parseInt(w, 10) || 0));
+        this.cat = a;
+        if (this.ranked) this.win = Math.min(WINDOWS - 1, Math.max(0, parseInt(w, 10) || 0));
         if (this.env.MOCK_MUSIC) this.opts = { ...this.opts, rounds: 5, dur: 15 }; // tests en local : parties publiques courtes
       }
     }
@@ -147,11 +161,15 @@ export class Room extends DurableObject {
     const uid = (q.get('uid') || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
     if (uid.length < 8) return this.reject(ws, 'Identifiant invalide, recharge la page.');
     let p = [...this.players.values()].find(x => x.uid === uid);
+    let soloStart = false;
+    if (this.solo && !p && this.humans(false).length) return this.reject(ws, 'Cette partie solo est déjà en cours.');
     if (!this.pub && !this.humans(false).length) {
-      if (q.get('create') !== '1') return this.reject(ws, "Ce salon n'existe pas ou est terminé. Vérifie le code !");
+      if (q.get('create') !== '1') return this.reject(ws, this.solo ? 'Cette partie solo est terminée.' : "Ce salon n'existe pas ou est terminé. Vérifie le code !");
       this.reset();
       this.opts.botlvl = bracketOf(parseInt(q.get('tier'), 10) || 0);
+      if (this.solo) this.opts = { ...this.opts, bots: 3, ...(this.env.MOCK_MUSIC ? { rounds: 5, dur: 15 } : {}) };
       this.setOpts(q);
+      soloStart = this.solo;
     }
     if (!p && this.humans(false).length >= MAX_HUMANS) return this.reject(ws, 'Ce salon est complet (12 joueurs maximum).');
     const isNew = !p;
@@ -179,6 +197,7 @@ export class Room extends DurableObject {
       this.report();
       if (this.phase === 'lobby' && !this.starting) { this.ends = Date.now() + 2000; this.later(2000, () => this.startGame()); }
     }
+    if (soloStart) this.later(1200, () => this.startGame()); // solo : la partie démarre tout de suite
   }
 
   profile(p, src) {
@@ -292,12 +311,13 @@ export class Room extends DurableObject {
   }
 
   // ---------- partie ----------
-  // bots au niveau du salon : les 2 rangs du salon en public, niveau réglé par l'hôte en privé
+  // bots au niveau du salon : les 2 rangs du salon en classé, niveau moyen en non classé, réglé par le joueur en privé et en solo
   setupBots() {
     const want = this.pub ? Math.max(0, 4 - this.humans().length) : this.opts.bots;
-    const lvl = this.pub ? 'w' + this.win : 'l' + this.opts.botlvl;
-    const [lo, hi] = this.pub ? windowSkill(this.win) : BOT_SKILL[this.opts.botlvl];
-    const tiers = this.pub ? windowTiers(this.win) : TIERS_OF_BRACKET[this.opts.botlvl];
+    const bl = this.kind === 'open' ? 1 : this.opts.botlvl;
+    const lvl = this.ranked ? 'w' + this.win : 'l' + bl;
+    const [lo, hi] = this.ranked ? windowSkill(this.win) : BOT_SKILL[bl];
+    const tiers = this.ranked ? windowTiers(this.win) : TIERS_OF_BRACKET[bl];
     const bots = this.bots();
     while (bots.length > want) this.players.delete(bots.pop().id);
     for (const b of bots) if (b.lvlGroup !== lvl) Object.assign(b, { lvlGroup: lvl, skill: lo + Math.random() * (hi - lo), tier: pick(tiers) });
@@ -325,8 +345,8 @@ export class Room extends DurableObject {
     this.clearTimers();
     const g = this.gen;
     for (const p of this.humans(false)) if (!p.on) this.players.delete(p.id);
-    // salon public : qui vient de changer de rang et sort des 2 rangs du salon part dans le salon de son nouveau niveau
-    if (this.pub) {
+    // salon classé : qui vient de changer de rang et sort des 2 rangs du salon part dans le salon de son nouveau niveau
+    if (this.ranked) {
       for (const p of this.humans()) {
         if (inWindow(p.tier, this.win)) continue;
         const ws = p.ws;
@@ -472,7 +492,7 @@ export class Room extends DurableObject {
     this.clearTimers();
     const list = [...this.players.values()].sort((a, b) => b.score - a.score);
     this.results = list.map((p, i) => ({
-      id: p.id, rank: i + 1, name: p.name, av: p.av, fr: p.fr, lvl: p.lvl, tier: p.tier || 0, title: p.title || '', show: p.show || [], bot: !!p.bot, score: p.score,
+      id: p.id, rank: i + 1, name: p.name, av: p.av, fr: this.frameOf(p), lvl: p.lvl, tier: this.tierOf(p), title: this.titleOf(p), show: p.show || [], bot: !!p.bot, score: p.score,
       nc: p.nc || '', vfx: p.vfx || '',
       nT: p.nT || 0, nA: p.nA || 0, best: p.best || 0, speed: p.speed || 0, fast: p.fast || 0, rounds: p.rounds || 0,
     }));
@@ -483,16 +503,14 @@ export class Room extends DurableObject {
     this.broadcastState();
     const rows = list.filter(p => !p.bot && p.score > 0)
       .map(p => ({ uid: p.uid, name: p.name, av: p.av, fr: p.fr, pts: p.score, win: list[0] === p && list.length > 1 }));
-    if (rows.length) this.hub().addResults(rows).catch(() => {});
-    if (this.pub) {
-      this.later(PUBLIC_NEXT, () => (this.humans().length ? this.startGame() : this.stop()));
-      this.ranked(list).catch(e => console.log('rangs', e));
-    }
+    if (rows.length && !this.solo) this.hub().addResults(rows).catch(() => {}); // le solo ne compte pas au classement
+    if (this.pub) this.later(PUBLIC_NEXT, () => (this.humans().length ? this.startGame() : this.stop()));
+    if (this.ranked) this.rankGame(list).catch(e => console.log('rangs', e));
     setTimeout(() => this.sweep(), 500);
   }
 
   // partie classée : points de rang selon la place (bots compris), envoyés à chaque joueur
-  async ranked(list) {
+  async rankGame(list) {
     const gameId = this.gameId, n = list.length;
     const rows = list.map((p, i) => ({ p, rank: i + 1 })).filter(x => !x.p.bot && x.p.rounds > 0).map(({ p, rank }) => ({
       uid: p.uid, name: p.name, av: p.av, fr: p.fr, win: rank === 1, shield: !!p.sh,

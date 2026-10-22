@@ -17,11 +17,12 @@ const ok = (cond, label) => { console.log(cond ? '✅' : '❌', label); if (!con
   page.on('pageerror', e => errors.push(e.message));
   page.on('dialog', d => d.accept());
   await page.goto(BASE + '/');
+  await page.click('#loginGuest');
   await page.fill('#onbName', 'Lucas');
   await page.click('#onbGo');
   await page.waitForSelector('#v-home:not(.hide)');
   await sleep(500);
-  ok((await page.textContent('#homeLvl')).includes('Bronze'), 'accueil : rang Bronze affiché');
+  ok((await page.textContent('#bPlay')).includes('Bronze'), 'accueil : rang Bronze affiché sur la tuile Classé');
 
   await page.click('#bPlay');
   ok((await page.textContent('#catsSub')).includes('Bronze – Argent'), 'catégories : partie classée contre Bronze – Argent');
@@ -90,7 +91,8 @@ const ok = (cond, label) => { console.log(cond ? '✅' : '❌', label); if (!con
   // retour à l'accueil, fiche des rangs, classement de la saison
   await page.click('#endHome');
   await page.waitForSelector('#v-home:not(.hide)');
-  await page.click('#v-home .who');
+  await page.click('[data-go="profile"]');
+  await page.click('#profRank');
   await sleep(300);
   await page.screenshot({ path: OUT + '/c05_rangs.png' });
   await page.click('#sheetBox [data-close]');
