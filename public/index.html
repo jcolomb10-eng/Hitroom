@@ -1694,41 +1694,62 @@ function bgVideos() {
   }
 }
 // ---------- musique d'ambiance (connexion, accueil et menus ; jamais pendant une partie) ----------
-// public/fonds/ambiance.m4a, composée par tools/musique.py ; jouée en boucle avec Web Audio après le premier toucher
-const AMB_VOL = 0.32;
-const amb = { buf: null, src: null, gain: null, loading: false, failed: false };
-const AMB_FILE = new Audio().canPlayType('audio/mp4; codecs="mp4a.40.2"') ? '/fonds/ambiance.m4a' : '/fonds/ambiance.ogg'; // AAC, sinon Opus
+// deux morceaux libres de droits (Pixabay) joués l'un après l'autre en fondu enchaîné, en continu (lecture en flux : peu de mémoire)
+const AMB_VOL = 0.28;
+const AMB_EXT = new Audio().canPlayType('audio/mp4; codecs="mp4a.40.2"') ? 'm4a' : 'ogg'; // AAC, sinon Opus
+const AMB_LIST = ['chill', 'house'].map(n => `/fonds/ambiance-${n}.${AMB_EXT}`);
+const AMB_DUR = [222.4, 118]; // durées des morceaux (le navigateur ne les connaît pas toujours en lecture en flux)
+const AMB_XF = 5; // secondes de fondu entre deux morceaux
+const amb = { el: [null, null], gain: [null, null], cur: -1, next: 0, failed: false };
 const musicWanted = () => S.set.music !== false && !R.ws && !['lobby', 'game', 'end'].includes(curView) && document.visibilityState === 'visible';
-async function ambUpdate() {
-  if (!actx || actx.state !== 'running') return;
-  if (musicWanted() && !amb.src) {
-    if (!amb.buf) {
-      if (amb.loading || amb.failed) return;
-      amb.loading = true;
-      try {
-        const ab = await (await fetch(AMB_FILE)).arrayBuffer();
-        amb.buf = await new Promise((ok, ko) => { const r = actx.decodeAudioData(ab, ok, ko); if (r?.catch) r.catch(ko); });
-      } catch (e) { amb.failed = true; /* musique illisible sur cet appareil : on n'insiste pas */ }
-      amb.loading = false;
-      if (!amb.buf || !musicWanted() || amb.src) return;
-    }
-    amb.gain = actx.createGain();
-    amb.gain.gain.value = 0;
-    amb.gain.connect(actx.destination);
-    amb.src = actx.createBufferSource();
-    amb.src.buffer = amb.buf;
-    amb.src.loop = true;
-    amb.src.connect(amb.gain);
-    amb.src.start();
-    amb.gain.gain.linearRampToValueAtTime(AMB_VOL * S.set.vol, actx.currentTime + 2.5);
-  } else if (!musicWanted() && amb.src) {
-    const src = amb.src, g = amb.gain, t = actx.currentTime;
-    amb.src = amb.gain = null;
-    g.gain.cancelScheduledValues(t);
-    g.gain.setValueAtTime(g.gain.value, t);
-    g.gain.linearRampToValueAtTime(0, t + 0.8);
-    setTimeout(() => { try { src.stop(); } catch (e) { /* déjà arrêtée */ } g.disconnect(); }, 900);
+const ambLevel = () => AMB_VOL * S.set.vol;
+function ambVoice(k) {
+  if (!amb.el[k]) {
+    const el = new Audio();
+    el.preload = 'auto';
+    const g = actx.createGain();
+    g.gain.value = 0;
+    actx.createMediaElementSource(el).connect(g);
+    g.connect(actx.destination);
+    amb.el[k] = el; amb.gain[k] = g;
   }
+  return amb.el[k];
+}
+function ambFade(k, to, secs) {
+  const g = amb.gain[k].gain, t = actx.currentTime;
+  g.cancelScheduledValues(t);
+  g.setValueAtTime(g.value, t);
+  g.linearRampToValueAtTime(to, t + secs);
+}
+// lance le morceau suivant sur la voix k ; un peu avant sa fin, l'autre voix prend le relais
+function ambStart(k, fade) {
+  const el = ambVoice(k);
+  el.onended = el.ontimeupdate = null;
+  const idx = amb.next;
+  el.src = AMB_LIST[idx];
+  amb.next = (idx + 1) % AMB_LIST.length;
+  amb.cur = k;
+  el.play().then(() => ambFade(k, ambLevel(), fade)).catch(() => { amb.cur = -1; amb.failed = true; /* lecture refusée : on réessaie au prochain changement d'écran */ });
+  let passed = false;
+  const relay = fade => { if (passed || amb.cur !== k) return; passed = true; ambFade(k, 0, fade); ambStart(1 - k, fade); };
+  el.ontimeupdate = () => { if (el.currentTime >= AMB_DUR[idx] - AMB_XF - 0.5) relay(AMB_XF); };
+  el.onended = () => relay(0.5); // secours si le fondu a été manqué
+}
+function ambStop() {
+  const k = amb.cur;
+  amb.cur = -1;
+  for (const i of [0, 1]) {
+    const el = amb.el[i];
+    if (!el || el.paused) continue;
+    el.ontimeupdate = null;
+    ambFade(i, 0, 0.8);
+    setTimeout(() => { if (amb.cur !== i) el.pause(); }, 900);
+  }
+}
+function ambUpdate() {
+  if (!actx || actx.state !== 'running') return;
+  if (musicWanted() && amb.cur < 0) ambStart(0, 2.5);
+  else if (!musicWanted() && amb.cur >= 0) ambStop();
 }
 const SPK_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a8 8 0 0 1 0 11"/></svg>';
 const SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 5"/><path d="M22 9l-5 5"/></svg>';
@@ -4183,7 +4204,7 @@ function renderSettings() {
     <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
   $$('[data-tg]').forEach(b => b.onclick = () => { S.set[b.dataset.tg] = !S.set[b.dataset.tg]; save(); b.classList.toggle('on', S.set[b.dataset.tg]); unlock(); ambUpdate(); paintMusic(); applyComfort(); });
   $$('#fsSeg [data-fs]').forEach(b => b.onclick = () => { S.set.fs = +b.dataset.fs; save(); applyComfort(); $$('#fsSeg [data-fs]').forEach(x => x.classList.toggle('on', x === b)); });
-  $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); if (amb.gain) amb.gain.gain.value = AMB_VOL * S.set.vol; };
+  $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); for (const k of [0, 1]) if (amb.gain[k] && amb.cur === k) amb.gain[k].gain.value = ambLevel(); };
   $$('[data-go2]').forEach(b => b.onclick = () => { if (b.dataset.tab2) setShopTab(b.dataset.tab2); go(b.dataset.go2); });
   $('#rulesBtn').onclick = rules;
   $('#legalBtn').onclick = legalSheet;
@@ -4246,7 +4267,7 @@ function legalSheet() {
   openSheet(`<h3>Mentions légales <button data-close data-i="x"></button></h3><div class="legal">
     <h4>Éditeur</h4><p>Hitroom est édité à titre non professionnel par un particulier (pseudonyme : jcolomb10-eng), qui en est le directeur de la publication. Conformément à l’article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), son identité est communiquée à l’hébergeur.${LEGAL_CONTACT ? `<br>Contact : ${esc(LEGAL_CONTACT)}` : ''}</p>
     <h4>Hébergement</h4><p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis — cloudflare.com.</p>
-    <h4>Propriété intellectuelle</h4><p>Le nom Hitroom, le logo, les graphismes (avatars, cadres, fonds), la musique d’ambiance et le code de l’application appartiennent à l’éditeur : toute reproduction sans autorisation est interdite.</p>
+    <h4>Propriété intellectuelle</h4><p>Le nom Hitroom, le logo, les graphismes (avatars, cadres, fonds), le code de l’application appartiennent à l’éditeur : toute reproduction sans autorisation est interdite. Musiques d’ambiance : « Downtempo Modern Background » (ED Music Productions) et « Chill Deep House » (Kulakovka), sous licence Pixabay.</p>
     <p>Les extraits musicaux de 30 secondes et les pochettes sont fournis par les interfaces publiques de Deezer et d’Apple Music. Les titres, artistes et pochettes appartiennent à leurs ayants droit. Hitroom n’est affilié ni à Deezer ni à Apple ; un lien permet d’écouter chaque morceau en entier sur la plateforme.</p>
     <h4>Données personnelles</h4><p>Hitroom enregistre ton pseudo, ton avatar, un identifiant aléatoire, ton niveau, tes scores, ton rang, tes amis, ton club et tes résultats du Hit du jour, sur ton appareil (stockage local du navigateur) et sur les serveurs de l’hébergeur pour faire fonctionner les salons, les classements, les amis, les clubs et le code de sauvegarde. Aucun cookie publicitaire, aucun suivi publicitaire : seules des statistiques de fréquentation anonymes sont comptées. Les notifications ne sont envoyées que si tu les actives. Ne mets aucune information personnelle dans ton pseudo ou dans le chat.</p>
     <p>Tu peux effacer tes données sur ton appareil dans Paramètres → Effacer mes données. Une politique de confidentialité complète et la suppression de compte arriveront avec les comptes.</p>
