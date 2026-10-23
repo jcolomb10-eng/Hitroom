@@ -5,7 +5,7 @@
 // La version vient de l'adresse d'enregistrement (/sw.js?v=1.12) : à chaque version, nouvelle copie et ménage.
 const V = new URL(self.location).searchParams.get('v') || '0';
 const CACHE = 'hitroom-' + V;
-const SHELL = ['/', '/art.js', '/logo.webp', '/manifest.webmanifest', '/icon-192.png', '/fonds/accueil.webp', '/logo-neon.webp'];
+const SHELL = ['/', '/art.js', '/logo.webp', '/manifest.webmanifest', '/icon-192.png', '/fonds/accueil.webp'];
 const MEDIA = /\.(mp4|webm|m4a|ogg|mp3|wav)$/;
 const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 
