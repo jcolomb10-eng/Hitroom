@@ -152,7 +152,7 @@ const keyOf = url => decodeURIComponent(url.match(/__mock\/a\/(.+)\.wav/)[1]).sp
   for (let round = 1; round <= 5; round++) {
     await A.waitForFunction(r => document.querySelector('#gameTitle').innerText.includes(`Manche ${r}/`) &&
       document.querySelector('#reveal').classList.contains('hide') && document.querySelector('#gOverlay').classList.contains('hide'), round, { timeout: 40000 });
-    await sleep(900);
+    await sleep(1800);
     const [artist, title] = keyOf(await A.$eval('#audio', a => a.src));
     await A.fill('#guessIn', artist); await A.press('#guessIn', 'Enter'); await sleep(200);
     await A.fill('#guessIn', title); await A.press('#guessIn', 'Enter');
