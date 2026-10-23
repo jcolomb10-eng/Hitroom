@@ -1,0 +1,15 @@
+{
+  // Ancien Worker « hitroom » : simple redirection vers Zikroom (https://zikroom.jcolomb10.workers.dev)
+  "name": "hitroom",
+  "main": "src/redirect.js",
+  "compatibility_date": "2026-09-01",
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOMS", "class_name": "Room" },
+      { "name": "HUB", "class_name": "Hub" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["Room", "Hub"] }
+  ]
+}
