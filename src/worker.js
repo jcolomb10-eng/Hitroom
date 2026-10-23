@@ -128,10 +128,10 @@ export default {
     if (path === '/api/introuvables') return json(await hub(env).failedSongs(url.searchParams.get('f') === '1'));
     if (path === '/api/versions') return json(await hub(env).chosenVersions());
     // pour le propriétaire du jeu (page /stats.html) : protégé par la variable secrète ADMIN_KEY
-    if (path === '/api/signalements' || path === '/api/stats') {
+    if (path === '/api/signalements' || path === '/api/stats' || path === '/api/suspects') {
       if (!env.ADMIN_KEY) return json({ error: 'Ajoute la variable secrète ADMIN_KEY dans Cloudflare (Worker hitroom → Paramètres → Variables et secrets).' }, 403);
       if (url.searchParams.get('key') !== env.ADMIN_KEY) return json({ error: 'Clé incorrecte.' }, 403);
-      return json(path === '/api/stats' ? await hub(env).statsReport() : await hub(env).reportList());
+      return json(path === '/api/stats' ? await hub(env).statsReport() : path === '/api/suspects' ? await hub(env).suspects() : await hub(env).reportList());
     }
     // notifications : clé publique, abonnement, désabonnement, messages à afficher (lus par le service worker)
     if (path === '/api/push/key') return json({ key: await hub(env).pushKey() });

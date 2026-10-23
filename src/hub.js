@@ -424,6 +424,7 @@ export class Hub extends DurableObject {
     const row = this.sql.exec(`SELECT uid FROM saves WHERE code = ?`, code).toArray()[0];
     if (row && row.uid !== uid) return { ok: 0 };
     this.sql.exec(`INSERT OR REPLACE INTO saves(code, uid, data, ts) VALUES(?,?,?,?)`, code, uid, data, Date.now());
+    this.auditSave(uid, data);
     return { ok: 1 };
   }
 

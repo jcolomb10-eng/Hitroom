@@ -1,3 +1,4 @@
+import { publicKey } from './ids.js';
 // Version 2.0 : vrais comptes (e-mail + mot de passe). Un compte est relié à l'uid de l'invité : on ne perd rien en le créant.
 // Le mot de passe n'est jamais gardé, seulement son empreinte PBKDF2 (salée). Méthodes du Hub en bas.
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@.]+(\.[^\s@.]+)+$/;
@@ -21,6 +22,8 @@ const same = (a, b) => { if (a.length !== b.length) return false; let d = 0; for
 export const accountMethods = {
   acctInit() {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS accounts(email TEXT PRIMARY KEY, uid TEXT UNIQUE, salt TEXT, hash TEXT, ts INTEGER)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS ledger(uid TEXT PRIMARY KEY, xp INTEGER, coins INTEGER, games INTEGER, ts INTEGER)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS flags(uid TEXT PRIMARY KEY, why TEXT, n INTEGER, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS afails(email TEXT PRIMARY KEY, n INTEGER, ts INTEGER)`);
   },
 
@@ -66,5 +69,27 @@ export const accountMethods = {
     if (!r || !same(await hashPassword(String(pw || ''), r.salt), r.hash)) return { ok: 0, error: 'Mot de passe incorrect.' };
     this.sql.exec(`DELETE FROM accounts WHERE uid = ?`, uid);
     return { ok: 1 };
+  },
+
+  // registre des gains de partie calculés par le serveur (l'appli ne peut pas y toucher)
+  ledger(uid, xp, coins) {
+    this.sql.exec(`INSERT INTO ledger(uid, xp, coins, games, ts) VALUES(?,?,?,1,?) ON CONFLICT(uid) DO UPDATE SET xp = xp + ?, coins = coins + ?, games = games + 1, ts = ?`, uid, xp, coins, Date.now(), xp, coins, Date.now());
+  },
+
+  flagUid(uid, why) {
+    this.sql.exec(`INSERT INTO flags(uid, why, n, ts) VALUES(?,?,1,?) ON CONFLICT(uid) DO UPDATE SET n = n + 1, why = CASE WHEN instr(why, ?) THEN why ELSE why || ', ' || ? END, ts = ?`, uid, why, Date.now(), why, why, Date.now());
+  },
+
+  // l'XP ne vient que des parties (et de petites quêtes) : bien au-dessus de ce que le serveur a vu = progression modifiée
+  auditSave(uid, data) {
+    let o; try { o = JSON.parse(data); } catch { return; }
+    const l = this.sql.exec(`SELECT xp, coins, games FROM ledger WHERE uid = ?`, uid).toArray()[0] || { xp: 0, coins: 0, games: 0 };
+    const xp = +o.xp || 0, st = o.st || {};
+    if (xp > 3 * l.xp + 3000) this.flagUid(uid, `XP ${xp} pour ${l.xp} vus`);
+    if ((+st.games || 0) > l.games + 20) this.flagUid(uid, `parties ${st.games} pour ${l.games} vues`);
+  },
+
+  suspects() {
+    return this.sql.exec(`SELECT uid, why, n, ts FROM flags ORDER BY n DESC, ts DESC LIMIT 100`).toArray().map(r => ({ pk: publicKey(r.uid), why: r.why, n: r.n, ts: r.ts }));
   },
 };

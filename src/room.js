@@ -429,7 +429,7 @@ export class Room extends DurableObject {
     this.round = 0;
     this.dead = false;
     this.gameId = rid(10);
-    for (const p of this.players.values()) Object.assign(p, { score: 0, surv: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, rounds: 0, rt: null, grid: '' });
+    for (const p of this.players.values()) Object.assign(p, { score: 0, surv: 0, streak: 0, best: 0, nT: 0, nA: 0, speed: 0, fast: 0, quick: 0, rounds: 0, rt: null, grid: '' });
     this.played = [...this.played.filter(k => !songs.some(s => s.k === k)), ...songs.map(s => s.k)].slice(-300);
     this.phase = 'countdown';
     this.ends = Date.now() + COUNTDOWN;
@@ -482,6 +482,7 @@ export class Room extends DurableObject {
     // Entrée a sa propre limite : sinon une réponse validée juste après l'envoi automatique de la frappe serait ignorée
     // (et l'appli ne saurait pas qu'il faut effacer une réponse fausse)
     const k = enter ? 'lastE' : 'lastG';
+    if (now < this.cur.start + 500 && !p.bot) return; // aucun humain ne reconnaît un extrait en moins de 0,5 s
     if (now < this.cur.start - 300 || now - (p[k] || 0) < (enter ? 150 : 60)) return;
     p[k] = now;
     const r = judge(text, this.cur.s, enter);
@@ -511,6 +512,7 @@ export class Room extends DurableObject {
       ser = Math.min(5, p.streak - 1);
       const ms = Math.max(0, now - c.start);
       if (!p.fast || ms < p.fast) p.fast = ms;
+      if (ms < 1200 && !p.bot) p.quick = (p.quick || 0) + 1; // réponse en moins de 1,2 s : suspect si ça arrive presque à chaque manche
     }
     p.speed = (p.speed || 0) + bonus;
     const total = (pts + bonus + ser) * (this.opts.intro ? 2 : 1);
@@ -571,6 +573,15 @@ export class Room extends DurableObject {
     if (rows.length && !this.alone) this.hub().addResults(rows).catch(() => {}); // le solo ne compte pas au classement
     // clubs : points des parties publiques et du Hit du jour
     if (rows.length && (this.pub || this.kind === 'daily')) this.hub().clubScore(rows.map(r => ({ uid: r.uid, pts: r.pts })), this.cat, this.pub).catch(() => {});
+    // anti-triche : gains de la partie calculés ici (registre du Hub) et réponses trop rapides signalées
+    const nHum = list.length;
+    for (const p of list) {
+      if (p.bot || !p.rounds || !p.uid) continue;
+      const pod = nHum >= 2 && !this.alone ? list.indexOf(p) + 1 : 99;
+      const xp = 20 + Math.round(p.score / 2) + ({ 1: 25, 2: 15, 3: 10 }[pod] || 0);
+      this.hub().ledger(p.uid, xp, 5 + Math.floor(p.score / 10) + ({ 1: 30, 2: 20, 3: 10 }[pod] || 0)).catch(() => {});
+      if (p.rounds >= 5 && (p.quick || 0) / p.rounds >= 0.8) this.hub().flagUid(p.uid, 'réponses trop rapides').catch(() => {});
+    }
     if (this.opts.duel) this.duelEnd(list);
     if (this.opts.survie) this.survieEnd(list);
     if (this.pub) this.later(PUBLIC_NEXT, () => (this.humans().length ? this.startGame() : this.stop()));
