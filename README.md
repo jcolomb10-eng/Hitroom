@@ -41,7 +41,7 @@ Les extraits de 30 secondes et les pochettes viennent des API publiques de Deeze
 1. Créer un compte gratuit sur <https://dash.cloudflare.com/sign-up>.
 2. Menu **Workers & Pages** → **Créer** → **Importer un dépôt** → connecter GitHub → choisir ce dépôt.
 3. Laisser les réglages proposés (commande de déploiement `npx wrangler deploy`) → **Déployer**.
-4. Le site est en ligne sur `https://hitroom.<ton-sous-domaine>.workers.dev`. Ensuite, chaque modification envoyée sur `main` est publiée automatiquement.
+4. Le site est en ligne sur `https://zikroom.<ton-sous-domaine>.workers.dev`. Ensuite, chaque modification envoyée sur `main` est publiée automatiquement.
 
 Au premier lancement, le catalogue se remplit petit à petit (environ 1 h 30 pour tout vérifier, 15 morceaux par minute). L'état est visible sur `/api/status` et les morceaux introuvables sur `/api/introuvables`.
 

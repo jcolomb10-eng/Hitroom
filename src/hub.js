@@ -35,7 +35,7 @@ function shuffle(a) {
 
 export const season = (d = new Date()) => d.toISOString().slice(0, 7);
 const today = () => new Date().toISOString().slice(0, 10);
-const PUSH_SUBJECT = 'https://hitroom.jcolomb10.workers.dev'; // contact demandé par les services de notification
+const PUSH_SUBJECT = 'https://zikroom.jcolomb10.workers.dev'; // contact demandé par les services de notification
 const DAILY_MSG = { title: '🎯 Tes défis du jour t’attendent', body: 'Des pièces et de l’XP à gagner : une petite partie ?', url: '/?go=defis' };
 const WELCOME_MSG = { title: '🔔 Notifications activées !', body: 'Tu seras prévenu ici de tes défis, des nouvelles saisons et des invitations de tes amis.', url: '/' };
 const SEASON_MSG = { title: '🏆 Nouvelle saison !', body: 'Ta récompense de la saison passée t’attend. Viens grimper les rangs !', url: '/' };
