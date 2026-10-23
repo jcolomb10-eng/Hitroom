@@ -1309,7 +1309,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '2.3';
+const VERSION = '2.4';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1656,6 +1656,20 @@ function fresh() {
     inv: { shield: 0, reroll: 0 }, boost: 0, perks: [], nc: '', vfx: '', favs: [], blocked: [], mates: [], push: null, honors: [],
   };
 }
+// reprise depuis l'ancienne adresse (hitroom…workers.dev) : le Worker de redirection y lit la sauvegarde du téléphone et la passe dans #import=
+try {
+  const m = /[#&]import=([^&]+)/.exec(location.hash);
+  if (m) {
+    const d = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))));
+    let cur = null; try { cur = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { /* illisible */ }
+    if (d.s && (!cur || !cur.name || confirm('Reprendre ta progression de l’ancienne adresse de Zikroom ? (elle remplace celle de ce téléphone)'))) {
+      const o = JSON.parse(d.s); if (o.acct === 'mail') o.acct = 'guest'; // les comptes e-mail de l'ancien serveur n'existent plus : à recréer
+      localStorage.setItem(KEY, JSON.stringify(o)); if (d.d) localStorage.setItem('hitroom.disc', d.d);
+      sessionStorage.setItem('hitroom.imported', '1');
+    }
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+} catch (e) { /* tant pis : on démarre normalement */ }
 let S = fresh();
 try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(fresh(), o, { st: Object.assign(fresh().st, o.st), set: Object.assign(fresh().set, o.set) }); } } catch (e) { /* stockage indisponible */ }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* stockage indisponible */ } scheduleSync(); }
@@ -4463,6 +4477,7 @@ addEventListener('offline', offline);
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js?v=' + VERSION).catch(() => {}));
 
 // ---------- démarrage ----------
+try { if (sessionStorage.getItem('hitroom.imported')) { sessionStorage.removeItem('hitroom.imported'); setTimeout(() => toast('✅ Ta progression a été reprise depuis l’ancienne adresse. Recrée ton compte e-mail dans Paramètres si tu en avais un.', 6000), 800); } } catch (e) { /* ignore */ }
 offline();
 paintIcons();
 paintTicker();
