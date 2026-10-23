@@ -1309,7 +1309,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '2.0';
+const VERSION = '2.0.1';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -4316,7 +4316,7 @@ async function acctSheet(fromLogin) {
   if (st.ok) {
     openSheet(`<h3>Mon compte <button data-close data-i="x"></button></h3>
       <p>Connecté avec <b>${esc(st.email)}</b>. Sur un autre téléphone : « Continuer avec un e-mail » → Se connecter, et tu retrouves toute ta progression.</p>
-      <input id="acPw" type="password" placeholder="Mot de passe (pour supprimer)" autocomplete="current-password" style="width:100%;min-width:0">
+      <input class="txtin" id="acPw" type="password" placeholder="Mot de passe (pour supprimer)" autocomplete="current-password" style="width:100%;min-width:0">
       <button class="ghost" id="acDel" style="width:100%;margin-top:8px">Supprimer mon compte</button>
       <p class="muted" style="font-size:12px">Supprimer le compte te redonne un profil invité sur ce téléphone ; ta progression reste sur l’appareil.</p>`);
     $('#acDel').onclick = async () => {
@@ -4331,10 +4331,11 @@ async function acctSheet(fromLogin) {
   const draw = () => {
     openSheet(`<h3>${mode.v === 'new' ? 'Créer mon compte' : 'Se connecter'} <button data-close data-i="x"></button></h3>
       <p>${mode.v === 'new' ? 'Relie ta progression actuelle à une adresse e-mail : tu ne perds rien et tu pourras la retrouver partout.' : 'Retrouve ta progression sur ce téléphone. Elle remplacera celle de cet appareil.'}</p>
-      <input id="acMail" type="email" placeholder="Adresse e-mail" autocomplete="email" style="width:100%;min-width:0;margin-bottom:8px">
-      <input id="acPw" type="password" placeholder="Mot de passe (8 caractères min.)" autocomplete="${mode.v === 'new' ? 'new-password' : 'current-password'}" style="width:100%;min-width:0">
+      <input class="txtin" id="acMail" type="email" placeholder="Adresse e-mail" autocomplete="email" autocapitalize="off" style="width:100%;min-width:0;margin-bottom:8px">
+      <div style="display:flex;gap:8px"><input class="txtin" id="acPw" type="password" placeholder="Mot de passe (8 caractères min.)" autocomplete="${mode.v === 'new' ? 'new-password' : 'current-password'}" autocapitalize="off" style="flex:1;min-width:0"><button class="ghost" id="acEye" type="button" aria-label="Afficher le mot de passe" style="width:auto;padding:0 14px">👁</button></div>
       <button class="cta lux" id="acGo" style="width:100%;margin-top:12px">${mode.v === 'new' ? 'Créer le compte' : 'Me connecter'}</button>
       <button class="ghost" id="acSw" style="width:100%;margin-top:8px">${mode.v === 'new' ? 'J’ai déjà un compte' : 'Créer un compte'}</button>`);
+    $('#acEye').onclick = () => { const i = $('#acPw'); i.type = i.type === 'password' ? 'text' : 'password'; };
     $('#acSw').onclick = () => { mode.v = mode.v === 'new' ? 'login' : 'new'; draw(); };
     $('#acGo').onclick = async () => {
       const email = $('#acMail').value, pw = $('#acPw').value;
