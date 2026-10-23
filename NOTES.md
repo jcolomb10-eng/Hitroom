@@ -19,3 +19,5 @@
 - **Pub vidéo** (23/10/2026) : `assets-src/pub/` = `ancien-nom-hitroom-pub-final.mp4` (version de l’utilisateur avec l’ancien nom Hitroom, 21 s) + versions faites en code (`zikroom-pub-19s-avec-son.mp4`, `-sans-son.mp4` (nouveau nom Zikroom), rendu image par image, vrais écrans de l'appli).
 
 - **Adresse** (23/10/2026) : nouveau Worker `zikroom` → https://zikroom.jcolomb10.workers.dev (base vide). À faire par l'utilisateur dans Cloudflare : créer le Worker `zikroom` depuis le dépôt, recréer `ADMIN_KEY`, supprimer l'ancien Worker `hitroom` quand il veut. Plus tard : domaine zikroom.app.
+
+- **Mini playlist Facebook** (23/10/2026) : `NODE_PATH=$(npm root -g) node tools/miniplaylist.mjs [--cat 80] [--titre "…"] [--format feed|carre] [--sortie dossier]` → `quiz.mp4` (30 s, 4:5, compte à rebours, spectre sonore), `reponse.png`, `texte.txt`, `jaquette.jpg`. Morceau français au hasard dans le catalogue (60 en « Années 80 »), extrait Deezer. Droits : usage non commercial de Deezer ; Facebook peut couper le son (à l'éditeur de la page de décider).
