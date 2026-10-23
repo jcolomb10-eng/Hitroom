@@ -251,10 +251,23 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .bgvid.dim{opacity:.42}
 /* ---------- connexion ---------- */
 #v-login{padding:0}
-.login-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(60% 26% at 50% 33%,rgba(6,4,8,.72),transparent 75%),linear-gradient(0deg,rgba(6,4,8,.97) 34%,rgba(6,4,8,.2) 62%,transparent 80%)}
 #v-login .mus{position:absolute;z-index:3;top:max(16px,env(safe-area-inset-top));right:16px}
-.login-mid{position:absolute;z-index:2;left:0;right:0;top:25%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:0 24px}
-.login-mid .logo{width:min(290px,76%);filter:drop-shadow(0 0 18px rgba(255,46,147,.75))}
+.login-mid{position:absolute;z-index:2;left:0;right:0;top:15%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:0 24px}
+.login-mid .logo{width:min(360px,94%);margin-bottom:6px;animation:neonOn 2.6s ease-out both,neonPulse 3.6s ease-in-out 2.6s infinite}
+#v-login{background:#0b0610}
+.login-glow{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(75% 40% at 50% 27%,rgba(150,40,170,.55),rgba(60,14,80,.5) 45%,transparent 75%),radial-gradient(90% 50% at 50% 100%,rgba(255,46,147,.14),transparent 70%),linear-gradient(180deg,#1d0a29,#0d0612 70%);animation:glowIn 1.6s ease-out both}
+@keyframes glowIn{from{opacity:0}to{opacity:1}}
+@keyframes neonOn{0%{opacity:0;filter:blur(18px) brightness(.4);transform:perspective(600px) translateY(18px) rotateX(38deg) scale(.86)}
+ 22%{opacity:.55;filter:blur(9px) brightness(.7)}28%{opacity:.15}34%{opacity:.7;filter:blur(5px)}40%{opacity:.25}
+ 55%{opacity:.9;filter:blur(2px) brightness(1.1);transform:perspective(600px) translateY(4px) rotateX(8deg) scale(.98)}
+ 62%{opacity:.6}70%{opacity:1;filter:blur(0) brightness(1.25)}100%{opacity:1;filter:blur(0) brightness(1);transform:none}}
+@keyframes neonPulse{0%,100%{filter:drop-shadow(0 0 10px rgba(255,46,147,.45)) brightness(1)}50%{filter:drop-shadow(0 0 24px rgba(255,46,147,.85)) brightness(1.12)}}
+@keyframes loginUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+.login-mid .sub{animation:loginUp .8s ease-out 1.9s both}
+.login-mid p{animation:loginUp .8s ease-out 2.15s both}
+.login-foot>*{animation:loginUp .7s ease-out both}
+.login-foot>:nth-child(1){animation-delay:2.4s}.login-foot>:nth-child(2){animation-delay:2.55s}.login-foot>:nth-child(3){animation-delay:2.7s}.login-foot>:nth-child(4){animation-delay:2.85s}.login-foot>:nth-child(5){animation-delay:3s}.login-foot>:nth-child(6){animation-delay:3.1s}
+@media (prefers-reduced-motion:reduce){.login-mid .logo,.login-mid .sub,.login-mid p,.login-foot>*,.login-glow{animation:none}}
 .login-mid .sub{font-size:12px;font-weight:600;letter-spacing:5px;color:#efe4fa;text-shadow:0 0 10px rgba(255,46,147,.9)}
 .login-mid p{margin:10px 0 0;max-width:280px;font-size:14px;color:#d6cbe2;text-shadow:0 1px 8px #000}
 .login-foot{position:absolute;z-index:2;left:22px;right:22px;bottom:max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:11px}
@@ -1100,11 +1113,10 @@ svg.med{flex:none;overflow:visible}
 <!-- ===== 1. Accueil ===== -->
 <!-- ===== Connexion (premier lancement) ===== -->
 <section class="view hide" id="v-login">
-  <video class="bgvid" id="loginVid" data-src="/fonds/connexion" poster="/fonds/connexion.webp" muted loop playsinline preload="none"></video>
-  <div class="login-shade"></div>
+  <div class="login-glow"></div>
   <button class="ibtn mus" id="loginMusic"></button>
   <div class="login-mid">
-    <img class="logo" src="/logo.webp" alt="Hitroom">
+    <img class="logo" src="/logo-neon.webp" alt="Hitroom">
     <div class="sub">BLIND TEST EN LIGNE</div>
     <p>Devine le titre et l’artiste avant les autres, en direct.</p>
   </div>
@@ -1295,7 +1307,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.19';
+const VERSION = '1.20';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1684,7 +1696,7 @@ const TAB_VIEWS = ['home', 'defis', 'shop', 'board', 'profile']; // vues avec la
 // vidéos de fond : seulement sur la vue affichée, et pas si le téléphone demande moins d'animations ou d'économiser les données
 const lowPower = () => matchMedia('(prefers-reduced-motion: reduce)').matches || !!navigator.connection?.saveData;
 function bgVideos() {
-  for (const [id, view] of [['loginVid', 'login'], ['homeVid', 'home']]) {
+  for (const [id, view] of [['homeVid', 'home']]) {
     const vd = $('#' + id);
     if (curView === view && !lowPower() && document.visibilityState === 'visible') {
       // MP4 (H.264) d'abord, WebM (VP9) pour les navigateurs sans H.264 ; rien de lisible : l'image fixe reste

@@ -9,3 +9,5 @@
 - Catalogue 1.14 : 9 morceaux introuvables à remplacer ; `ADMIN_KEY` à créer dans Cloudflare.
 
 **Droits des extraits (vérifié le 23/10/2026)** : Deezer (conditions API) = usage strictement non commercial et privé, ni pub ni abonnement, accord préalable de Deezer pour tout autre usage ; Apple (iTunes Search API) = aperçus seulement pour promouvoir le catalogue, pas pour du divertissement, à côté d'un badge vers le magasin. Donc OK en test gratuit, pas pour un lancement public ni du premium : demander l'accord écrit de Deezer ou passer à des extraits sous licence.
+
+- **1.20** (23/10/2026) : ouverture façon « rendu 3D » de l’utilisateur : fond violet sombre + logo néon (`public/logo-neon.webp`, extrait de sa vidéo) qui s’allume, puis textes et boutons qui montent (CSS `neonOn`, `loginUp`) sur la page de connexion, à chaque ouverture. Vidéo de fond de connexion retirée. Reste : `test/e2e-modes.cjs` échoue en solo (lecture `#audio` simulée, ancien problème).

@@ -31,7 +31,7 @@ function client(path, q) {
   await page.goto(BASE + '/');
   await page.waitForSelector('#v-login:not(.hide)');
   ok(await page.$eval('#tabbar', e => e.classList.contains('hide')), 'connexion : affichée au premier lancement, sans barre d’onglets');
-  ok(await until(() => page.$eval('#loginVid', v => !!v.currentSrc && !v.paused), 4000), 'connexion : vidéo de fond en lecture');
+  ok(await until(() => page.$eval('.login-mid .logo', i => i.complete && i.naturalWidth > 0), 4000), 'connexion : logo néon affiché');
   await shot('m01_connexion');
   await page.click('#loginGoogle');
   ok((await page.textContent('#toast')).includes('Bientôt'), 'Continuer avec Google : « bientôt »');
