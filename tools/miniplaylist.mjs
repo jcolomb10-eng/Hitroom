@@ -93,6 +93,7 @@ const html = ({ reveal }) => `<!doctype html><html><head><meta charset="utf-8"><
 #q small{display:block;margin-top:10px;font-size:${H === 1080 ? 32 : 38}px;font-weight:700;color:#ffd85c}
 #cd{position:absolute;right:56px;top:${H === 1080 ? 300 : 360}px;width:118px;height:118px}
 #cd text{font:900 48px 'Inter Display',sans-serif;fill:#fff}
+#snd{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);padding:14px 34px;border-radius:50px;background:linear-gradient(90deg,#ff3cac,#8a5cff);font-size:36px;font-weight:900;letter-spacing:1px;white-space:nowrap;box-shadow:0 0 40px rgba(255,60,172,.7)}
 #foot{position:absolute;left:0;right:0;bottom:34px;text-align:center;font-size:28px;font-weight:700;color:#ffb8e6}
 #cov{position:absolute;left:50%;top:${H === 1080 ? 250 : 300}px;width:${H === 1080 ? 380 : 480}px;height:${H === 1080 ? 380 : 480}px;margin-left:-${H === 1080 ? 190 : 240}px;border-radius:28px;object-fit:cover;box-shadow:0 0 70px rgba(255,60,172,.6);border:4px solid rgba(255,60,172,.85)}
 #ans{position:absolute;left:30px;right:30px;top:${H === 1080 ? 650 : 830}px;text-align:center}
@@ -108,6 +109,7 @@ ${reveal ? `<img id="cov" src="${cover}"><div id="ans"><div class="t">${info.tit
 <div id="disc"><i>🎵</i></div>
 <div id="bars">${'<b></b>'.repeat(NB)}</div>
 <svg id="cd" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="rgba(5,6,15,.8)" stroke="rgba(255,255,255,.18)" stroke-width="8"/><circle id="ring" cx="60" cy="60" r="52" fill="none" stroke="#ff3cac" stroke-width="8" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="326.7" stroke-dashoffset="0"/><text id="num" x="60" y="77" text-anchor="middle">30</text></svg>
+<div id="snd">🔊 ACTIVE LE SON</div>
 <div id="q">Quel est ce titre ?<br>Quel est l'artiste ?<small>Réponds en commentaire 👇</small></div>`}
 <div id="foot">Joue au blind test sur Zikroom · zikroom.jcolomb10.workers.dev</div>
 </div>
@@ -118,6 +120,7 @@ window.render=t=>{const f=Math.min(${DUR * FPS - 1},Math.floor(t*${FPS})),b=docu
   document.getElementById('disc').style.transform='rotate('+(t*90)+'deg) scale('+(1+bass*0.05)+')';
   const left=Math.max(0,${DUR}-t);document.getElementById('num').textContent=Math.ceil(left);
   document.getElementById('ring').setAttribute('stroke-dashoffset',(326.7*(1-left/${DUR})).toFixed(1));
+  const sn=document.getElementById('snd');sn.style.opacity=Math.max(0,Math.min(1,11-t));sn.style.transform='translateX(-50%) scale('+(1+Math.abs(Math.sin(t*5))*0.08)+')';
   const q=document.getElementById('q');q.style.transform='scale('+(1+Math.sin(t*3)*0.012)+')';}
  document.getElementById('logo').style.opacity=1};
 window.ready=true;</script></body></html>`;
@@ -141,7 +144,7 @@ fs.rmSync(framesDir, { recursive: true, force: true }); fs.rmSync(path.join(OUT,
 fs.writeFileSync(path.join(OUT, 'texte.txt'), `PUBLICATION (avec quiz.mp4)
 🎵 MINI PLAYLIST · ${catName} 🇫🇷
 Tu connais ce tube ? 30 secondes pour trouver le titre ET l'artiste !
-👇 Réponds en commentaire, la réponse arrive bientôt.
+🔊 Active le son, puis 👇 réponds en commentaire : la réponse arrive bientôt.
 
 🎧 Tu aimes les blind tests ? Défie tes amis en direct sur Zikroom : https://zikroom.jcolomb10.workers.dev
 (appli gratuite en test, premiers testeurs recherchés 🚧)
