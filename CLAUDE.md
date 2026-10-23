@@ -18,7 +18,9 @@ Propriétaire : jcolomb10-eng (jcolomb10@gmail.com), qui a aussi Prixy. Utilisat
 2. Toujours lancer `npm test` et les tests bout en bout avant d'envoyer.
 3. Commits : auteur `jcolomb10-eng <jcolomb10@gmail.com>`.
 4. Les bots doivent rester signalés (« BOT », 🤖) : ne jamais les faire passer pour de vrais joueurs.
-5. Économie de tokens (demande de l'utilisateur, 22/10/2026) : ne lire que les fichiers nécessaires (demander lequel en cas de doute) ; déléguer tests, journaux et longues recherches à un sous-agent et n'en garder que le résumé ; réponses courtes, sans récapitulatif ; en fin de tâche, mettre à jour `NOTES.md` (fait / reste à faire, 10 lignes max). En cas de compactage : garder seulement les changements de code, les erreurs non résolues et les prochaines étapes.
+5. **Économie de tokens et d'utilisation : priorité permanente** (demande répétée de l'utilisateur, 22 et 23/10/2026, « à retenir pour toujours » ; réponses très courtes, aucune exploration ni test inutile, un seul aller-retour quand c'est possible) : ne lire que les fichiers nécessaires (demander lequel en cas de doute) ; déléguer tests, journaux et longues recherches à un sous-agent et n'en garder que le résumé ; réponses courtes, sans récapitulatif ; en fin de tâche, mettre à jour `NOTES.md` (fait / reste à faire, 10 lignes max). En cas de compactage : garder seulement les changements de code, les erreurs non résolues et les prochaines étapes.
+
+6. **Refonte artistique de Zikroom (23/10/2026)** : d'abord des maquettes (artifacts claude.ai) validées écran par écran, puis code sur une branche `refonte`, jamais dans `main` avant accord ; version d'essai possible via les aperçus Cloudflare (même base de données que la production). L'utilisateur donnera les infos de style.
 
 ## Fonctionnement
 
