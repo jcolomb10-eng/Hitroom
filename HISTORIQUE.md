@@ -90,6 +90,11 @@ Adresse : https://hitroom.jcolomb10.workers.dev
 ## 2.0.1 (23/10/2026)
 - Cases e-mail / mot de passe enfin lisibles (texte blanc sur fond blanc), bouton 👁 pour voir le mot de passe.
 
+## 2.1 (23/10/2026) — Amis et affiliation
+- **Notification « tes amis jouent »** : un ami hors de l'appli est prévenu quand tu lances une partie (1 fois toutes les 3 h au plus, réglable).
+- **Liens affiliés** prêts (Deezer / Apple) : désactivés tant que l'identifiant d'affiliation n'est pas renseigné.
+- Les récompenses de fin de saison pour les meilleurs clubs existaient déjà depuis la 1.18.
+
 ## Pub vidéo (23/10/2026)
 - Vidéo de pub verticale dans `assets-src/pub/` : version finale de l'utilisateur + versions faites en code (avec et sans son).
 
@@ -101,6 +106,6 @@ Adresse : https://hitroom.jcolomb10.workers.dev
 - Après le 30/10 midi : contrôler `/api/introuvables` (morceaux Frissons) ; remplacer les morceaux sans extrait en France.
 - Vrai portefeuille 100 % serveur (médailles, défis, route encore calculés sur l'appareil).
 - Jeton de session pour les routes, « mot de passe oublié ».
-- Idées : notification « tes amis jouent », récompenses de fin de saison pour les clubs, liens affiliés.
+- Affiliation : s'inscrire (Apple Services Performance Partners, et une plateforme pour Deezer), puis renseigner `AFFILIATE`.
 - Droits des extraits : Deezer/Apple = usage non commercial ; accord écrit à demander avant un lancement public ou du premium.
 - Nom de domaine, Play Store (TWA).

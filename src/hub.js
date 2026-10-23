@@ -73,6 +73,7 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS subs(ep TEXT PRIMARY KEY, uid TEXT, pk TEXT, endpoint TEXT, prefs TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS subs_pk ON subs(pk)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS inbox(id INTEGER PRIMARY KEY AUTOINCREMENT, ep TEXT, title TEXT, body TEXT, url TEXT, ts INTEGER)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS fnotes(dst TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS invites(from_pk TEXT, to_pk TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS reports(target TEXT, reporter TEXT, pk TEXT, name TEXT, why TEXT, msgs TEXT, room TEXT, ts INTEGER, PRIMARY KEY(target, reporter))`);
     // version 1.15 : fiche publique des joueurs (pseudo, avatar, présence), amis, demandes, défis en duel, bilans des duels
@@ -456,7 +457,7 @@ export class Hub extends DurableObject {
   async subscribe(uid, endpoint, prefs = {}) {
     if (!/^https:\/\/[^\s]{8,900}$/.test(endpoint || '')) return { ok: 0 };
     const p = {
-      daily: prefs.daily !== false, season: prefs.season !== false, invites: prefs.invites !== false, clubs: prefs.clubs !== false,
+      daily: prefs.daily !== false, season: prefs.season !== false, invites: prefs.invites !== false, clubs: prefs.clubs !== false, friends: prefs.friends !== false,
       blocked: (Array.isArray(prefs.blocked) ? prefs.blocked : []).filter(x => /^[0-9a-f]{12}$/.test(x)).slice(0, 200),
     };
     const ep = await epHash(endpoint);
@@ -684,7 +685,12 @@ export class Hub extends DurableObject {
 
   // l'appli se signale chaque minute : amis en ligne, demandes reçues, défis et invitations en attente, son club
   ping(uid, prof, at) {
-    const pk = this.touch(uid, prof, at || 'menu'), now = Date.now();
+    const before = this.sql.exec(`SELECT at, seen FROM players WHERE uid = ?`, uid).toArray()[0], now = Date.now();
+    const pk = this.touch(uid, prof, at || 'menu');
+    // « tes amis jouent » : on vient d'entrer dans une vraie partie (classé, non classé, salon, duel)
+    const w = this.sql.exec(`SELECT name, at FROM players WHERE uid = ?`, uid).toArray()[0];
+    const live = a => /^(ranked|open|priv|duel):/.test(a || '');
+    if (w && live(w.at) && !(before && live(before.at) && now - before.seen < ONLINE)) this.friendsJoin(pk, w.name, w.at).catch(() => {});
     this.sql.exec(`DELETE FROM chal WHERE ts < ?`, now - CHAL_TTL);
     const on = this.sql.exec(`SELECT p.name, p.av FROM friends f JOIN players p ON p.pk = f.b WHERE f.a = ? AND p.seen > ? ORDER BY p.seen DESC`, pk, now - ONLINE).toArray();
     const c = this.clubOf(uid);
@@ -694,6 +700,22 @@ export class Hub extends DurableObject {
       ch: this.sql.exec(`SELECT c.src AS pk, c.kind, c.code, c.cat, c.ts, p.name, p.av FROM chal c LEFT JOIN players p ON p.pk = c.src WHERE c.dst = ? ORDER BY c.ts DESC LIMIT 5`, pk).toArray(),
       club: c ? { id: c.id, name: c.name, e: c.e, c: c.c } : null,
     };
+  }
+
+  // prévient les amis qui ne sont pas dans l'appli : une fois toutes les 3 h au plus par personne, jamais si bloqué ou coupé
+  async friendsJoin(pk, name, at) {
+    const now = Date.now(), friends = this.sql.exec(`SELECT p.pk, p.seen FROM friends f JOIN players p ON p.pk = f.b WHERE f.a = ?`, pk).toArray();
+    const code = /^(priv|duel):([A-Z0-9]{4})$/.exec(at)?.[2];
+    const msg = { title: `🎧 ${String(name).slice(0, 20)} joue en ce moment`, body: code ? 'Rejoins son salon Hitroom !' : 'Viens jouer avec lui sur Hitroom !', url: code ? `/?salon=${code}` : '/' };
+    this.sql.exec(`DELETE FROM fnotes WHERE ts < ?`, now - 3 * 3600000);
+    for (const f of friends) {
+      if (now - f.seen < ONLINE * 4) continue;                                   // déjà dans l'appli
+      if (this.sql.exec(`SELECT 1 FROM fnotes WHERE dst = ?`, f.pk).toArray().length) continue;
+      const subs = this.sql.exec(`SELECT ep, uid, endpoint, prefs FROM subs WHERE pk = ?`, f.pk).toArray().filter(x => { const p = JSON.parse(x.prefs || '{}'); return p.friends !== false && p.invites !== false && !(p.blocked || []).includes(pk); });
+      if (!subs.length) continue;
+      this.sql.exec(`INSERT INTO fnotes(dst, ts) VALUES(?,?)`, f.pk, now);
+      await this.notifyAll(subs, msg);
+    }
   }
 
   isFriend(a, b) { return !!this.sql.exec(`SELECT 1 FROM friends WHERE a = ? AND b = ?`, a, b).toArray().length; }

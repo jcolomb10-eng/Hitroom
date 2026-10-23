@@ -1309,7 +1309,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '2.0.1';
+const VERSION = '2.1';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -2376,7 +2376,18 @@ function toggleFav(x) {
   save();
   return isFav(x);
 }
-const listenBtn = link => (link ? `<a class="lsn" href="${esc(link)}" target="_blank" rel="noopener">▶ ${/deezer\./.test(link) ? 'Deezer' : 'Apple Music'}</a>` : '');
+// liens affiliés (vides = désactivés) : apple = jeton « at » du programme Apple Services Performance Partners ;
+// deezer = modèle de lien de suivi de ta plateforme d'affiliation, avec {url} à l'endroit du lien Deezer (ex. https://…awin…&ued={url})
+const AFFILIATE = { apple: '', deezer: '' };
+const affOn = () => !!(AFFILIATE.apple || AFFILIATE.deezer);
+function affLink(link) {
+  try {
+    if (/deezer\./.test(link) && AFFILIATE.deezer.includes('{url}')) return AFFILIATE.deezer.replace('{url}', encodeURIComponent(link));
+    if (/apple\.com/.test(link) && AFFILIATE.apple) { const u = new URL(link); u.searchParams.set('at', AFFILIATE.apple); u.searchParams.set('ct', 'hitroom'); return u.toString(); }
+  } catch (e) { /* lien illisible : tel quel */ }
+  return link;
+}
+const listenBtn = link => (link ? `<a class="lsn" href="${esc(affLink(link))}" target="_blank" rel="noopener${affLink(link) !== link ? ' sponsored' : ''}">▶ ${/deezer\./.test(link) ? 'Deezer' : 'Apple Music'}</a>` : '');
 const favBtn = (x, attr = '') => `<button class="fav ${isFav(x) ? 'on' : ''}" ${attr} aria-label="Favori">${isFav(x) ? '❤️' : '🤍'}</button>`;
 const foundLabel = f => (f === 3 ? '✓ tout trouvé' : f === 2 ? '✓ artiste trouvé' : f === 1 ? '✓ titre trouvé' : 'pas trouvé');
 // liste de morceaux avec Écouter et ❤️ ; le cœur se met à jour sur place
@@ -3686,9 +3697,9 @@ function renderIntroBtn() {
 }
 
 // ---------- notifications (service worker : public/sw.js ; serveur : Hub, push.js) ----------
-const PUSH_PREFS = [['daily', '🎯', 'Rappel des défis du jour', 'en fin de journée, seulement si tu n’as pas encore joué'],
+const PUSH_PREFS = [['friends', '🎧', 'Tes amis jouent', 'quand un ami lance une partie (au plus une fois toutes les 3 h)'], ['daily', '🎯', 'Rappel des défis du jour', 'en fin de journée, seulement si tu n’as pas encore joué'],
   ['clubs', '🛡️', 'Clubs et événements', 'événement du week-end, club proche de passer devant'], ['season', '🏆', 'Nouvelle saison', 'le 1er du mois, avec ta récompense'], ['invites', '📨', 'Invitations, défis et demandes d’amis', 'de tes amis et partenaires de jeu']];
-const pushPrefs = () => ({ daily: true, season: true, invites: true, clubs: true, ...(S.push?.prefs || {}), blocked: (S.blocked || []).map(b => b.pk) });
+const pushPrefs = () => ({ daily: true, season: true, invites: true, clubs: true, friends: true, ...(S.push?.prefs || {}), blocked: (S.blocked || []).map(b => b.pk) });
 const pushReady = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const keyBytes = k => Uint8Array.from(atob(k.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - k.length % 4) % 4)), c => c.charCodeAt(0));
@@ -4359,6 +4370,7 @@ function legalSheet() {
   openSheet(`<h3>Mentions légales <button data-close data-i="x"></button></h3><div class="legal">
     <h4>Éditeur</h4><p>Hitroom est édité à titre non professionnel par un particulier (pseudonyme : jcolomb10-eng), qui en est le directeur de la publication. Conformément à l’article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), son identité est communiquée à l’hébergeur.${LEGAL_CONTACT ? `<br>Contact : ${esc(LEGAL_CONTACT)}` : ''}</p>
     <h4>Hébergement</h4><p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis — cloudflare.com.</p>
+    ${affOn() ? '<h4>Liens affiliés</h4><p>Les boutons « Écouter sur Deezer / Apple Music » peuvent être des liens affiliés : si tu t’abonnes ou achètes après un clic, Hitroom peut toucher une commission, sans coût pour toi.</p>' : ''}
     <h4>Propriété intellectuelle</h4><p>Le nom Hitroom, le logo, les graphismes (avatars, cadres, fonds), le code de l’application appartiennent à l’éditeur : toute reproduction sans autorisation est interdite. Musiques d’ambiance : « Downtempo Modern Background » (ED Music Productions) et « Chill Deep House » (Kulakovka), sous licence Pixabay.</p>
     <p>Les extraits musicaux de 30 secondes et les pochettes sont fournis par les interfaces publiques de Deezer et d’Apple Music. Les titres, artistes et pochettes appartiennent à leurs ayants droit. Hitroom n’est affilié ni à Deezer ni à Apple ; un lien permet d’écouter chaque morceau en entier sur la plateforme.</p>
     <h4>Données personnelles</h4><p>Hitroom enregistre ton pseudo, ton avatar, un identifiant aléatoire, ton niveau, tes scores, ton rang, tes amis, ton club et tes résultats du Hit du jour, sur ton appareil (stockage local du navigateur) et sur les serveurs de l’hébergeur pour faire fonctionner les salons, les classements, les amis, les clubs et le code de sauvegarde. Aucun cookie publicitaire, aucun suivi publicitaire : seules des statistiques de fréquentation anonymes sont comptées. Les notifications ne sont envoyées que si tu les actives. Ne mets aucune information personnelle dans ton pseudo ou dans le chat.</p>
