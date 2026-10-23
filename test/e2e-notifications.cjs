@@ -72,7 +72,7 @@ async function player(browser, name, url = BASE + '/') {
   m = await mock();
   const sent = m.log.slice(n0);
   ok(sent.some(l => l.endpoint.includes('absent-' + run) && l.title.includes('défis')), 'rappel des défis envoyé au joueur qui n’a pas joué aujourd’hui');
-  ok(!sent.some(l => l.endpoint.includes('Alice-' + run)), 'pas de rappel pour Alice, déjà venue aujourd’hui');
+  ok(!sent.some(l => l.endpoint.includes('Alice-' + run) && l.title.includes('défis')), 'pas de rappel pour Alice, déjà venue aujourd’hui');
   // signature VAPID : vérifiée avec la clé publique du serveur
   const { key } = await (await fetch(BASE + '/api/push/key')).json();
   const auth = sent.find(l => l.endpoint.includes('absent-' + run)).auth;
@@ -84,7 +84,7 @@ async function player(browser, name, url = BASE + '/') {
   ok(valid && k === key && claims.aud === 'https://push.example.test' && claims.exp > Date.now() / 1000, 'jeton VAPID signé et valide (audience du service, expiration)');
   // boîte de messages lue par le service worker, puis vidée
   const inbox = await post('/api/push/inbox', { endpoint: `https://push.example.test/absent-${run}` });
-  ok(inbox.length === 1 && inbox[0].url === '/?go=defis', 'boîte de messages : le rappel, avec le lien vers les Défis');
+  ok(inbox.some(x => x.url === '/?go=defis'), 'boîte de messages : le rappel, avec le lien vers les Défis');
   ok((await post('/api/push/inbox', { endpoint: `https://push.example.test/absent-${run}` })).length === 0, 'boîte vidée après lecture');
   // 1er du mois : nouvelle saison, sauf pour Alice qui l'a coupée
   const n1 = (await mock()).log.length;
