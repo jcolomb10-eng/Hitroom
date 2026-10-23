@@ -105,6 +105,14 @@ export default {
     // événement du week-end, tournoi, mode Survie
     if (path === '/api/event') return json(await hub(env).eventInfo(cleanUid(url.searchParams.get('uid'))));
     if (path === '/api/survie') return json(await hub(env).survieBoard(String(url.searchParams.get('cat') || 'mix').replace(/[^a-z0-9+]/g, '').slice(0, 30), cleanUid(url.searchParams.get('uid'))));
+    if (path === '/api/account' && req.method === 'POST') {
+      const b = await body(req) || {}, uid = cleanUid(b.uid);
+      if (b.act === 'register') return json(await hub(env).acctRegister(uid, b.email, b.pw));
+      if (b.act === 'login') return json(await hub(env).acctLogin(b.email, b.pw));
+      if (b.act === 'delete') return json(await hub(env).acctDelete(uid, b.pw));
+      return json({ ok: 0 }, 400);
+    }
+    if (path === '/api/account') return json(await hub(env).acctStatus(cleanUid(url.searchParams.get('uid'))));
     if (path === '/api/save') {
       const code = (url.searchParams.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
       if (req.method === 'POST') {

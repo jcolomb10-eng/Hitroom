@@ -14,6 +14,7 @@ import { norm } from './match.js';
 import { parisDay, dayAdd, hitNumber, hitCandidates, seededRnd, streaks, friendCode, HIT_N, ONLINE, AT_RE,
   CLUB_MAX, CLUB_EMBLEMS, CLUB_COLORS, clubId } from './social.js';
 import { extraMethods, eventState } from './extras.js';
+import { accountMethods } from './accounts.js';
 
 const DAY = 86400000;
 const FRESH = 30 * DAY;      // au-delà, on rafraîchit en tâche de fond
@@ -55,6 +56,7 @@ export class Hub extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS ranks(uid TEXT, sc TEXT, rp INTEGER, best INTEGER, games INTEGER, wins INTEGER, name TEXT, av TEXT, fr TEXT, PRIMARY KEY(uid, sc))`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS ranks_rp ON ranks(sc, rp DESC)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS rewards(uid TEXT, sc TEXT, tier INTEGER, claimed INTEGER, PRIMARY KEY(uid, sc))`);
+    this.acctInit();
     this.sql.exec(`CREATE TABLE IF NOT EXISTS saves(code TEXT PRIMARY KEY, uid TEXT, data TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS shields(uid TEXT, day TEXT, PRIMARY KEY(uid, day))`);
@@ -427,6 +429,7 @@ export class Hub extends DurableObject {
 
   loadProgress(code) {
     const row = this.sql.exec(`SELECT uid, data, ts FROM saves WHERE code = ?`, code).toArray()[0];
+    if (row && this.isBound(row.uid)) return { ok: 0, locked: 1 }; // compte : on se connecte avec l'e-mail, pas avec le code
     return row ? { ok: 1, uid: row.uid, data: row.data, ts: row.ts } : { ok: 0 };
   }
 
@@ -974,4 +977,4 @@ export class Hub extends DurableObject {
     }
   }
 }
-Object.assign(Hub.prototype, extraMethods);
+Object.assign(Hub.prototype, extraMethods, accountMethods);
