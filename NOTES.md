@@ -16,4 +16,4 @@
 
 - **2.0 étape 2** : anti-triche serveur, portefeuille borné, connexion Google (à activer : créer `GOOGLE_CLIENT_ID`), e2e-multijoueur réparé (état local périmé). Reste : page Confidentialité RGPD, jeton de session, vrai portefeuille 100 % serveur.
 
-- **Pub vidéo** (23/10/2026) : `assets-src/pub/` = `hitroom-pub-final.mp4` (version finale de l'utilisateur, 1080×1920, 21 s, avec son) + versions faites en code (`hitroom-pub-19s-avec-son.mp4`, `-sans-son.mp4`, rendu image par image, vrais écrans de l'appli).
+- **Pub vidéo** (23/10/2026) : `assets-src/pub/` = `ancien-nom-hitroom-pub-final.mp4` (version de l’utilisateur avec l’ancien nom Hitroom, 21 s) + versions faites en code (`zikroom-pub-19s-avec-son.mp4`, `-sans-son.mp4` (nouveau nom Zikroom), rendu image par image, vrais écrans de l'appli).
