@@ -180,7 +180,7 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
     const a = await answer();
     await page.fill('#guessIn', a.title);
     await page.press('#guessIn', 'Enter');
-    await sleep(200);
+    await sleep(700);
     await page.fill('#guessIn', a.artist);
     await page.press('#guessIn', 'Enter');
   }
@@ -192,17 +192,17 @@ const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` });
   const bot = await page.$$eval('#endFull .rr', rs => rs.map(r => r.outerHTML).find(h => h.includes('🤖')) || '');
   ok(/\/av\/A\d\d\.webp/.test(bot), 'bot : avatar classique en image, toujours marqué 🤖');
 
-  // choix de l'avatar : 42 avatars, rares et légendaires verrouillés tant qu'ils ne sont pas obtenus
+  // choix de l'avatar : 44 avatars, rares et légendaires verrouillés tant qu'ils ne sont pas obtenus
   await page.click('#endHome');
   await page.waitForSelector('#v-home:not(.hide)');
   await page.click('#homeAv');
   await page.click('#profAv');
   await sleep(1200);
   const grid = await page.$$eval('#sheetBox .avgrid button', bs => bs.map(b => ({ av: b.dataset.av, lock: b.classList.contains('lock'), ok: b.querySelector('img').naturalWidth > 0 })));
-  ok(grid.length === 42 && grid.every(g => g.ok), `choix de l’avatar : ${grid.length} avatars, images chargées`);
+  ok(grid.length === 44 && grid.every(g => g.ok), `choix de l’avatar : ${grid.length} avatars, images chargées`);
   // l'offre du jour peut avoir été un avatar légendaire : on compare avec ce que le joueur possède vraiment
   const avs = (await state()).avs, locked = grid.filter(g => g.lock).map(g => g.av);
-  const expected = grid.filter(g => /^[RL]/.test(g.av) && !avs.includes(g.av)).map(g => g.av);
+  const expected = grid.filter(g => /^[RLH]/.test(g.av) && !avs.includes(g.av)).map(g => g.av);
   ok(avs.includes('R07') && locked.length >= 11 + 4 && locked.join() === expected.join(), `rares et légendaires non obtenus verrouillés : ${locked.length} (déjà obtenus : ${avs.join(', ')})`);
   await shot(page, 'b10_choix_avatar');
   await page.click('#sheetBox [data-av="R03"]');
