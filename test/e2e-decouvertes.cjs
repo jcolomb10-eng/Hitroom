@@ -32,7 +32,7 @@ const errors = [];
   for (let round = 1; round <= 5; round++) {
     await page.waitForFunction(r => document.querySelector('#gameTitle').innerText.includes(`Manche ${r}/`) &&
       document.querySelector('#reveal').classList.contains('hide') && document.querySelector('#gOverlay').classList.contains('hide'), round, { timeout: 40000 });
-    await sleep(900);
+    await sleep(1800);
     const m = (await page.$eval('#audio', a => a.src)).match(/__mock\/a\/(.+)\.wav/);
     const [artist, title] = decodeURIComponent(m[1]).split('|');
     if (round !== 2) { await page.fill('#guessIn', title); await page.press('#guessIn', 'Enter'); await sleep(150); }
