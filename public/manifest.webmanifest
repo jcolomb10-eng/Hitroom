@@ -1,6 +1,6 @@
 {
-  "name": "Hitroom — Blind test en ligne",
-  "short_name": "Hitroom",
+  "name": "Zikroom — Blind test en ligne",
+  "short_name": "Zikroom",
   "description": "Blind test musical en direct avec tes amis : devine l'artiste et le titre avant les autres.",
   "start_url": "/",
   "display": "standalone",

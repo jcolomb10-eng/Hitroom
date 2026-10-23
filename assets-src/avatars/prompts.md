@@ -1,4 +1,4 @@
-# Avatars Hitroom : prompts pour Google Flow
+# Avatars Zikroom : prompts pour Google Flow
 
 Format carré 1:1, fond noir uni (rendu transparent à l'intégration, comme les cadres). Un prompt complet par avatar, prêt à coller.
 

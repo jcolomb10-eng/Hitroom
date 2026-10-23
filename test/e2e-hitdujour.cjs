@@ -118,7 +118,7 @@ async function playWs(c, rounds = 5) {
   // 3. partage façon Wordle
   await page.click('#hitShare');
   const shared = await page.evaluate(() => window.__shared.map(s => s.text));
-  ok(shared.length === 1 && new RegExp(`^Hitroom #${N} 🎵🎤🎵⬛🎵\\n🏆 ${score} pts`).test(shared[0]) && shared[0].includes('/?hit'), `partage : « ${(shared[0] || '').split('\n').join(' / ')} »`);
+  ok(shared.length === 1 && new RegExp(`^Zikroom #${N} 🎵🎤🎵⬛🎵\\n🏆 ${score} pts`).test(shared[0]) && shared[0].includes('/?hit'), `partage : « ${(shared[0] || '').split('\n').join(' / ')} »`);
   await page.click('#endNew');
   ok((await page.evaluate(() => window.__shared.length)) === 2, 'bouton Partager en bas de l’écran');
 

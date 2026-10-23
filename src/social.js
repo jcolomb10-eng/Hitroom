@@ -7,7 +7,7 @@ const DAY = 86400000;
 // le jour change à minuit heure de Paris, pour tout le monde en même temps (mêmes extraits pour tous)
 export const parisDay = (d = new Date()) => d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
 export const dayAdd = (day, n) => new Date(Date.parse(day + 'T12:00:00Z') + n * DAY).toISOString().slice(0, 10);
-// numéro affiché (« Hitroom #42 ») : le 22 octobre 2026 est le n° 1
+// numéro affiché (« Zikroom #42 ») : le 22 octobre 2026 est le n° 1
 export const HIT_EPOCH = '2026-10-21';
 export const hitNumber = day => Math.round((Date.parse(day + 'T12:00:00Z') - Date.parse(HIT_EPOCH + 'T12:00:00Z')) / DAY);
 export const HIT_N = 5;      // extraits par jour

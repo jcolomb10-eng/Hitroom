@@ -1,4 +1,4 @@
-# Hitroom
+# Zikroom
 
 Blind test musical **multijoueur en direct**, dans l'esprit de QuiChante : tout le monde entend le même extrait au même moment, le premier qui tape l'artiste ou le titre marque le plus de points.
 
@@ -7,7 +7,7 @@ Blind test musical **multijoueur en direct**, dans l'esprit de QuiChante : tout 
 - **Créer un salon** : partie amicale (sans points de rang) avec un code de 4 caractères et un lien à partager. L'hôte choisit la catégorie, le nombre de manches, la durée des extraits, le nombre et le niveau des bots.
 - Réponses : le titre ou l'artiste **en entier** ; petites fautes acceptées en appuyant sur Entrée.
 - **Rejoindre un salon** : avec le code.
-- **Hit du jour** : chaque jour, les 5 mêmes extraits pour tout le monde, un seul essai, et un résultat à partager façon Wordle (« Hitroom #42 🎵🎤🎵⬛🎵 »), avec classement du jour et série de jours.
+- **Hit du jour** : chaque jour, les 5 mêmes extraits pour tout le monde, un seul essai, et un résultat à partager façon Wordle (« Zikroom #42 🎵🎤🎵⬛🎵 »), avec classement du jour et série de jours.
 - **Amis** : code ami, demandes, qui est en ligne et où il joue, rejoindre son salon, **duel en 1 contre 1** avec bilan des victoires.
 - **Clubs** : rejoindre ou créer une équipe (30 membres) ; les points des membres en parties publiques et au Hit du jour s'additionnent pour le classement des clubs de la saison.
 - Classement en direct, chat, séries, bonus de rapidité, classement mensuel, défis du jour et de saison, niveaux, pièces, boutique de cadres et de thèmes.

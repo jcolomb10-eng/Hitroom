@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#060408">
-<title>Hitroom — Blind test musical en ligne</title>
+<title>Zikroom — Blind test musical en ligne</title>
 <meta name="description" content="Blind test musical en direct : rejoins un salon, devine l'artiste et le titre avant les autres. Gratuit, avec tes amis ou des joueurs du monde entier.">
-<meta property="og:title" content="Hitroom — Blind test en ligne">
+<meta property="og:title" content="Zikroom — Blind test en ligne">
 <meta property="og:description" content="Devine l'artiste et le titre avant les autres, en direct avec tes amis.">
 <meta property="og:image" content="/icon-512.png">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -1102,7 +1102,7 @@ svg.med{flex:none;overflow:visible}
 <!-- ===== Bienvenue (premier lancement) ===== -->
 <section class="view hide" id="v-onb">
   <div class="scroll"><div class="onb">
-    <img src="/logo.webp" alt="Hitroom">
+    <img src="/logo.webp" alt="Zikroom">
     <div class="muted" style="letter-spacing:4px;font-size:12px">BLIND TEST EN LIGNE</div>
     <h2 style="margin:26px 0 6px">Bienvenue !</h2>
     <p class="muted" style="margin:0 0 16px;font-size:14px">Choisis ton pseudo et ton avatar.<br>Les autres joueurs les verront pendant les parties.</p>
@@ -1118,7 +1118,7 @@ svg.med{flex:none;overflow:visible}
   <div class="login-glow"></div>
   <button class="ibtn mus" id="loginMusic"></button>
   <div class="login-mid">
-    <div class="logo"><div class="lg-ic"><img class="lg-icon" src="/logo-icon.webp" alt="Hitroom"><i class="lg-spark"></i></div><img class="lg-word" src="/logo-word.webp" alt=""></div>
+    <div class="logo"><div class="lg-ic"><img class="lg-icon" src="/logo-icon.webp" alt="Zikroom"><i class="lg-spark"></i></div><img class="lg-word" src="/logo-word.webp" alt=""></div>
     <div class="sub">BLIND TEST EN LIGNE</div>
     <p>Devine le titre et l’artiste avant les autres, en direct.</p>
   </div>
@@ -1159,7 +1159,7 @@ svg.med{flex:none;overflow:visible}
       <button class="mode small social" id="bFriends"><span class="sav" id="friAvs"></span><i class="badge hide" id="friDot"></i><span class="eb">SOCIAL</span><b>Mes amis</b><span class="d" id="friLine">Ajoute tes amis et défie-les en duel</span><span class="live off" id="friLive"><i></i>Personne en ligne</span></button>
       <button class="mode small club" id="bClub"><span class="cbtop" id="clubPic"></span><span class="eb">ÉQUIPE</span><b id="clubTile">Clubs</b><span class="d" id="clubLine">Rejoins une équipe et grimpez ensemble</span></button>
     </div>
-    <a class="card dsc" id="homeDiscord" href="https://discord.gg/B7UfPwan5j" target="_blank" rel="noopener"><span class="e">💬</span><span><b>Rejoins la communauté Hitroom</b><small>Discord : retours, idées, événements et joueurs</small></span><span class="chev">›</span></a>
+    <a class="card dsc" id="homeDiscord" href="https://discord.gg/B7UfPwan5j" target="_blank" rel="noopener"><span class="e">💬</span><span><b>Rejoins la communauté Zikroom</b><small>Discord : retours, idées, événements et joueurs</small></span><span class="chev">›</span></a>
   </div></div>
 </section>
 
@@ -1309,7 +1309,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '2.1';
+const VERSION = '2.2';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1927,7 +1927,7 @@ function openWs() {
   ws.onclose = ev => {
     if (R.ws !== ws || R.closing) return;
     if (ev.code === 4001) return;
-    if (ev.code === 4000) { toast('Tu as ouvert Hitroom ailleurs : ce salon continue là-bas.'); leaveRoom(true); return; }
+    if (ev.code === 4000) { toast('Tu as ouvert Zikroom ailleurs : ce salon continue là-bas.'); leaveRoom(true); return; }
     netbar('Connexion perdue… reconnexion');
     const delay = Math.min(8000, 800 * 2 ** R.retry++);
     if (R.retry > 7) { toast('Impossible de se reconnecter. Vérifie ta connexion.'); leaveRoom(true); return; }
@@ -2383,7 +2383,7 @@ const affOn = () => !!(AFFILIATE.apple || AFFILIATE.deezer);
 function affLink(link) {
   try {
     if (/deezer\./.test(link) && AFFILIATE.deezer.includes('{url}')) return AFFILIATE.deezer.replace('{url}', encodeURIComponent(link));
-    if (/apple\.com/.test(link) && AFFILIATE.apple) { const u = new URL(link); u.searchParams.set('at', AFFILIATE.apple); u.searchParams.set('ct', 'hitroom'); return u.toString(); }
+    if (/apple\.com/.test(link) && AFFILIATE.apple) { const u = new URL(link); u.searchParams.set('at', AFFILIATE.apple); u.searchParams.set('ct', 'zikroom'); return u.toString(); }
   } catch (e) { /* lien illisible : tel quel */ }
   return link;
 }
@@ -2613,8 +2613,8 @@ function shareLink() {
   const code = R.st?.code;
   if (!code) return;
   const url = `${location.origin}/?salon=${code}`;
-  const text = `Viens jouer au blind test avec moi sur Hitroom ! 🎵 Code du salon : ${code}`;
-  if (navigator.share) navigator.share({ title: 'Hitroom', text, url }).catch(() => {});
+  const text = `Viens jouer au blind test avec moi sur Zikroom ! 🎵 Code du salon : ${code}`;
+  if (navigator.share) navigator.share({ title: 'Zikroom', text, url }).catch(() => {});
   else copy(`${text}\n${url}`, 'Lien d’invitation copié !');
 }
 function hostSettings() {
@@ -3013,7 +3013,7 @@ function inviteSheet(mates, friends = []) {
   const all = [...friends, ...mates];
   openSheet(`<h3>Inviter des amis <button data-close data-i="x"></button></h3>
     <button class="cta" id="invShare"><span data-i="share"></span>Partager le lien du salon</button>
-    ${friends.length ? `<h4 class="psec" style="margin:18px 0 8px">Mes amis</h4><p style="margin-top:0">Ils voient l’invitation dans Hitroom (et en notification s’ils l’ont activée).</p>
+    ${friends.length ? `<h4 class="psec" style="margin:18px 0 8px">Mes amis</h4><p style="margin-top:0">Ils voient l’invitation dans Zikroom (et en notification s’ils l’ont activée).</p>
     <div class="list">${friends.map((m, i) => row(m, i)).join('')}</div>` : ''}
     ${mates.length ? `<h4 class="psec" style="margin:18px 0 8px">Tes partenaires de jeu</h4>
     <p style="margin-top:0">Ils reçoivent une notification s’ils l’ont activée.</p>
@@ -3033,7 +3033,7 @@ function onInvited(m) {
 }
 
 // ---------- Hit du jour (version 1.15) : les 5 mêmes extraits pour tout le monde chaque jour, un seul essai ----------
-// le jour change à minuit heure de Paris (src/social.js) ; résultat à partager façon Wordle : « Hitroom #42 🎵🎵⬛🎤🎵 »
+// le jour change à minuit heure de Paris (src/social.js) ; résultat à partager façon Wordle : « Zikroom #42 🎵🎵⬛🎤🎵 »
 const HIT_EMO = ['⬛', '💿', '🎤', '🎵']; // par extrait : raté, titre seul, artiste seul, titre et artiste
 const hitGrid = (grid, n = 5) => Array.from({ length: n }, (_, i) => HIT_EMO[+String(grid || '')[i] || 0]).join('');
 // dans l'appli : chaque case sur un fond de couleur (vert : tout trouvé, orange : à moitié), le 🎵 se voit mieux
@@ -3132,7 +3132,7 @@ async function hitSheet() {
 }
 function hitShare(h) {
   if (!h) return;
-  const text = `Hitroom #${h.n} ${hitGrid(h.grid)}\n🏆 ${h.score} pts${h.streak > 1 ? ` · 🔥 ${h.streak} jours de suite` : ''}\n${location.origin}/?hit`;
+  const text = `Zikroom #${h.n} ${hitGrid(h.grid)}\n🏆 ${h.score} pts${h.streak > 1 ? ` · 🔥 ${h.streak} jours de suite` : ''}\n${location.origin}/?hit`;
   if (navigator.share) navigator.share({ text }).catch(() => {});
   else copy(text, '📋 Résultat copié : colle-le dans tes messages !');
 }
@@ -3293,8 +3293,8 @@ function renderFriends() {
     $('#fcGo').onclick = async () => { if (inp.value.length !== 6) return toast('Le code ami fait 6 caractères.'); if ((await addFriend({ fc: inp.value }))?.ok) inp.value = ''; };
     $('#fcCopy').onclick = () => copy(FR.code, 'Code ami copié !');
     $('#fcShare').onclick = () => {
-      const text = `Ajoute-moi en ami sur Hitroom 🎵 Mon code ami : ${FR.code}`, url = `${location.origin}/?ami=${FR.code}`;
-      if (navigator.share) navigator.share({ title: 'Hitroom', text, url }).catch(() => {}); else copy(`${text}\n${url}`, 'Lien copié !');
+      const text = `Ajoute-moi en ami sur Zikroom 🎵 Mon code ami : ${FR.code}`, url = `${location.origin}/?ami=${FR.code}`;
+      if (navigator.share) navigator.share({ title: 'Zikroom', text, url }).catch(() => {}); else copy(`${text}\n${url}`, 'Lien copié !');
     };
     $$('#friBody [data-mate]').forEach(b => b.onclick = async () => { b.disabled = true; await addFriend({ pk: mates[+b.dataset.mate].pk }); });
   } else {
@@ -3423,8 +3423,8 @@ function clubPage(d) {
   if ($('#clubAll')) $('#clubAll').onclick = () => { clubShown = null; if (S.club) clubDiscover(null); else renderClub(); };
   if ($('#clubJoin')) $('#clubJoin').onclick = () => joinClub(d.id, d.name);
   if ($('#clubInv')) $('#clubInv').onclick = () => {
-    const text = `Rejoins mon club « ${d.name} » sur Hitroom ! 🛡️🎵`, url = `${location.origin}/?club=${d.id}`;
-    if (navigator.share) navigator.share({ title: 'Hitroom', text, url }).catch(() => {}); else copy(`${text}\n${url}`, 'Lien d’invitation copié !');
+    const text = `Rejoins mon club « ${d.name} » sur Zikroom ! 🛡️🎵`, url = `${location.origin}/?club=${d.id}`;
+    if (navigator.share) navigator.share({ title: 'Zikroom', text, url }).catch(() => {}); else copy(`${text}\n${url}`, 'Lien d’invitation copié !');
   };
   if ($('#clubEdit')) $('#clubEdit').onclick = () => clubEditSheet(d);
   if ($('#clubLeave')) $('#clubLeave').onclick = async () => {
@@ -3737,12 +3737,12 @@ function notifSheet() {
   const on = !!S.push?.on && pushReady() && Notification.permission === 'granted';
   let why = '';
   if (!pushReady()) why = isIOS() && !navigator.standalone
-    ? 'Sur iPhone et iPad, ajoute d’abord Hitroom à ton écran d’accueil (bouton Partager, puis « Sur l’écran d’accueil »), ouvre-le depuis son icône et reviens ici.'
+    ? 'Sur iPhone et iPad, ajoute d’abord Zikroom à ton écran d’accueil (bouton Partager, puis « Sur l’écran d’accueil »), ouvre-le depuis son icône et reviens ici.'
     : 'Ce navigateur ne sait pas recevoir de notifications. Essaie avec Chrome, Firefox, Edge ou Safari à jour.';
-  else if (Notification.permission === 'denied') why = 'Les notifications sont bloquées pour Hitroom. Autorise-les dans les réglages du navigateur (le cadenas à côté de l’adresse), puis reviens ici.';
+  else if (Notification.permission === 'denied') why = 'Les notifications sont bloquées pour Zikroom. Autorise-les dans les réglages du navigateur (le cadenas à côté de l’adresse), puis reviens ici.';
   const p = pushPrefs();
   openSheet(`<h3>Notifications <button data-close data-i="x"></button></h3>
-    <p>Hitroom te prévient au bon moment, jamais plus d’une fois par jour (sauf les invitations de tes amis).</p>
+    <p>Zikroom te prévient au bon moment, jamais plus d’une fois par jour (sauf les invitations de tes amis).</p>
     ${PUSH_PREFS.map(([k, e, l, d]) => `<div class="card set" style="margin-bottom:8px"><span class="e">${e}</span><span>${l}<br><small class="muted">${d}</small></span><button class="tg ${p[k] ? 'on' : ''}" data-np="${k}" aria-label="${l}"></button></div>`).join('')}
     ${why ? `<p class="note">${why}</p>` : `<button class="${on ? 'ghost' : 'cta'}" id="notifGo" style="width:100%;margin-top:6px">${on ? 'Désactiver les notifications' : '🔔 Activer les notifications'}</button>`}`);
   $$('#sheetBox [data-np]').forEach(b => b.onclick = () => {
@@ -4227,7 +4227,7 @@ function renderSettings() {
     <button class="card li" id="legalBtn"><span class="e">⚖️</span><span>Mentions légales</span><span class="chev">›</span></button>
     <button class="card li" id="rulesBtn"><span class="e">❓</span><span>Comment jouer ?</span><span class="chev">›</span></button>
     <button class="card li" id="resetBtn"><span class="e">🗑️</span><span>Effacer mes données</span><span class="chev">›</span></button>
-    <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Hitroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
+    <p class="muted" style="font-size:12px;text-align:center;line-height:1.6">Zikroom ${VERSION} • Extraits de 30 secondes fournis par Deezer et Apple Music (iTunes).<br>Ta progression est enregistrée sur cet appareil.</p>`;
   $$('[data-tg]').forEach(b => b.onclick = () => { S.set[b.dataset.tg] = !S.set[b.dataset.tg]; save(); b.classList.toggle('on', S.set[b.dataset.tg]); unlock(); ambUpdate(); paintMusic(); applyComfort(); });
   $$('#fsSeg [data-fs]').forEach(b => b.onclick = () => { S.set.fs = +b.dataset.fs; save(); applyComfort(); $$('#fsSeg [data-fs]').forEach(x => x.classList.toggle('on', x === b)); });
   $('#volIn').oninput = e => { S.set.vol = +e.target.value; audio.volume = S.set.vol; save(); for (const k of [0, 1]) if (amb.gain[k] && amb.cur === k) amb.gain[k].gain.value = ambLevel(); };
@@ -4368,12 +4368,12 @@ async function acctSheet(fromLogin) {
 const LEGAL_CONTACT = '';
 function legalSheet() {
   openSheet(`<h3>Mentions légales <button data-close data-i="x"></button></h3><div class="legal">
-    <h4>Éditeur</h4><p>Hitroom est édité à titre non professionnel par un particulier (pseudonyme : jcolomb10-eng), qui en est le directeur de la publication. Conformément à l’article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), son identité est communiquée à l’hébergeur.${LEGAL_CONTACT ? `<br>Contact : ${esc(LEGAL_CONTACT)}` : ''}</p>
+    <h4>Éditeur</h4><p>Zikroom est édité à titre non professionnel par un particulier (pseudonyme : jcolomb10-eng), qui en est le directeur de la publication. Conformément à l’article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), son identité est communiquée à l’hébergeur.${LEGAL_CONTACT ? `<br>Contact : ${esc(LEGAL_CONTACT)}` : ''}</p>
     <h4>Hébergement</h4><p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis — cloudflare.com.</p>
-    ${affOn() ? '<h4>Liens affiliés</h4><p>Les boutons « Écouter sur Deezer / Apple Music » peuvent être des liens affiliés : si tu t’abonnes ou achètes après un clic, Hitroom peut toucher une commission, sans coût pour toi.</p>' : ''}
-    <h4>Propriété intellectuelle</h4><p>Le nom Hitroom, le logo, les graphismes (avatars, cadres, fonds), le code de l’application appartiennent à l’éditeur : toute reproduction sans autorisation est interdite. Musiques d’ambiance : « Downtempo Modern Background » (ED Music Productions) et « Chill Deep House » (Kulakovka), sous licence Pixabay.</p>
-    <p>Les extraits musicaux de 30 secondes et les pochettes sont fournis par les interfaces publiques de Deezer et d’Apple Music. Les titres, artistes et pochettes appartiennent à leurs ayants droit. Hitroom n’est affilié ni à Deezer ni à Apple ; un lien permet d’écouter chaque morceau en entier sur la plateforme.</p>
-    <h4>Données personnelles</h4><p>Hitroom enregistre ton pseudo, ton avatar, un identifiant aléatoire, ton niveau, tes scores, ton rang, tes amis, ton club et tes résultats du Hit du jour, sur ton appareil (stockage local du navigateur) et sur les serveurs de l’hébergeur pour faire fonctionner les salons, les classements, les amis, les clubs et le code de sauvegarde. Aucun cookie publicitaire, aucun suivi publicitaire : seules des statistiques de fréquentation anonymes sont comptées. Les notifications ne sont envoyées que si tu les actives. Ne mets aucune information personnelle dans ton pseudo ou dans le chat.</p>
+    ${affOn() ? '<h4>Liens affiliés</h4><p>Les boutons « Écouter sur Deezer / Apple Music » peuvent être des liens affiliés : si tu t’abonnes ou achètes après un clic, Zikroom peut toucher une commission, sans coût pour toi.</p>' : ''}
+    <h4>Propriété intellectuelle</h4><p>Le nom Zikroom, le logo, les graphismes (avatars, cadres, fonds), le code de l’application appartiennent à l’éditeur : toute reproduction sans autorisation est interdite. Musiques d’ambiance : « Downtempo Modern Background » (ED Music Productions) et « Chill Deep House » (Kulakovka), sous licence Pixabay.</p>
+    <p>Les extraits musicaux de 30 secondes et les pochettes sont fournis par les interfaces publiques de Deezer et d’Apple Music. Les titres, artistes et pochettes appartiennent à leurs ayants droit. Zikroom n’est affilié ni à Deezer ni à Apple ; un lien permet d’écouter chaque morceau en entier sur la plateforme.</p>
+    <h4>Données personnelles</h4><p>Zikroom enregistre ton pseudo, ton avatar, un identifiant aléatoire, ton niveau, tes scores, ton rang, tes amis, ton club et tes résultats du Hit du jour, sur ton appareil (stockage local du navigateur) et sur les serveurs de l’hébergeur pour faire fonctionner les salons, les classements, les amis, les clubs et le code de sauvegarde. Aucun cookie publicitaire, aucun suivi publicitaire : seules des statistiques de fréquentation anonymes sont comptées. Les notifications ne sont envoyées que si tu les actives. Ne mets aucune information personnelle dans ton pseudo ou dans le chat.</p>
     <p>Tu peux effacer tes données sur ton appareil dans Paramètres → Effacer mes données. Une politique de confidentialité complète et la suppression de compte arriveront avec les comptes.</p>
     <h4>Responsabilité</h4><p>Application en développement, fournie en l’état : des interruptions ou des erreurs sont possibles. Les pseudos et messages sont publiés par les joueurs sous leur responsabilité ; les grossièretés sont masquées et tu peux bloquer ou signaler un joueur depuis sa carte de joueur.</p>
     <h4>Droit applicable</h4><p>Droit français.</p></div>

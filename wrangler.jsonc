@@ -1,5 +1,5 @@
 {
-  // Hitroom sur Cloudflare Workers : le site (public/) + les salons en direct (Durable Objects)
+  // Zikroom sur Cloudflare Workers : le site (public/) + les salons en direct (Durable Objects)
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hitroom",
   "main": "src/worker.js",

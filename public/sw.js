@@ -1,4 +1,4 @@
-// Service worker de Hitroom : chargement rapide et ouverture même sans réseau.
+// Service worker de Zikroom : chargement rapide et ouverture même sans réseau.
 // - pages : réseau d'abord (toujours la dernière version en ligne), la copie gardée sert hors connexion
 // - fichiers du jeu (images, script, polices) : copie gardée affichée tout de suite, mise à jour en arrière-plan
 // - jamais : /api/, /__mock/, vidéos et sons (lus par morceaux), autres sites (sauf les polices Google)
@@ -46,7 +46,7 @@ self.addEventListener('push', e => {
   e.waitUntil(self.registration.pushManager.getSubscription()
     .then(sub => (sub ? fetch('/api/push/inbox', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }) }).then(r => r.json()) : []))
     .catch(() => [])
-    .then(list => (list.length ? Promise.all(list.map(showMsg)) : showMsg({ title: 'Hitroom', body: 'Une partie de blind test ? 🎵', url: '/' }))));
+    .then(list => (list.length ? Promise.all(list.map(showMsg)) : showMsg({ title: 'Zikroom', body: 'Une partie de blind test ? 🎵', url: '/' }))));
 });
 // toucher la notification : on revient dans l'appli déjà ouverte, sinon on l'ouvre, à la bonne adresse
 self.addEventListener('notificationclick', e => {

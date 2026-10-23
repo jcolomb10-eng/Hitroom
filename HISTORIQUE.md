@@ -1,4 +1,4 @@
-# Hitroom — toute l'histoire du projet
+# Zikroom — toute l'histoire du projet
 
 Blind test musical **multijoueur en direct** (dans l'esprit de QuiChante.com), appli web installable.
 Propriétaire : jcolomb10-eng. Hébergement : Cloudflare Workers (gratuit), publication automatique depuis `main`.
@@ -94,6 +94,10 @@ Adresse : https://hitroom.jcolomb10.workers.dev
 - **Notification « tes amis jouent »** : un ami hors de l'appli est prévenu quand tu lances une partie (1 fois toutes les 3 h au plus, réglable).
 - **Liens affiliés** prêts (Deezer / Apple) : désactivés tant que l'identifiant d'affiliation n'est pas renseigné.
 - Les récompenses de fin de saison pour les meilleurs clubs existaient déjà depuis la 1.18.
+
+## 2.2 (23/10/2026) — Nouveau nom : Zikroom
+- Hitroom est déjà utilisé par d'autres acteurs de la musique : l'appli devient **Zikroom** (« zik » = musique). Nouveau logo (mot refait dans le même style), textes, notifications, mentions légales, vidéos de pub.
+- Les identifiants techniques (sauvegardes, adresse Cloudflare) restent en « hitroom » pour ne rien perdre.
 
 ## Pub vidéo (23/10/2026)
 - Vidéo de pub verticale dans `assets-src/pub/` : version finale de l'utilisateur + versions faites en code (avec et sans son).

@@ -23,7 +23,7 @@ const WARM_BATCH = 15;       // morceaux recherchés à chaque minute en tâche 
 // à changer quand la façon de choisir la version (pickBest) change : tous les morceaux sont recherchés à nouveau
 // petit à petit en tâche de fond (on garde l'ancienne version en attendant)
 const PICKER = '4';
-const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; Hitroom/1.0; blind test)', Accept: 'application/json' };
+const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; Zikroom/1.0; blind test)', Accept: 'application/json' };
 
 function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) {
@@ -546,7 +546,7 @@ export class Hub extends DurableObject {
     const name = String(fromName || 'Un ami').slice(0, 20);
     const msg = kind === 'duel'
       ? { title: `⚔️ ${name} te défie en duel !`, body: `1 contre 1 en ${catName(cat)} : rejoins le duel dans les 10 minutes.`, url: `/?salon=${code}` }
-      : { title: `🎵 ${name} t’invite à jouer`, body: `Rejoins son salon Hitroom (code ${code}) !`, url: `/?salon=${code}` };
+      : { title: `🎵 ${name} t’invite à jouer`, body: `Rejoins son salon Zikroom (code ${code}) !`, url: `/?salon=${code}` };
     await Promise.all(subs.map(s => this.notify(s, msg)));
     return { ok: 1 };
   }
@@ -706,7 +706,7 @@ export class Hub extends DurableObject {
   async friendsJoin(pk, name, at) {
     const now = Date.now(), friends = this.sql.exec(`SELECT p.pk, p.seen FROM friends f JOIN players p ON p.pk = f.b WHERE f.a = ?`, pk).toArray();
     const code = /^(priv|duel):([A-Z0-9]{4})$/.exec(at)?.[2];
-    const msg = { title: `🎧 ${String(name).slice(0, 20)} joue en ce moment`, body: code ? 'Rejoins son salon Hitroom !' : 'Viens jouer avec lui sur Hitroom !', url: code ? `/?salon=${code}` : '/' };
+    const msg = { title: `🎧 ${String(name).slice(0, 20)} joue en ce moment`, body: code ? 'Rejoins son salon Zikroom !' : 'Viens jouer avec lui sur Zikroom !', url: code ? `/?salon=${code}` : '/' };
     this.sql.exec(`DELETE FROM fnotes WHERE ts < ?`, now - 3 * 3600000);
     for (const f of friends) {
       if (now - f.seen < ONLINE * 4) continue;                                   // déjà dans l'appli
