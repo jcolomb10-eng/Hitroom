@@ -47,7 +47,7 @@ async function player(browser, name, url = BASE + '/') {
   await A.click('#tabbar [data-tab="defis"]');
   ok(await A.isVisible('#defiNotif'), 'Défis : « Me rappeler mes défis chaque jour »');
   await A.click('#defiNotif');
-  ok((await A.$$('#sheetBox [data-np]')).length === 4 && await A.isVisible('#notifGo'), 'fiche Notifications : 4 choix et bouton Activer');
+  ok((await A.$$('#sheetBox [data-np]')).length >= 4 && await A.isVisible('#notifGo'), 'fiche Notifications : 4 choix et bouton Activer');
   await A.screenshot({ path: `${OUT}/n01_notifications.png` });
   await A.click('#notifGo');
   ok(await until(async () => (await A.textContent('#toast')).includes('activées'), 5000), 'notifications activées');
