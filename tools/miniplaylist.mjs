@@ -6,7 +6,7 @@
 //   NODE_PATH=$(npm root -g) node tools/miniplaylist.mjs                       (morceau français des années 80 au hasard)
 //   NODE_PATH=$(npm root -g) node tools/miniplaylist.mjs --cat 90 --fr         (autre catégorie, chanté en français)
 //   NODE_PATH=$(npm root -g) node tools/miniplaylist.mjs --titre "Voyage, voyage" --sortie playlist-1
-// Options : --cat <id catalogue, 80 par défaut> --fr / --tout (français seulement par défaut en 80) --titre "<titre>" --format feed|carre --sortie <dossier>
+// Options : --cat <id catalogue, 80 par défaut> --fr / --tout (français seulement par défaut en 80) --titre "<titre>" --format feed|carre|tiktok --sortie <dossier>
 // Droits : l'extrait vient de l'API Deezer (usage non commercial). Facebook peut couper le son d'une vidéo contenant de la musique
 // protégée : c'est à l'éditeur de la page de décider de publier (voir NOTES.md).
 import fs from 'node:fs';
@@ -18,7 +18,8 @@ import { createRequire } from 'node:module';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const arg = n => { const i = process.argv.indexOf('--' + n); return i < 0 ? null : (process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[i + 1] : true); };
 const CAT = arg('cat') || '80', FORMAT = arg('format') || 'feed', ONLY_FR = !arg('tout');
-const W = 1080, H = FORMAT === 'carre' ? 1080 : 1350, FPS = 30, DUR = 30;
+const TT = FORMAT === 'tiktok';                        // TikTok : 9:16, vidéo MUETTE (le son se choisit dans la bibliothèque de TikTok, licenciée)
+const LH = FORMAT === 'carre' ? 1080 : 1350, W = 1080, H = TT ? 1920 : LH, DY = TT ? (H - LH) / 2 : 0, FPS = 30, DUR = 30;
 const OUT = path.resolve(arg('sortie') || `playlist-${new Date().toISOString().slice(0, 10)}`);
 fs.mkdirSync(OUT, { recursive: true });
 const sh = (cmd, args) => execFileSync(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1 << 28 });
@@ -75,6 +76,7 @@ for (let f = 0; f < DUR * FPS; f++) {
 const mx = Math.max(...bands.flat()) || 1;
 for (let f = 0; f < bands.length; f++) for (let b = 0; b < NB; b++) { const v = Math.pow(bands[f][b] / mx, 0.6); bands[f][b] = f ? Math.max(v, bands[f - 1][b] * 0.82) : v; }
 
+if (TT) for (let f = 0; f < bands.length; f++) for (let b = 0; b < NB; b++) bands[f][b] = Math.min(1, Math.max(0.05, 0.45 + 0.4 * Math.sin(f * 0.23 + b * 0.9) * Math.sin(f * 0.07 + b * 0.35 + 1) + 0.12 * Math.sin(f * 0.9 + b)));
 // ---------- 4. la page animée (rendue image par image) ----------
 const logo = pathToFileURL(path.join(ROOT, 'public/logo.webp')).href;
 const cover = fs.existsSync(coverFile) ? pathToFileURL(coverFile).href : '';
@@ -83,24 +85,24 @@ const html = ({ reveal }) => `<!doctype html><html><head><meta charset="utf-8"><
 #st{position:relative;width:${W}px;height:${H}px;overflow:hidden;font-family:'Inter Display','Inter','Noto Color Emoji',sans-serif;color:#fff;background:radial-gradient(ellipse at 50% 30%,#2a0f45 0%,#12091f 50%,#05060f 100%)}
 .g{position:absolute;border-radius:50%;filter:blur(60px)}
 #logo{position:absolute;left:50%;top:46px;width:430px;transform:translateX(-50%);filter:drop-shadow(0 0 22px rgba(255,60,172,.5))}
-#tag{position:absolute;left:0;right:0;top:${H === 1080 ? 150 : 175}px;text-align:center;font-size:34px;font-weight:800;letter-spacing:6px;color:#ffd85c;text-shadow:0 0 18px rgba(255,216,92,.5)}
-#sub{position:absolute;left:0;right:0;top:${H === 1080 ? 198 : 228}px;text-align:center;font-size:30px;font-weight:600;color:#ffb8e6}
-#disc{position:absolute;left:50%;top:${H === 1080 ? 270 : 330}px;width:${H === 1080 ? 380 : 470}px;height:${H === 1080 ? 380 : 470}px;margin-left:-${H === 1080 ? 190 : 235}px;border-radius:50%;background:repeating-radial-gradient(circle,#0b0714 0 6px,#1a1030 6px 8px);box-shadow:0 0 70px rgba(255,60,172,.55),0 0 140px rgba(138,92,255,.4);border:4px solid rgba(255,60,172,.8)}
-#disc i{position:absolute;left:50%;top:50%;width:36%;height:36%;margin:-18% 0 0 -18%;border-radius:50%;background:conic-gradient(from 0deg,#ff3cac,#8a5cff,#ff3cac);display:grid;place-items:center;font-style:normal;font-size:${H === 1080 ? 70 : 88}px}
-#bars{position:absolute;left:60px;right:60px;top:${H === 1080 ? 690 : 850}px;height:110px;display:flex;align-items:flex-end;gap:7px}
+#tag{position:absolute;left:0;right:0;top:${LH === 1080 ? 150 : 175}px;text-align:center;font-size:34px;font-weight:800;letter-spacing:6px;color:#ffd85c;text-shadow:0 0 18px rgba(255,216,92,.5)}
+#sub{position:absolute;left:0;right:0;top:${LH === 1080 ? 198 : 228}px;text-align:center;font-size:30px;font-weight:600;color:#ffb8e6}
+#disc{position:absolute;left:50%;top:${LH === 1080 ? 270 : 330}px;width:${LH === 1080 ? 380 : 470}px;height:${LH === 1080 ? 380 : 470}px;margin-left:-${LH === 1080 ? 190 : 235}px;border-radius:50%;background:repeating-radial-gradient(circle,#0b0714 0 6px,#1a1030 6px 8px);box-shadow:0 0 70px rgba(255,60,172,.55),0 0 140px rgba(138,92,255,.4);border:4px solid rgba(255,60,172,.8)}
+#disc i{position:absolute;left:50%;top:50%;width:36%;height:36%;margin:-18% 0 0 -18%;border-radius:50%;background:conic-gradient(from 0deg,#ff3cac,#8a5cff,#ff3cac);display:grid;place-items:center;font-style:normal;font-size:${LH === 1080 ? 70 : 88}px}
+#bars{position:absolute;left:60px;right:60px;top:${LH === 1080 ? 690 : 850}px;height:110px;display:flex;align-items:flex-end;gap:7px}
 #bars b{flex:1;border-radius:6px 6px 2px 2px;background:linear-gradient(0deg,#ff3cac,#8a5cff)}
-#q{position:absolute;left:40px;right:40px;top:${H === 1080 ? 830 : 990}px;text-align:center;font-size:${H === 1080 ? 44 : 54}px;font-weight:900;line-height:1.15;text-shadow:0 0 24px rgba(190,80,255,.7)}
-#q small{display:block;margin-top:10px;font-size:${H === 1080 ? 32 : 38}px;font-weight:700;color:#ffd85c}
-#cd{position:absolute;right:56px;top:${H === 1080 ? 300 : 360}px;width:118px;height:118px}
+#q{position:absolute;left:40px;right:40px;top:${LH === 1080 ? 830 : 990}px;text-align:center;font-size:${LH === 1080 ? 44 : 54}px;font-weight:900;line-height:1.15;text-shadow:0 0 24px rgba(190,80,255,.7)}
+#q small{display:block;margin-top:10px;font-size:${LH === 1080 ? 32 : 38}px;font-weight:700;color:#ffd85c}
+#cd{position:absolute;right:56px;top:${LH === 1080 ? 300 : 360}px;width:118px;height:118px}
 #cd text{font:900 48px 'Inter Display',sans-serif;fill:#fff}
 #snd{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);padding:14px 34px;border-radius:50px;background:linear-gradient(90deg,#ff3cac,#8a5cff);font-size:36px;font-weight:900;letter-spacing:1px;white-space:nowrap;box-shadow:0 0 40px rgba(255,60,172,.7)}
 #foot{position:absolute;left:0;right:0;bottom:34px;text-align:center;font-size:28px;font-weight:700;color:#ffb8e6}
-#cov{position:absolute;left:50%;top:${H === 1080 ? 250 : 300}px;width:${H === 1080 ? 380 : 480}px;height:${H === 1080 ? 380 : 480}px;margin-left:-${H === 1080 ? 190 : 240}px;border-radius:28px;object-fit:cover;box-shadow:0 0 70px rgba(255,60,172,.6);border:4px solid rgba(255,60,172,.85)}
-#ans{position:absolute;left:30px;right:30px;top:${H === 1080 ? 650 : 830}px;text-align:center}
-#ans .t{font-size:${H === 1080 ? 58 : 70}px;font-weight:900;line-height:1.1;text-shadow:0 0 26px rgba(255,60,172,.7)}
-#ans .a{margin-top:14px;font-size:${H === 1080 ? 44 : 52}px;font-weight:700;color:#ffd85c}
+#cov{position:absolute;left:50%;top:${LH === 1080 ? 250 : 300}px;width:${LH === 1080 ? 380 : 480}px;height:${LH === 1080 ? 380 : 480}px;margin-left:-${LH === 1080 ? 190 : 240}px;border-radius:28px;object-fit:cover;box-shadow:0 0 70px rgba(255,60,172,.6);border:4px solid rgba(255,60,172,.85)}
+#ans{position:absolute;left:30px;right:30px;top:${LH === 1080 ? 650 : 830}px;text-align:center}
+#ans .t{font-size:${LH === 1080 ? 58 : 70}px;font-weight:900;line-height:1.1;text-shadow:0 0 26px rgba(255,60,172,.7)}
+#ans .a{margin-top:14px;font-size:${LH === 1080 ? 44 : 52}px;font-weight:700;color:#ffd85c}
 #ans .m{margin-top:14px;font-size:30px;font-weight:600;color:#ffb8e6}
-</style></head><body><div id="st">
+</style></head><body><div id="st"><div id="in" style="position:absolute;left:0;top:${DY}px;width:${W}px;height:${LH}px">
 <div class="g" style="width:700px;height:700px;left:-250px;top:60px;background:radial-gradient(circle,rgba(255,60,172,.5),transparent 65%)"></div>
 <div class="g" style="width:760px;height:760px;left:480px;top:${H - 560}px;background:radial-gradient(circle,rgba(138,92,255,.5),transparent 65%)"></div>
 <img id="logo" src="${logo}">
@@ -109,10 +111,10 @@ ${reveal ? `<img id="cov" src="${cover}"><div id="ans"><div class="t">${info.tit
 <div id="disc"><i>🎵</i></div>
 <div id="bars">${'<b></b>'.repeat(NB)}</div>
 <svg id="cd" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="rgba(5,6,15,.8)" stroke="rgba(255,255,255,.18)" stroke-width="8"/><circle id="ring" cx="60" cy="60" r="52" fill="none" stroke="#ff3cac" stroke-width="8" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="326.7" stroke-dashoffset="0"/><text id="num" x="60" y="77" text-anchor="middle">30</text></svg>
-<div id="snd">🔊 ACTIVE LE SON</div>
+${TT ? '' : '<div id="snd">🔊 ACTIVE LE SON</div>'}
 <div id="q">Quel est ce titre ?<br>Quel est l'artiste ?<small>Réponds en commentaire 👇</small></div>`}
 <div id="foot">Joue au blind test sur Zikroom · zikroom.jcolomb10.workers.dev</div>
-</div>
+</div></div>
 <script>window.BANDS=${JSON.stringify(bands.map(r => r.map(v => +v.toFixed(3))))};
 window.render=t=>{const f=Math.min(${DUR * FPS - 1},Math.floor(t*${FPS})),b=document.querySelectorAll('#bars b');
  if(b.length){b.forEach((e,i)=>{e.style.height=(8+window.BANDS[f][i]*100)+'px'});
@@ -120,7 +122,7 @@ window.render=t=>{const f=Math.min(${DUR * FPS - 1},Math.floor(t*${FPS})),b=docu
   document.getElementById('disc').style.transform='rotate('+(t*90)+'deg) scale('+(1+bass*0.05)+')';
   const left=Math.max(0,${DUR}-t);document.getElementById('num').textContent=Math.ceil(left);
   document.getElementById('ring').setAttribute('stroke-dashoffset',(326.7*(1-left/${DUR})).toFixed(1));
-  const sn=document.getElementById('snd');sn.style.opacity=Math.max(0,Math.min(1,11-t));sn.style.transform='translateX(-50%) scale('+(1+Math.abs(Math.sin(t*5))*0.08)+')';
+  const sn=document.getElementById('snd');if(sn){sn.style.opacity=Math.max(0,Math.min(1,11-t));sn.style.transform='translateX(-50%) scale('+(1+Math.abs(Math.sin(t*5))*0.08)+')'}
   const q=document.getElementById('q');q.style.transform='scale('+(1+Math.sin(t*3)*0.012)+')';}
  document.getElementById('logo').style.opacity=1};
 window.ready=true;</script></body></html>`;
@@ -130,17 +132,21 @@ const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const browser = await chromium.launch();
 const framesDir = path.join(OUT, '_images'); fs.mkdirSync(framesDir, { recursive: true });
-const makePage = async h => { const p = await browser.newPage({ viewport: { width: W, height: H } }); const f = path.join(OUT, '_page.html'); fs.writeFileSync(f, h); await p.goto(pathToFileURL(f).href); await p.waitForFunction(() => window.ready); await p.waitForTimeout(400); return p; };
+let pageNo = 0;
+const makePage = async h => { const p = await browser.newPage({ viewport: { width: W, height: H } }); const f = path.join(OUT, `_page${pageNo++}.html`); fs.writeFileSync(f, h); await p.goto(pathToFileURL(f).href); await p.waitForFunction(() => window.ready); await p.waitForTimeout(400); return p; };
 // image de la réponse
 const rp = await makePage(html({ reveal: true })); await rp.evaluate(() => window.render(0)); await rp.screenshot({ path: path.join(OUT, 'reponse.png') }); await rp.close();
 // vidéo : 4 pages en parallèle
 const total = DUR * FPS, workers = 4, pages = await Promise.all(Array.from({ length: workers }, () => makePage(html({ reveal: false }))));
 await Promise.all(pages.map(async (p, w) => { for (let f = w; f < total; f += workers) { await p.evaluate(t => window.render(t), f / FPS); await p.screenshot({ path: path.join(framesDir, `f_${String(f).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 90 }); } }));
 await browser.close();
-sh('ffmpeg', ['-y', '-v', 'error', '-framerate', String(FPS), '-i', path.join(framesDir, 'f_%04d.jpg'), '-i', mp3, '-t', String(DUR), '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', path.join(OUT, 'quiz.mp4')]);
-fs.rmSync(framesDir, { recursive: true, force: true }); fs.rmSync(path.join(OUT, '_page.html'), { force: true });
+sh('ffmpeg', ['-y', '-v', 'error', '-framerate', String(FPS), '-i', path.join(framesDir, 'f_%04d.jpg'), ...(TT ? ['-t', String(DUR), '-an'] : ['-i', mp3, '-t', String(DUR)]), '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', ...(TT ? [] : ['-c:a', 'aac', '-b:a', '160k']), '-movflags', '+faststart', path.join(OUT, 'quiz.mp4')]);
+fs.rmSync(framesDir, { recursive: true, force: true }); for (const f of fs.readdirSync(OUT)) if (/^_page\d*\.html$/.test(f)) fs.rmSync(path.join(OUT, f));
 
 // ---------- 6. les textes ----------
+if (TT) {
+  fs.writeFileSync(path.join(OUT, 'texte.txt'), `TIKTOK — vidéo muette (quiz.mp4), le son se met dans TikTok\n\n1. Importe quiz.mp4 dans TikTok (+, Importer).\n2. Touche « Ajouter un son » puis cherche : ${info.titre} ${info.artiste}\n   Choisis la version ORIGINALE (pas un remix), puis « Ajuster » pour démarrer au refrain / au début du morceau. 30 secondes.\n3. Compte PERSONNEL ou « Créateur » : toute la bibliothèque est dispo. Un compte « Professionnel / Business » n'a que les musiques libres de droits.\n4. Colle la légende ci-dessous et publie.\n\nLÉGENDE\n🎵 Mini playlist ${catName} 🇫🇷 : tu trouves le titre ET l'artiste ? Réponds en commentaire 👇\n🔊 Mets le son !\nJoue au blind test avec tes amis : lien dans ma bio (${'https://zikroom.jcolomb10.workers.dev'})\n#blindtest #quiz #musique #annees80 #chansonfrancaise #fyp #zikroom\n\nRÉPONSE (commentaire épinglé plus tard) : ✅ « ${info.titre} » de ${info.artiste} 👏\n`);
+} else
 fs.writeFileSync(path.join(OUT, 'texte.txt'), `PUBLICATION (avec quiz.mp4)
 🎵 MINI PLAYLIST · ${catName} 🇫🇷
 Tu connais ce tube ? 30 secondes pour trouver le titre ET l'artiste !
