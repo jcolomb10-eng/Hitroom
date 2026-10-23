@@ -1309,7 +1309,7 @@ svg.med{flex:none;overflow:visible}
 <script>
 (() => {
 'use strict';
-const VERSION = '2.2';
+const VERSION = '2.3';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -3163,7 +3163,8 @@ async function presence(soon) {
   renderSocial();
   onChallenges(d.ch || []);
 }
-setInterval(() => { if (document.visibilityState === 'visible') presence(); }, 60000);
+// l'appli se signale toutes les 60 s ; toutes les 10 s dès qu'on a des amis (défis et invitations s'affichent presque tout de suite)
+(function presLoop() { setTimeout(() => { if (document.visibilityState === 'visible') presence(); presLoop(); }, (PRES?.nf || 0) > 0 ? 10000 : 60000); })();
 setInterval(() => { if (curView === 'friends' && document.visibilityState === 'visible') refreshFriends(); }, 20000);
 function renderSocial() {
   if (!$('#bFriends')) return;
@@ -3224,7 +3225,7 @@ async function refreshFriends() {
   if (curView === 'friends') renderFriends();
   renderSocial();
 }
-const FRI_ERR = { code: 'Code ami introuvable. Vérifie-le !', unknown: 'Joueur introuvable pour le moment : réessaie plus tard.', self: 'C’est ton propre code 🙂', full: 'Tu as déjà 100 amis : retires-en un pour en ajouter.', full2: 'Ce joueur a déjà 100 amis.',
+const FRI_ERR = { code: 'Code ami introuvable. Vérifie-le, et assurez-vous d’utiliser tous les deux le dernier lien de Zikroom (zikroom.jcolomb10.workers.dev).', unknown: 'Joueur introuvable pour le moment : réessaie plus tard.', self: 'C’est ton propre code 🙂', full: 'Tu as déjà 100 amis : retires-en un pour en ajouter.', full2: 'Ce joueur a déjà 100 amis.',
   limit: 'Beaucoup de demandes en attente : attends qu’on te réponde.', gone: 'Cette demande n’existe plus.', friend: 'Vous devez être amis pour vous défier.',
   again: 'Tu l’as déjà défié : laisse-lui un peu de temps 🙂', off: 'Défi impossible pour le moment.', err: 'Impossible pour le moment.' };
 async function friendAct(act, data) {
@@ -3235,12 +3236,25 @@ async function friendAct(act, data) {
   return r;
 }
 // demande d'ami (pk depuis une carte de joueur, fc = code ami) ; s'il m'avait déjà demandé, nous voilà amis
+// proposé une seule fois, au bon moment (1er ami ajouté ou accepté) : c'est ce qui permet de recevoir défis et invitations même appli fermée
+function askPushOnce() {
+  if (S.pushAsked || S.push?.on || !pushReady() || Notification.permission !== 'default') return;
+  S.pushAsked = 1; save();
+  setTimeout(() => {
+    if (!$('#sheet').classList.contains('hide') || ROOM_VIEWS.includes(curView)) return;
+    openSheet(`<div class="pcard"><div style="font-size:50px;line-height:1">🔔</div><h3>Reçois les défis de tes amis</h3>
+      <p style="margin:4px 0 12px">Active les notifications pour être prévenu quand un ami t’invite en duel ou lance une partie, même si l’appli est fermée.</p>
+      <div class="pc-acts"><button class="ghost" data-close>Plus tard</button><button class="cta" id="apGo">🔔 Activer</button></div></div>`);
+    $('#apGo').onclick = async () => { closeSheet(); try { if (await pushOn()) toast('🔔 Notifications activées !'); } catch (e) { toast('Impossible pour le moment.', 3000); } };
+  }, 1800);
+}
 async function addFriend(data) {
   const r = await friendAct('add', data);
   if (r?.ok) {
     if (r.state === 'friend') toast(`👥 ${esc(r.name)} et toi êtes maintenant amis !`, 3200);
     else toast(`📨 Demande d’ami envoyée à ${esc(r.name)}`, 3000);
     if (data.pk && !(S.fsent || []).includes(data.pk)) S.fsent = [...(S.fsent || []), data.pk];
+    askPushOnce();
   }
   return r;
 }
@@ -3317,7 +3331,7 @@ function renderFriends() {
   $$('#friBody [data-fp]').forEach(b => b.onclick = e => { if (!e.target.closest('button')) friendSheet(byPk(b.dataset.fp)); });
   $$('#friBody [data-duel]').forEach(b => b.onclick = () => startDuel(byPk(b.dataset.duel)));
   $$('#friBody [data-join]').forEach(b => b.onclick = () => { unlock(); joinCode(b.dataset.join); });
-  $$('#friBody [data-acc]').forEach(b => b.onclick = async () => { b.disabled = true; if ((await friendAct('accept', { pk: b.dataset.acc }))?.ok) toast('👥 Nouvel ami ajouté !'); });
+  $$('#friBody [data-acc]').forEach(b => b.onclick = async () => { b.disabled = true; if ((await friendAct('accept', { pk: b.dataset.acc }))?.ok) { toast('👥 Nouvel ami ajouté !'); askPushOnce(); } });
   $$('#friBody [data-dec]').forEach(b => b.onclick = () => { b.disabled = true; friendAct('decline', { pk: b.dataset.dec }); });
   $$('#friBody [data-can]').forEach(b => b.onclick = () => { b.disabled = true; friendAct('cancel', { pk: b.dataset.can }).then(() => { S.fsent = (S.fsent || []).filter(x => x !== b.dataset.can); }); });
 }
