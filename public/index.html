@@ -252,31 +252,27 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 /* ---------- connexion ---------- */
 #v-login{padding:0}
 #v-login .mus{position:absolute;z-index:3;top:max(16px,env(safe-area-inset-top));right:16px}
-.login-mid{position:absolute;z-index:2;left:0;right:0;top:15%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:0 24px}
-.login-mid .logo{width:min(360px,94%);overflow:visible;margin-bottom:-26px;animation:neonPulse 3.6s ease-in-out 3.2s infinite}
-#v-login{background:#0b0610}
-.login-glow{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(75% 40% at 50% 27%,rgba(150,40,170,.55),rgba(60,14,80,.5) 45%,transparent 75%),radial-gradient(90% 50% at 50% 100%,rgba(255,46,147,.14),transparent 70%),linear-gradient(180deg,#1d0a29,#0d0612 70%);animation:glowIn 1.6s ease-out both}
+.login-mid{position:relative;z-index:2;flex:1 1 auto;min-height:0;justify-content:center;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:0 24px}
+.login-mid .logo{display:flex;flex-direction:column;align-items:center;gap:10px;animation:neonPulse 3.6s ease-in-out 3.4s infinite}
+.login-glow{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(75% 40% at 50% 22%,rgba(150,40,170,.55),rgba(60,14,80,.5) 45%,transparent 75%),radial-gradient(90% 50% at 50% 100%,rgba(255,46,147,.14),transparent 70%),linear-gradient(180deg,#1d0a29,#0d0612 70%);animation:glowIn 1.6s ease-out both}
 @keyframes glowIn{from{opacity:0}to{opacity:1}}
-@keyframes lnDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
-@keyframes lnSpark{from{stroke-dashoffset:.04}to{stroke-dashoffset:-1.04}}
-@keyframes lnSparkOn{0%{opacity:1}92%{opacity:1}100%{opacity:0}}
+#v-login{background:#0b0610}
+.lg-ic{position:relative;height:min(18vh,150px);aspect-ratio:541/400}
+.lg-icon{display:block;width:100%;height:100%;-webkit-mask:linear-gradient(to top right,#000 0 40%,transparent 60% 100%) 100% 0/250% 250% no-repeat;mask:linear-gradient(to top right,#000 0 40%,transparent 60% 100%) 100% 0/250% 250% no-repeat;animation:lgReveal 1.5s ease-in-out .25s forwards}
+.lg-spark{position:absolute;inset:0;background:linear-gradient(to top right,transparent 0 44%,#fff 50%,transparent 56% 100%) 100% 0/250% 250% no-repeat;-webkit-mask:url(/logo-icon.webp) center/100% 100% no-repeat;mask:url(/logo-icon.webp) center/100% 100% no-repeat;filter:drop-shadow(0 0 6px #fff);animation:lgReveal 1.5s ease-in-out .25s forwards;pointer-events:none}
+.lg-word{height:min(7.5vh,62px);animation:lnWord 1.3s linear 1.6s both}
+@keyframes lgReveal{to{-webkit-mask-position:0 100%;mask-position:0 100%;background-position:0 100%}}
 @keyframes lnWord{0%{opacity:0;filter:blur(10px)}18%{opacity:.7}26%{opacity:.15}38%{opacity:.85;filter:blur(3px)}46%{opacity:.3}60%{opacity:1;filter:blur(0)}72%{opacity:.7}100%{opacity:1;filter:blur(0)}}
-@keyframes lnPlay{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
-.ln-tube{filter:drop-shadow(0 0 3px #ff5ac8) drop-shadow(0 0 10px rgba(255,46,147,.75))}
-.ln-col use{stroke-dasharray:1 1;animation:lnDraw 1.05s ease-in-out var(--d) both}
-.ln-spark use{stroke-dasharray:.035 2;animation:lnSpark 1.05s ease-in-out var(--d) both,lnSparkOn 1.05s linear var(--d) both;filter:drop-shadow(0 0 6px #fff)}
-.ln-word{animation:lnWord 1.3s linear 1.9s both;filter:drop-shadow(0 0 6px rgba(255,46,147,.7))}
-.ln-play{transform-box:fill-box;transform-origin:center;animation:lnPlay .5s ease-out .7s both}
-@keyframes neonPulse{0%,100%{filter:drop-shadow(0 0 10px rgba(255,46,147,.45)) brightness(1)}50%{filter:drop-shadow(0 0 24px rgba(255,46,147,.85)) brightness(1.12)}}
+@keyframes neonPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(255,46,147,.4))}50%{filter:drop-shadow(0 0 20px rgba(255,46,147,.8))}}
 @keyframes loginUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-.login-mid .sub{animation:loginUp .8s ease-out 3s both}
-.login-mid p{animation:loginUp .8s ease-out 3.25s both}
+.login-mid .sub{animation:loginUp .8s ease-out 2.7s both}
+.login-mid p{animation:loginUp .8s ease-out 2.95s both}
 .login-foot>*{animation:loginUp .7s ease-out both}
-.login-foot>:nth-child(1){animation-delay:3.5s}.login-foot>:nth-child(2){animation-delay:3.65s}.login-foot>:nth-child(3){animation-delay:3.8s}.login-foot>:nth-child(4){animation-delay:3.95s}.login-foot>:nth-child(5){animation-delay:4.1s}.login-foot>:nth-child(6){animation-delay:4.2s}
-@media (prefers-reduced-motion:reduce){.ln-col use,.ln-spark use,.ln-word,.ln-play,.login-mid .logo,.login-mid .sub,.login-mid p,.login-foot>*,.login-glow{animation:none}}
+.login-foot>:nth-child(1){animation-delay:3.2s}.login-foot>:nth-child(2){animation-delay:3.35s}.login-foot>:nth-child(3){animation-delay:3.5s}.login-foot>:nth-child(4){animation-delay:3.65s}.login-foot>:nth-child(5){animation-delay:3.8s}.login-foot>:nth-child(6){animation-delay:3.9s}
+@media (prefers-reduced-motion:reduce){.lg-icon,.lg-spark,.lg-word,.login-mid .logo,.login-mid .sub,.login-mid p,.login-foot>*,.login-glow{animation:none}.lg-icon{-webkit-mask:none;mask:none}.lg-spark{display:none}}
 .login-mid .sub{font-size:12px;font-weight:600;letter-spacing:5px;color:#efe4fa;text-shadow:0 0 10px rgba(255,46,147,.9)}
 .login-mid p{margin:10px 0 0;max-width:280px;font-size:14px;color:#d6cbe2;text-shadow:0 1px 8px #000}
-.login-foot{position:absolute;z-index:2;left:22px;right:22px;bottom:max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:11px}
+.login-foot{position:relative;z-index:2;flex:none;margin:0 8px;padding-bottom:max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:11px}
 .lbtn{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;height:54px;padding:0 12px;border-radius:16px;font-weight:600;font-size:15.5px;white-space:nowrap}
 .lbtn.google{background:#fff;color:#1f1f1f}
 .lbtn.mail{border:1.5px solid rgba(var(--glow),.6);background:rgba(16,11,21,.85);color:#fff}
@@ -1122,28 +1118,7 @@ svg.med{flex:none;overflow:visible}
   <div class="login-glow"></div>
   <button class="ibtn mus" id="loginMusic"></button>
   <div class="login-mid">
-    <svg class="logo" viewBox="0 0 400 430" role="img" aria-label="Hitroom">
-      <defs>
-        <linearGradient id="lnG" x1="0" x2="1"><stop offset="0" stop-color="#ff3fb4"/><stop offset=".55" stop-color="#ff5ad0"/><stop offset="1" stop-color="#8f66ff"/></linearGradient>
-        <linearGradient id="lnF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient>
-        <mask id="lnM"><rect x="0" y="340" width="400" height="90" fill="url(#lnF)"/></mask>
-        <path id="lnA" pathLength="1" d="M95,152 L95,52 Q95,40 108,37 L226,16 Q238,14 238,28 L236,205 Q235,226 224,226 Q213,226 213,205 L213,95 Q205,70 198,92 L194,170 Q193,187 183,187 Q173,187 173,170 L172,128 Q168,112 158,120 L150,148 Q146,153 133,153"/>
-        <path id="lnB" pathLength="1" d="M113,173 L115,100 Q116,80 130,75 L190,56 Q205,50 210,60 L217,76"/>
-        <path id="lnC" pathLength="1" d="M254,187 L256,105 Q258,96 270,98 Q280,100 280,115 L279,175 Q280,182 290,182 Q297,182 297,172 L296,150 Q300,120 330,106 L350,112"/>
-        <path id="lnD" pathLength="1" d="M298,73 L347,50 L362,62 L352,112 Z M298,73 L335,100"/>
-        <circle id="lnE" pathLength="1" cx="70" cy="202" r="49" transform="rotate(-90 70 202)"/>
-      </defs>
-      <g class="ln-tube" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <g class="ln-col" stroke="#ff4fc4" stroke-width="10"><use href="#lnE" style="--d:0s"/><use href="#lnA" style="--d:.25s"/><use href="#lnB" style="--d:.55s"/><use href="#lnC" style="--d:.8s"/><use href="#lnD" style="--d:1.25s"/></g>
-        <g class="ln-col" stroke="#ffd6f2" stroke-width="3.6"><use href="#lnE" style="--d:0s"/><use href="#lnA" style="--d:.25s"/><use href="#lnB" style="--d:.55s"/><use href="#lnC" style="--d:.8s"/><use href="#lnD" style="--d:1.25s"/></g>
-        <g class="ln-spark" stroke="#fff" stroke-width="7"><use href="#lnE" style="--d:0s"/><use href="#lnA" style="--d:.25s"/><use href="#lnB" style="--d:.55s"/><use href="#lnC" style="--d:.8s"/><use href="#lnD" style="--d:1.25s"/></g>
-      </g>
-      <path class="ln-play" d="M60,183 L90,202 L60,221 Z" fill="#ff7ad8"/>
-      <g class="ln-word">
-        <text x="200" y="345" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="800" font-size="104" textLength="372" lengthAdjust="spacingAndGlyphs" fill="url(#lnG)">Hitroom</text>
-        <text x="200" y="345" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="800" font-size="104" textLength="372" lengthAdjust="spacingAndGlyphs" fill="url(#lnG)" transform="translate(0 690) scale(1 -1)" mask="url(#lnM)" class="ln-refl"/>
-      </g>
-    </svg>
+    <div class="logo"><div class="lg-ic"><img class="lg-icon" src="/logo-icon.webp" alt="Hitroom"><i class="lg-spark"></i></div><img class="lg-word" src="/logo-word.webp" alt=""></div>
     <div class="sub">BLIND TEST EN LIGNE</div>
     <p>Devine le titre et l’artiste avant les autres, en direct.</p>
   </div>
