@@ -1,4 +1,5 @@
 // Point d'entrée : sert le site (dossier public/) et les routes /api/.
+import { verifyGoogle } from './accounts.js';
 import { Room } from './room.js';
 import { Hub, season } from './hub.js';
 import { CAT_IDS, rankedCats, catOpen } from './catalog.js';
@@ -105,9 +106,18 @@ export default {
     // événement du week-end, tournoi, mode Survie
     if (path === '/api/event') return json(await hub(env).eventInfo(cleanUid(url.searchParams.get('uid'))));
     if (path === '/api/survie') return json(await hub(env).survieBoard(String(url.searchParams.get('cat') || 'mix').replace(/[^a-z0-9+]/g, '').slice(0, 30), cleanUid(url.searchParams.get('uid'))));
+    if (path === '/api/config') return json({ google: env.GOOGLE_CLIENT_ID || '' });
+    if (path === '/api/wallet' && req.method === 'POST') {
+      const b = await body(req) || {}, uid = cleanUid(b.uid);
+      return uid.length < 8 ? json({ ok: 0 }, 400) : json(await hub(env).walletSync(uid, b.coins, env.WALLET_ENFORCE !== '0' || (env.MOCK_MUSIC && url.searchParams.get('enforce') === '1')));
+    }
     if (path === '/api/account' && req.method === 'POST') {
       const b = await body(req) || {}, uid = cleanUid(b.uid);
       if (b.act === 'register') return json(await hub(env).acctRegister(uid, b.email, b.pw));
+      if (b.act === 'google') {
+        const email = await verifyGoogle(b.credential, env.GOOGLE_CLIENT_ID);
+        return email ? json(await hub(env).acctGoogle(uid, email)) : json({ ok: 0, error: 'Connexion Google refusée.' });
+      }
       if (b.act === 'login') return json(await hub(env).acctLogin(b.email, b.pw));
       if (b.act === 'delete') return json(await hub(env).acctDelete(uid, b.pw));
       return json({ ok: 0 }, 400);

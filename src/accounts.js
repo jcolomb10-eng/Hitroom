@@ -10,6 +10,29 @@ export const validEmail = s => EMAIL_RE.test(s);
 export const validPassword = s => typeof s === 'string' && s.length >= 8 && s.length <= 100;
 export const maskEmail = e => { const [u, d] = e.split('@'); return (u.length > 2 ? u.slice(0, 2) : u.slice(0, 1)) + '***@' + d; };
 
+// ---------- Google : vérification du jeton (RS256) avec les clés publiques de Google ----------
+const b64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+let jwks = { keys: [], ts: 0 };
+export async function verifyGoogle(token, clientId, now = Date.now(), keys = null) {
+  try {
+    if (!clientId) return null;
+    const [h, p, sig] = String(token || '').split('.');
+    if (!h || !p || !sig) return null;
+    const head = JSON.parse(new TextDecoder().decode(b64u(h))), pay = JSON.parse(new TextDecoder().decode(b64u(p)));
+    if (head.alg !== 'RS256') return null;
+    if (!keys) {
+      if (now - jwks.ts > 3600000 || !jwks.keys.some(k => k.kid === head.kid)) { jwks = { keys: (await (await fetch('https://www.googleapis.com/oauth2/v3/certs')).json()).keys || [], ts: now }; }
+      keys = jwks.keys;
+    }
+    const jwk = keys.find(k => k.kid === head.kid);
+    if (!jwk) return null;
+    const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+    if (!await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, b64u(sig), new TextEncoder().encode(h + '.' + p))) return null;
+    if (pay.aud !== clientId || !['accounts.google.com', 'https://accounts.google.com'].includes(pay.iss) || pay.exp * 1000 < now || !pay.email_verified) return null;
+    return cleanEmail(pay.email);
+  } catch { return null; }
+}
+
 const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 const unhex = h => new Uint8Array((h.match(/../g) || []).map(x => parseInt(x, 16)));
 export async function hashPassword(pw, saltHex) {
@@ -23,6 +46,7 @@ export const accountMethods = {
   acctInit() {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS accounts(email TEXT PRIMARY KEY, uid TEXT UNIQUE, salt TEXT, hash TEXT, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS ledger(uid TEXT PRIMARY KEY, xp INTEGER, coins INTEGER, games INTEGER, ts INTEGER)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS wallet(uid TEXT PRIMARY KEY, coins INTEGER, seen INTEGER, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS flags(uid TEXT PRIMARY KEY, why TEXT, n INTEGER, ts INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS afails(email TEXT PRIMARY KEY, n INTEGER, ts INTEGER)`);
   },
@@ -46,13 +70,26 @@ export const accountMethods = {
     return { ok: 1, email: maskEmail(email) };
   },
 
+  // connexion Google (e-mail déjà vérifié par Google) : crée le compte, relie l'invité, ou retrouve le compte existant
+  acctGoogle(uid, email) {
+    if (!validEmail(email)) return { ok: 0, error: 'Compte Google refusé.' };
+    const r = this.sql.exec(`SELECT uid FROM accounts WHERE email = ?`, email).toArray()[0];
+    if (!r) {
+      if (uid.length < 8 || this.isBound(uid)) return { ok: 0, error: 'Cet appareil a déjà un compte : déconnecte-le d’abord.' };
+      this.sql.exec(`INSERT INTO accounts(email, uid, salt, hash, ts) VALUES(?,?,?,?,?)`, email, uid, '', '', Date.now());
+      return { ok: 1, created: 1, uid, email: maskEmail(email) };
+    }
+    const s = this.sql.exec(`SELECT data FROM saves WHERE uid = ? ORDER BY ts DESC LIMIT 1`, r.uid).toArray()[0];
+    return { ok: 1, uid: r.uid, data: s ? s.data : '', email: maskEmail(email) };
+  },
+
   // connexion sur un autre appareil : rend l'uid du compte et sa dernière sauvegarde
   async acctLogin(email, pw) {
     email = cleanEmail(email);
     const f = this.sql.exec(`SELECT n, ts FROM afails WHERE email = ?`, email).toArray()[0];
     if (f && f.n >= MAX_FAILS && Date.now() - f.ts < LOCK_MS) return { ok: 0, error: 'Trop d’essais. Réessaie dans 10 minutes.' };
     const r = this.sql.exec(`SELECT uid, salt, hash FROM accounts WHERE email = ?`, email).toArray()[0];
-    const good = r ? same(await hashPassword(String(pw || ''), r.salt), r.hash) : (await hashPassword('x', newSalt()), false);
+    const good = r && r.hash ? same(await hashPassword(String(pw || ''), r.salt), r.hash) : (await hashPassword('x', newSalt()), false);
     if (!good) {
       const n = f && Date.now() - f.ts < LOCK_MS ? f.n + 1 : 1;
       this.sql.exec(`INSERT OR REPLACE INTO afails(email, n, ts) VALUES(?,?,?)`, email, n, Date.now());
@@ -91,5 +128,21 @@ export const accountMethods = {
 
   suspects() {
     return this.sql.exec(`SELECT uid, why, n, ts FROM flags ORDER BY n DESC, ts DESC LIMIT 100`).toArray().map(r => ({ pk: publicKey(r.uid), why: r.why, n: r.n, ts: r.ts }));
+  },
+  // portefeuille : les dépenses sont toujours acceptées, mais les gains ne peuvent pas dépasser ce que le serveur a vu
+  // (pièces de parties × 2 pour l'événement) + une marge pour les sources calculées sur l'appareil (médailles, défis, route, récompenses)
+  walletSync(uid, claimed, enforce = true) {
+    claimed = Math.max(0, Math.floor(+claimed || 0));
+    const now = Date.now();
+    const led = (this.sql.exec(`SELECT coins FROM ledger WHERE uid = ?`, uid).toArray()[0] || { coins: 0 }).coins;
+    const w = this.sql.exec(`SELECT coins, seen, ts FROM wallet WHERE uid = ?`, uid).toArray()[0];
+    let coins = claimed;
+    if (w && enforce) {
+      const days = Math.min(14, Math.max(0, (now - w.ts) / 86400000));
+      const allowed = w.coins + 2 * Math.max(0, led - w.seen) + 3000 + Math.round(2500 * days);
+      if (claimed > allowed) { coins = allowed; this.flagUid(uid, `pièces ${claimed} pour ${allowed} permises`); }
+    }
+    this.sql.exec(`INSERT OR REPLACE INTO wallet(uid, coins, seen, ts) VALUES(?,?,?,?)`, uid, coins, led, now);
+    return { ok: 1, coins, clamped: coins < claimed ? 1 : 0 };
   },
 };

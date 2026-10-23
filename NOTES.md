@@ -13,3 +13,5 @@
 - **1.20** (23/10/2026) : ouverture façon « rendu 3D » de l’utilisateur : fond violet sombre + logo néon (`vrai logo (`logo.jpg` découpé en `public/logo-icon.webp` et `logo-word.webp`), éclair blanc qui balaie la note (`lgReveal`)) qui s’allume, puis textes et boutons qui montent (CSS `neonOn`, `loginUp`) sur la page de connexion, à chaque ouverture. Vidéo de fond de connexion retirée. Reste : `test/e2e-modes.cjs` échoue en solo (lecture `#audio` simulée, ancien problème).
 
 - **2.0 étape 1** (23/10/2026) : comptes e-mail + mot de passe faits et testés. Reste : portefeuille serveur (pièces/XP/achats), jeton de session, Google/code e-mail, page Confidentialité.
+
+- **2.0 étape 2** : anti-triche serveur, portefeuille borné, connexion Google (à activer : créer `GOOGLE_CLIENT_ID`), e2e-multijoueur réparé (état local périmé). Reste : page Confidentialité RGPD, jeton de session, vrai portefeuille 100 % serveur.

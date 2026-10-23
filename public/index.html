@@ -4246,6 +4246,9 @@ async function syncSave() {
   try {
     const r = await (await fetch('/api/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code, uid: S.uid, data }) })).json();
     if (r.ok) lastSync = data;
+    // portefeuille : le serveur ramène les pièces à ce qu'il a vu si elles ont été gonflées
+    const w = await (await fetch('/api/wallet', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ uid: S.uid, coins: S.coins }) })).json();
+    if (w.ok && w.clamped && w.coins < S.coins) { S.coins = w.coins; save(); profileChanged(); toast('Pièces corrigées par le serveur.'); }
   } catch (e) { /* hors ligne : nouvel essai à la prochaine sauvegarde */ }
 }
 function saveSheet() {
@@ -4283,6 +4286,31 @@ async function acctApi(body) {
   try { return await (await fetch('/api/account', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ uid: S.uid }, body)) })).json(); }
   catch (e) { return { ok: 0, error: 'Pas de connexion internet ?' }; }
 }
+function adoptAccount(r) {
+  let o = {};
+  try { o = r.data ? JSON.parse(r.data) : {}; } catch (e) { /* sauvegarde illisible */ }
+  if (S.name && S.uid !== r.uid && S.xp > 0 && !confirm('Remplacer la progression de ce téléphone par celle du compte ?')) return;
+  S = Object.assign(fresh(), o, { st: Object.assign(fresh().st, o.st), set: Object.assign(fresh().set, o.set), uid: r.uid, acct: 'mail' });
+  lastSync = JSON.stringify(S);
+  try { localStorage.setItem(KEY, lastSync); } catch (e) { /* stockage indisponible */ }
+  markLive(); toast('Connecté !'); setTimeout(() => location.reload(), 700);
+}
+// connexion Google : le bouton officiel s'affiche dans une feuille (nécessite GOOGLE_CLIENT_ID côté serveur)
+async function googleSheet() {
+  let cid = '';
+  try { cid = (await (await fetch('/api/config')).json()).google; } catch (e) { return toast('Pas de connexion internet ?'); }
+  if (!cid) return toast('La connexion Google n’est pas encore activée. Utilise ton e-mail ou joue en invité.', 4000);
+  openSheet(`<h3>Continuer avec Google <button data-close data-i="x"></button></h3><div id="gBtn" style="display:grid;place-items:center;min-height:50px"></div>`);
+  await new Promise(res => { if (window.google?.accounts?.id) return res(); const sc = document.createElement('script'); sc.src = 'https://accounts.google.com/gsi/client'; sc.onload = res; sc.onerror = res; document.head.appendChild(sc); });
+  if (!window.google?.accounts?.id) return toast('Google est injoignable pour le moment.');
+  google.accounts.id.initialize({ client_id: cid, callback: async resp => {
+    const r = await acctApi({ act: 'google', credential: resp.credential });
+    if (!r.ok) return toast(r.error || 'Échec', 3500);
+    if (r.created) { S.acct = 'mail'; save(); syncSave(); closeSheet(); markLive(); toast('Compte créé 🎉'); if (!S.name) onboarding(); else { go('home', true); startDeepLink(); } return; }
+    adoptAccount(r);
+  } });
+  google.accounts.id.renderButton($('#gBtn'), { theme: 'filled_black', size: 'large', text: 'continue_with', locale: 'fr' });
+}
 async function acctSheet(fromLogin) {
   const st = S.acct === 'mail' ? await (async () => { try { return await (await fetch(`/api/account?uid=${S.uid}`)).json(); } catch (e) { return { ok: 0 }; } })() : { ok: 0 };
   if (st.ok) {
@@ -4319,13 +4347,7 @@ async function acctSheet(fromLogin) {
       }
       const r = await acctApi({ act: 'login', email, pw });
       if (!r.ok) return toast(r.error || 'Échec', 3500);
-      let o = {};
-      try { o = r.data ? JSON.parse(r.data) : {}; } catch (e) { /* sauvegarde illisible */ }
-      if (S.name && S.uid !== r.uid && S.xp > 0 && !confirm('Remplacer la progression de ce téléphone par celle du compte ?')) return;
-      S = Object.assign(fresh(), o, { st: Object.assign(fresh().st, o.st), set: Object.assign(fresh().set, o.set), uid: r.uid, acct: 'mail' });
-      lastSync = JSON.stringify(S);
-      try { localStorage.setItem(KEY, lastSync); } catch (e) { /* stockage indisponible */ }
-      markLive(); toast('Connecté !'); setTimeout(() => location.reload(), 700);
+      adoptAccount(r);
     };
   };
   draw();
@@ -4370,7 +4392,7 @@ $('#loginGuest').onclick = () => {
   if (!S.name) onboarding(); else { go('home', true); startDeepLink(); }
 };
 $('#loginMail').onclick = () => { if (S.acct === 'mail') return $('#loginGuest').onclick(); unlock(); acctSheet(true); };
-$('#loginGoogle').onclick = () => toast('Bientôt : la connexion Google arrive. En attendant, utilise ton e-mail ou joue en invité.', 4500);
+$('#loginGoogle').onclick = () => { unlock(); googleSheet(); };
 $('#loginMusic').onclick = $('#homeMusic').onclick = toggleMusic;
 
 // ---------- premier lancement ----------
