@@ -282,6 +282,35 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .login-foot .or span{flex:1;height:1px;background:rgba(255,255,255,.14)}
 .login-foot .cta svg{width:20px;height:20px;fill:currentColor;stroke:none}
 .login-foot .note2{margin:0;font-size:12px;line-height:1.45;color:#9c8fac;text-align:center}
+/* Refonte étape 1 : connexion */
+#v-login{background:#07050a}
+.login-bg{position:absolute;inset:0;z-index:0;background:#07050a url(/fonds/connexion-bg.webp) center/cover no-repeat}
+.login-glow{background:radial-gradient(80% 36% at 50% 38%,rgba(240,68,165,.16),transparent 70%),linear-gradient(180deg,rgba(7,5,10,.25),rgba(7,5,10,.55) 55%,rgba(7,5,10,.92) 100%)}
+.login-mid .logo{animation:none;filter:drop-shadow(0 0 14px rgba(240,68,165,.35))}
+.lg-name{margin:6px 0 0;font:800 clamp(40px,12.5vw,54px)/1 Poppins,system-ui,sans-serif;letter-spacing:.01em;color:#fff;animation:lnWord 1.3s linear 1.6s both}
+.lg-name span{background:linear-gradient(90deg,#f044a5,#b13cf0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.login-mid .sub{margin-top:10px;font-size:13px;letter-spacing:.42em;text-shadow:none;color:#f3eff7;padding-left:.42em}
+.lg-bar{display:block;width:60px;height:3px;border-radius:2px;background:#f044a5;margin:18px 0 6px;animation:loginUp .8s ease-out 2.8s both}
+.login-mid p{margin:12px 0 0;max-width:none;font-size:19px;line-height:1.4;font-weight:400;color:#f3eff7}
+.login-mid p em{font-style:normal;color:#f044a5}
+.login-foot{margin:0 18px;gap:14px}
+.lbtn,.login-foot .cta{height:58px;border-radius:999px;padding:0 22px;font-size:16px;font-weight:600;justify-content:flex-start;gap:16px}
+.lbtn span:not(.soon),.login-foot .cta span{flex:1;text-align:center}
+.lbtn .chev,.login-foot .cta .chev{flex:none;margin-left:auto;width:18px;height:18px;opacity:.9}
+.lbtn svg:first-child{flex:none}
+.lbtn.google,.lbtn.mail{justify-content:flex-start}
+.lbtn.google{box-shadow:0 0 22px rgba(240,68,165,.22)}
+.lbtn.mail{border:1px solid rgba(255,255,255,.22);background:rgba(20,18,26,.82)}
+.lbtn.mail svg{stroke:#fff}
+#v-login #loginGuest{background:rgba(240,68,165,.07);border:1.5px solid #f044a5;color:#fff;box-shadow:0 0 22px rgba(240,68,165,.28),inset 0 0 18px rgba(240,68,165,.1)}
+#v-login #loginGuest>svg:first-child{color:#f044a5;width:22px;height:22px}
+.login-foot .note2{display:flex;gap:10px;align-items:flex-start;text-align:left;justify-content:center;padding:0 10px;font-size:13.5px;color:#a39cac}
+.login-foot .note2 svg{flex:none;margin-top:1px}
+.login-foot .or{color:#a39cac}
+.legal-link{color:#a39cac;font-size:14px;margin-top:6px}
+.login-foot .cta .chev{fill:none;stroke:currentColor}
+#v-login .mus{color:#fff;border:1.5px solid rgba(255,255,255,.35);background:rgba(10,8,14,.55)}
+.lg-ic{height:min(21vh,175px)}
 .cta.lux{position:relative;overflow:hidden}
 .cta.lux::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:250% 100%;animation:sheen 3.4s ease-in-out infinite}
 @keyframes sheen{0%{background-position:130% 0}60%,100%{background-position:-30% 0}}
@@ -1115,19 +1144,21 @@ svg.med{flex:none;overflow:visible}
 <!-- ===== 1. Accueil ===== -->
 <!-- ===== Connexion (premier lancement) ===== -->
 <section class="view hide" id="v-login">
+  <div class="login-bg"></div>
   <div class="login-glow"></div>
   <button class="ibtn mus" id="loginMusic"></button>
   <div class="login-mid">
-    <div class="logo"><div class="lg-ic"><img class="lg-icon" src="/logo-icon.webp" alt="Zikroom"><i class="lg-spark"></i></div><img class="lg-word" src="/logo-word.webp" alt=""></div>
+    <div class="logo"><div class="lg-ic"><img class="lg-icon" src="/logo-icon.webp" alt="Zikroom"><i class="lg-spark"></i></div><h1 class="lg-name"><b>ZIK</b> <span>ROOM</span></h1></div>
     <div class="sub">BLIND TEST EN LIGNE</div>
-    <p>Devine le titre et l’artiste avant les autres, en direct.</p>
+    <i class="lg-bar"></i>
+    <p>Devine le titre et l’artiste<br><em>avant les autres</em>.</p>
   </div>
   <div class="login-foot">
-    <button class="lbtn google" id="loginGoogle"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuer avec Google<span class="soon">Bientôt</span></button>
-    <button class="lbtn mail" id="loginMail"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffd85c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Continuer avec un e-mail</button>
+    <button class="lbtn google" id="loginGoogle"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuer avec Google<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    <button class="lbtn mail" id="loginMail"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffd85c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Continuer avec un e-mail<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
     <div class="or"><span></span>ou<span></span></div>
-    <button class="cta lux" id="loginGuest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span id="loginGuestTxt">Jouer en invité</span></button>
-    <p class="note2">En invité, ta progression reste sur ce téléphone (et avec ton code de sauvegarde). Crée un compte avec ton e-mail pour la garder en sécurité.</p>
+    <button class="cta lux" id="loginGuest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span id="loginGuestTxt">Continuer en invité</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    <p class="note2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01" stroke-linecap="round"/></svg><span>En invité, ta progression reste sur ce téléphone (et avec ton code de sauvegarde).</span></p>
     <button class="legal-link" id="loginLegal">Mentions légales</button>
   </div>
 </section>
